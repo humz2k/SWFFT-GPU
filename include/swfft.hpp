@@ -24,7 +24,7 @@ class SwfftBackend{
 };
 
 template<class T>
-class AllToAll : public SwfftBackend{
+class AllToAll : public SwfftBackend<T>{
     public:
         AllToAll();
         AllToAll(int ngx, int ngy, int ngz, int blockSize, MPI_Comm comm);
@@ -44,8 +44,8 @@ class AllToAll : public SwfftBackend{
         void backward(T* buff1);
 };
 
-template<class T>
-class P3 : public SwfftBackend{
+template<template <class> class Dist, class T>
+class P3 : public SwfftBackend<T>{
     public:
         P3();
         P3(int ngx, int ngy, int ngz, int blockSize, MPI_Comm comm);
@@ -66,7 +66,7 @@ class P3 : public SwfftBackend{
 };
 
 template<class T>
-class Pairwise : public SwfftBackend{
+class Pairwise : public SwfftBackend<T>{
     public:
         Pairwise();
         Pairwise(int ngx, int ngy, int ngz, int blockSize, MPI_Comm comm);
@@ -86,10 +86,39 @@ class Pairwise : public SwfftBackend{
         void backward(T* buff1);
 };
 
-template<class Backend, class T>
+template<template<class> class Backend, class T>
 class swfft{
     private:
-        Backend backend;
+        Backend<T> backend;
+        int ngx;
+        int ngy;
+        int ngz;
+        int blockSize;
+        MPI_Comm comm;
+
+    public:
+        swfft(int ngx, int ngy, int ngz, int blockSize, MPI_Comm comm);
+        swfft(int ngx, int ngy, int ngz, MPI_Comm comm);
+        swfft(int ng, int blockSize, MPI_Comm comm);
+        swfft(int ng, MPI_Comm comm);
+        
+        ~swfft();
+
+        void makePlans(T* buff1, T* buff2);
+        void makePlans(T* buff2);
+        void makePlans();
+
+        void forward();
+        void forward(T* buff1);
+        void backward();
+        void backward(T* buff1);
+
+};
+
+template<template<class,class> class Backend, class Dist, class T>
+class swfft{
+    private:
+        Backend<Dist,T> backend;
         int ngx;
         int ngy;
         int ngz;
