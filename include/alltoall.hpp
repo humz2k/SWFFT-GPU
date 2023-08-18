@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <mpi.h>
 #include "fftinterface.hpp"
-#include "backend.hpp"
+#include "complex-type.h"
 
 namespace A2A{
 
@@ -131,6 +131,22 @@ class AllToAll{
         };
 
         ~AllToAll(){};
+
+        int buffsz(){
+            return dist.nlocal;
+        }
+
+        int3 coords(){
+            return make_int3(dist.coords[0],dist.coords[1],dist.coords[2]);
+        }
+
+        int rank(){
+            return dist.world_rank;
+        }
+
+        MPI_Comm world_comm(){
+            return dist.comm;
+        }
 
         void makePlans(T* buff1, T* buff2){
             dfft.makePlans(buff1,buff2);

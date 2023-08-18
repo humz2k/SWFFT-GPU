@@ -56,11 +56,11 @@ void launch_reorder_backward(T* src, T* dest, int mini_pencils_per_rank, int wor
     
 }
 
-template void launch_reorder_forward<complexDouble>(complexDouble*, complexDouble*, int,int,int,int,gpuStream_t);
-template void launch_reorder_forward<complexFloat>(complexFloat*, complexFloat*, int,int,int,int,gpuStream_t);
+template void launch_reorder_forward<complexDoubleDevice>(complexDoubleDevice*, complexDoubleDevice*, int,int,int,int,gpuStream_t);
+template void launch_reorder_forward<complexFloatDevice>(complexFloatDevice*, complexFloatDevice*, int,int,int,int,gpuStream_t);
 
-template void launch_reorder_backward<complexDouble>(complexDouble*, complexDouble*, int,int,int,int,gpuStream_t);
-template void launch_reorder_backward<complexFloat>(complexFloat*, complexFloat*, int,int,int,int,gpuStream_t);
+template void launch_reorder_backward<complexDoubleDevice>(complexDoubleDevice*, complexDoubleDevice*, int,int,int,int,gpuStream_t);
+template void launch_reorder_backward<complexFloatDevice>(complexFloatDevice*, complexFloatDevice*, int,int,int,int,gpuStream_t);
 
 }
 #endif

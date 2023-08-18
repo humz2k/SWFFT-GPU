@@ -5,8 +5,8 @@
 #include <cuda_runtime.h>
 #include <cufft.h>
 
-#define complexDouble cufftDoubleComplex
-#define complexFloat cufftComplex
+#define complexDoubleDevice cufftDoubleComplex
+#define complexFloatDevice cufftComplex
 //#define complexFFT_t cufftDoubleComplex
 
 #define gpufftHandle cufftHandle
@@ -70,8 +70,8 @@
 #include <hip/hip_runtime_api.h>
 #include <hipfft.h>
 
-#define complexDouble hipfftDoubleComplex
-#define complexFloat hipfftComplex
+#define complexDoubleDevice hipfftDoubleComplex
+#define complexFloatDevice hipfftComplex
 
 #define GPUFFT_FORWARD HIPFFT_FORWARD
 #define GPUFFT_INVERSE HIPFFT_BACKWARD

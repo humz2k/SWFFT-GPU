@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "complex-type.h"
 
 #define nplans 10
 

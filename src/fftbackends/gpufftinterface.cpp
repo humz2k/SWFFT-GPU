@@ -8,7 +8,7 @@
 
 template<class T>
 GPUFFT<T>::GPUFFT(){
-    printf("Using GPU FFTs!\n");
+    //printf("Using GPU FFTs!\n");
     for (int i = 0; i < nplans; i++){
         ns[i] = 0;
         ngs[i] = 0;
@@ -17,11 +17,11 @@ GPUFFT<T>::GPUFFT(){
 
 template<class T>
 GPUFFT<T>::~GPUFFT(){
-    printf("Destorying GPU FFT Interface!\n");
+    //printf("Destorying GPU FFT Interface!\n");
 }
 
 template<>
-gpufftHandle GPUFFT<complexDouble>::findPlans(int ng, int nFFTs){
+gpufftHandle GPUFFT<complexDoubleDevice>::findPlans(int ng, int nFFTs){
     for (int i = 0; i < nplans; i++){
         if ((ns[i] == nFFTs) && (ngs[i] == ng)){
             printf("Found cached plan!\n");
@@ -40,7 +40,7 @@ gpufftHandle GPUFFT<complexDouble>::findPlans(int ng, int nFFTs){
 }
 
 template<>
-gpufftHandle GPUFFT<complexFloat>::findPlans(int ng, int nFFTs){
+gpufftHandle GPUFFT<complexFloatDevice>::findPlans(int ng, int nFFTs){
     for (int i = 0; i < nplans; i++){
         if ((ns[i] == nFFTs) && (ngs[i] == ng)){
             printf("Found cached plan!\n");
@@ -59,7 +59,7 @@ gpufftHandle GPUFFT<complexFloat>::findPlans(int ng, int nFFTs){
 }
 
 template<>
-gpufftHandle GPUFFT<complexDouble>::findPlans(int ng, int nFFTs,gpuStream_t stream){
+gpufftHandle GPUFFT<complexDoubleDevice>::findPlans(int ng, int nFFTs,gpuStream_t stream){
     for (int i = 0; i < nplans; i++){
         if ((ns[i] == nFFTs) && (ngs[i] == ng)){
             printf("Found cached plan!\n");
@@ -78,7 +78,7 @@ gpufftHandle GPUFFT<complexDouble>::findPlans(int ng, int nFFTs,gpuStream_t stre
 }
 
 template<>
-gpufftHandle GPUFFT<complexFloat>::findPlans(int ng, int nFFTs, gpuStream_t stream){
+gpufftHandle GPUFFT<complexFloatDevice>::findPlans(int ng, int nFFTs, gpuStream_t stream){
     for (int i = 0; i < nplans; i++){
         if ((ns[i] == nFFTs) && (ngs[i] == ng)){
             printf("Found cached plan!\n");
@@ -117,7 +117,7 @@ void GPUFFT<T>::cachePlans(T* scratch, int ng, int nFFTs, fftdirection direction
 }
 
 template<>
-void GPUFFT<complexDouble>::fft(complexDouble* data, complexDouble* scratch, int ng, int nFFTs, fftdirection direction){
+void GPUFFT<complexDoubleDevice>::fft(complexDoubleDevice* data, complexDoubleDevice* scratch, int ng, int nFFTs, fftdirection direction){
     gpufftHandle plan = findPlans(ng,nFFTs);
     int dir = GPUFFT_INVERSE;
     if (direction == FFT_FORWARD)dir = GPUFFT_FORWARD;
@@ -134,7 +134,7 @@ void GPUFFT<complexDouble>::fft(complexDouble* data, complexDouble* scratch, int
 }
 
 template<>
-void GPUFFT<complexFloat>::fft(complexFloat* data, complexFloat* scratch, int ng, int nFFTs, fftdirection direction){
+void GPUFFT<complexFloatDevice>::fft(complexFloatDevice* data, complexFloatDevice* scratch, int ng, int nFFTs, fftdirection direction){
     gpufftHandle plan = findPlans(ng,nFFTs);
     int dir = GPUFFT_INVERSE;
     if (direction == FFT_FORWARD)dir = GPUFFT_FORWARD;
@@ -151,7 +151,7 @@ void GPUFFT<complexFloat>::fft(complexFloat* data, complexFloat* scratch, int ng
 }
 
 template<>
-void GPUFFT<complexDouble>::fft(complexDouble* data, complexDouble* scratch, int ng, int nFFTs, fftdirection direction, gpuStream_t stream){
+void GPUFFT<complexDoubleDevice>::fft(complexDoubleDevice* data, complexDoubleDevice* scratch, int ng, int nFFTs, fftdirection direction, gpuStream_t stream){
     gpufftHandle plan = findPlans(ng,nFFTs);
     int dir = GPUFFT_INVERSE;
     if (direction == FFT_FORWARD)dir = GPUFFT_FORWARD;
@@ -168,7 +168,7 @@ void GPUFFT<complexDouble>::fft(complexDouble* data, complexDouble* scratch, int
 }
 
 template<>
-void GPUFFT<complexFloat>::fft(complexFloat* data, complexFloat* scratch, int ng, int nFFTs, fftdirection direction, gpuStream_t stream){
+void GPUFFT<complexFloatDevice>::fft(complexFloatDevice* data, complexFloatDevice* scratch, int ng, int nFFTs, fftdirection direction, gpuStream_t stream){
     gpufftHandle plan = findPlans(ng,nFFTs);
     int dir = GPUFFT_INVERSE;
     if (direction == FFT_FORWARD)dir = GPUFFT_FORWARD;
@@ -184,6 +184,6 @@ void GPUFFT<complexFloat>::fft(complexFloat* data, complexFloat* scratch, int ng
     }
 }
 
-template class GPUFFT<complexFloat>;
-template class GPUFFT<complexDouble>;
+template class GPUFFT<complexFloatDevice>;
+template class GPUFFT<complexDoubleDevice>;
 #endif

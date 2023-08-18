@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <mpi.h>
 #include "fftinterface.hpp"
-#include "backend.hpp"
+#include "complex-type.h"
 
 
 template<class T, template<class> class FFTBackend>

@@ -1,5 +1,7 @@
 #include "alltoall.hpp"
 
+//#define verbose
+
 #ifdef ALLTOALL
 namespace A2A{
 
@@ -84,8 +86,19 @@ void Dfft<T,FFTBackend>::finalize(){
 template<class T, template<class> class FFTBackend>
 inline void Dfft<T, FFTBackend>::fft(T* data, fftdirection direction)
 {
+
+    #ifdef verbose
+    if (distribution.world_rank == 0){printf("Starting 3D fft, direction = %d\n",direction);}
+    #endif
+
     #pragma GCC unroll 3
     for (int i = 0; i < 3; i++){
+
+        #ifdef verbose
+        if (distribution.world_rank == 0){printf("Doing dimension %d\n",i);}
+        #endif
+
+
         #ifdef nocudampi
         for (int batch = 0; batch < distribution.batches; batch++){
             distribution.memcpy_d2h(distribution.h_scratch1,data,batch,distribution.diststream);
@@ -168,8 +181,8 @@ void Dfft<T,FFTBackend>::backward(){
 
 
 #ifdef GPU
-template class Dfft<complexDouble,GPUFFT>;
-template class Dfft<complexFloat,GPUFFT>;
+template class Dfft<complexDoubleDevice,GPUFFT>;
+template class Dfft<complexFloatDevice,GPUFFT>;
 #endif
 
 //void makePlans(T* scratch_);

@@ -319,8 +319,8 @@ Distribution<T>::~Distribution(){
     finalize();
 }
 
-template class Distribution<complexDouble>;
-template class Distribution<complexFloat>;
+template class Distribution<complexDoubleDevice>;
+template class Distribution<complexFloatDevice>;
 
 }
 

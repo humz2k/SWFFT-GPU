@@ -92,12 +92,12 @@ void launch_fast_y_to_z(T* source, T* dest, int* local_grid_size, int blockSize,
 
 }
 
-template void launch_fast_y_to_z<complexDouble>(complexDouble*, complexDouble*, int*,int,int,int);
-template void launch_fast_y_to_z<complexFloat>(complexFloat*, complexFloat*, int*,int,int,int);
-template void launch_fast_x_to_y<complexDouble>(complexDouble*, complexDouble*, int*,int,int,int);
-template void launch_fast_x_to_y<complexFloat>(complexFloat*, complexFloat*, int*,int,int,int);
-template void launch_fast_z_to_x<complexDouble>(complexDouble*, complexDouble*, int*,int,int,int);
-template void launch_fast_z_to_x<complexFloat>(complexFloat*, complexFloat*, int*,int,int,int);
+template void launch_fast_y_to_z<complexDoubleDevice>(complexDoubleDevice*, complexDoubleDevice*, int*,int,int,int);
+template void launch_fast_y_to_z<complexFloatDevice>(complexFloatDevice*, complexFloatDevice*, int*,int,int,int);
+template void launch_fast_x_to_y<complexDoubleDevice>(complexDoubleDevice*, complexDoubleDevice*, int*,int,int,int);
+template void launch_fast_x_to_y<complexFloatDevice>(complexFloatDevice*, complexFloatDevice*, int*,int,int,int);
+template void launch_fast_z_to_x<complexDoubleDevice>(complexDoubleDevice*, complexDoubleDevice*, int*,int,int,int);
+template void launch_fast_z_to_x<complexFloatDevice>(complexFloatDevice*, complexFloatDevice*, int*,int,int,int);
 
 }
 #endif
