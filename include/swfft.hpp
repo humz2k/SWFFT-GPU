@@ -23,6 +23,57 @@ void swfftFree(complexFloatDevice* ptr){
 }
 #endif
 
+void swfftAlloc(complexDoubleHost** ptr, size_t sz){
+    *ptr = (complexDoubleHost*)malloc(sz);
+}
+void swfftAlloc(complexFloatHost** ptr, size_t sz){
+    *ptr = (complexFloatHost*)malloc(sz);
+}
+void swfftFree(complexDoubleHost* ptr){
+    free(ptr);
+}
+void swfftFree(complexFloatHost* ptr){
+    free(ptr);
+}
+
+template<class T>
+class Caster{
+    public:
+        T* buff;
+        void* original;
+        int allocated;
+        int sz;
+        Caster(complexDoubleDevice* in, int buffsz);
+        Caster(complexFloatDevice* in, int buffsz);
+        Caster(complexDoubleHost* in, int buffsz);
+        Caster(complexFloatHost* in, int buffsz);
+        ~Caster();
+        T* get(){return buff;}
+};
+
+template<>
+Caster<complexDoubleDevice>::Caster(complexDoubleDevice* in, int buffsz){
+    buff = in;
+    allocated = 0;
+}
+
+template<>
+Caster<complexDoubleDevice>::Caster(complexDoubleHost* in, int buffsz){
+    original = in;
+    sz = buffsz;
+    swfftAlloc(&buff,sizeof(complexDoubleDevice) * buffsz);
+    gpuMemcpy(buff,in,sizeof(complexDoubleDevice) * buffsz,gpuMemcpyHostToDevice);
+    allocated = 1;
+}
+
+template<>
+Caster<complexDoubleDevice>::~Caster(){
+    if (allocated){
+        gpuMemcpy(original,buff,sizeof(complexDoubleDevice) * sz,gpuMemcpyDeviceToHost);
+        gpuFree(buff);
+    }
+}
+
 template<template<class,template<class> class> class Backend, template<class> class FFTBackend, class T>
 class swfft{
     private:
@@ -75,6 +126,28 @@ class swfft{
             }
         }
 
+        void assignDelta(complexDoubleHost* buff){
+            for (int i = 0; i < backend.buffsz(); i++){
+                buff[i] = complexDoubleHost(0,0);
+            }
+            //gpuMemset(buff,0,sizeof(complexDoubleDevice) * backend.buffsz());
+            int3 my_coords = coords();
+            if ((my_coords.x == 0) && (my_coords.y == 0) && (my_coords.z == 0)){
+                buff[0] = complexDoubleHost(1,0);
+            }
+        }
+
+        void assignDelta(complexFloatHost* buff){
+            for (int i = 0; i < backend.buffsz(); i++){
+                buff[i] = complexFloatHost(0,0);
+            }
+            //gpuMemset(buff,0,sizeof(complexDoubleDevice) * backend.buffsz());
+            int3 my_coords = coords();
+            if ((my_coords.x == 0) && (my_coords.y == 0) && (my_coords.z == 0)){
+                buff[0] = complexFloatHost(1,0);
+            }
+        }
+        
         void makePlans(T* buff1, T* buff2){
             backend.makePlans(buff1,buff2);
         };
@@ -85,8 +158,10 @@ class swfft{
         void forward(){
             backend.forward();
         };
-        void forward(T* buff1){
-            backend.forward(buff1);
+        template<class T1>
+        void forward(T1* buff1){
+            Caster<T> cast(buff1,buffsz());
+            backend.forward(cast.buff);
         };
         void backward(){
             backend.backward();

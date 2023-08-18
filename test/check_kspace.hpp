@@ -84,3 +84,13 @@ void check_kspace(FFT& fft, complexFloatDevice* a_){
     check_kspace_(fft,a);
     free(a);
 }
+
+template<class FFT>
+void check_kspace(FFT& fft, complexDoubleHost* a){
+    check_kspace_(fft,(double*)a);
+}
+
+template<class FFT>
+void check_kspace(FFT& fft, complexFloatHost* a){
+    check_kspace_(fft,(float*)a);
+}
