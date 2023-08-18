@@ -24,6 +24,13 @@ Dfft<T, FFTBackend>::Dfft(Distribution<T> &dist) : distribution(dist){
 }
 
 template<class T, template<class> class FFTBackend>
+Dfft<T, FFTBackend>::~Dfft(){
+
+    finalize();
+
+}
+
+template<class T, template<class> class FFTBackend>
 void Dfft<T, FFTBackend>::makePlans(T* data_, T* scratch_){
 
     if(PlansMade == 0){

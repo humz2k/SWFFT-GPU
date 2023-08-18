@@ -11,7 +11,7 @@
 
 
 template<class T, template<class> class FFTBackend>
-class Pairwise : public SwfftBackend<T,FFTBackend>{
+class Pairwise{
     public:
         Pairwise();
         Pairwise(int ngx, int ngy, int ngz, int blockSize, int batches, MPI_Comm comm);

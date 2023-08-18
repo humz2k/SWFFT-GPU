@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <mpi.h>
 
-template<class T, template<class> class FFTBackend>
+/*template<class T, template<class> class FFTBackend>
 class SwfftBackend{
     public:
         SwfftBackend();
@@ -26,6 +26,6 @@ class SwfftBackend{
         void forward(T* buff1);
         void backward();
         void backward(T* buff1);
-};
+};*/
 
 #endif

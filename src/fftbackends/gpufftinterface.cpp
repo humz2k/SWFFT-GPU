@@ -150,6 +150,40 @@ void GPUFFT<complexFloat>::fft(complexFloat* data, complexFloat* scratch, int ng
     }
 }
 
+template<>
+void GPUFFT<complexDouble>::fft(complexDouble* data, complexDouble* scratch, int ng, int nFFTs, fftdirection direction, gpuStream_t stream){
+    gpufftHandle plan = findPlans(ng,nFFTs);
+    int dir = GPUFFT_INVERSE;
+    if (direction == FFT_FORWARD)dir = GPUFFT_FORWARD;
+    if (gpufftExecZ2Z(plan, data, scratch, dir) != GPUFFT_SUCCESS){
+        char backstr[] = "Backward";
+        char forstr[] = "Forward";
+        char* dirstr = backstr;
+        if (dir == GPUFFT_FORWARD){
+            dirstr = forstr;
+        }
+        printf("CUFFT error: ExecZ2Z %s failed\n",dirstr);
+        return;	
+    }
+}
+
+template<>
+void GPUFFT<complexFloat>::fft(complexFloat* data, complexFloat* scratch, int ng, int nFFTs, fftdirection direction, gpuStream_t stream){
+    gpufftHandle plan = findPlans(ng,nFFTs);
+    int dir = GPUFFT_INVERSE;
+    if (direction == FFT_FORWARD)dir = GPUFFT_FORWARD;
+    if (gpufftExecC2C(plan, data, scratch, dir) != GPUFFT_SUCCESS){
+        char backstr[] = "Backward";
+        char forstr[] = "Forward";
+        char* dirstr = backstr;
+        if (dir == GPUFFT_FORWARD){
+            dirstr = forstr;
+        }
+        printf("CUFFT error: ExecZ2Z %s failed\n",dirstr);
+        return;	
+    }
+}
+
 template class GPUFFT<complexFloat>;
 template class GPUFFT<complexDouble>;
 #endif

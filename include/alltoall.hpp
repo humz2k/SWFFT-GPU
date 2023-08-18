@@ -106,28 +106,52 @@ namespace A2A{
 }
 
 template<class T, template<class> class FFTBackend>
-class AllToAll : public SwfftBackend<T, FFTBackend>{
+class AllToAll{
     public:
         A2A::Distribution<T> dist;
         A2A::Dfft<T,FFTBackend> dfft;
 
-        AllToAll(){};
-        AllToAll(int ngx, int ngy, int ngz, int blockSize, int batches, MPI_Comm comm);
-        AllToAll(int ngx, int ngy, int ngz, int blockSize, MPI_Comm comm);
-        AllToAll(int ngx, int ngy, int ngz, MPI_Comm comm);
-        AllToAll(int ng, int blockSize, MPI_Comm comm);
-        AllToAll(int ng, MPI_Comm comm);
+        AllToAll(){
+
+        };
+        AllToAll(int ngx, int ngy, int ngz, int blockSize, int batches, MPI_Comm comm) : dist(comm,ngx,blockSize,batches), dfft(dist){
+
+        };
+        AllToAll(int ngx, int ngy, int ngz, int blockSize, MPI_Comm comm) : dist(comm,ngx,blockSize,1), dfft(dist){
+
+        };
+        AllToAll(int ngx, int ngy, int ngz, MPI_Comm comm) : dist(comm,ngx,64,1), dfft(dist){
+
+        };
+        AllToAll(int ng, int blockSize, MPI_Comm comm) : dist(comm,ng,blockSize,1), dfft(dist){
+
+        };
+        AllToAll(int ng, MPI_Comm comm) : dist(comm,ng,64,1), dfft(dist){
+
+        };
 
         ~AllToAll(){};
 
-        void makePlans(T* buff1, T* buff2);
-        void makePlans(T* buff2);
-        void makePlans();
+        void makePlans(T* buff1, T* buff2){
+            dfft.makePlans(buff1,buff2);
+        }
 
-        void forward();
-        void forward(T* buff1);
-        void backward();
-        void backward(T* buff1);
+        void makePlans(T* buff2){
+            dfft.makePlans(buff2);
+        }
+
+        void forward(){
+            dfft.forward();
+        }
+        void forward(T* buff1){
+            dfft.forward(buff1);
+        }
+        void backward(){
+            dfft.backward();
+        }
+        void backward(T* buff1){
+            dfft.backward(buff1);
+        }
 };
 
 #endif
