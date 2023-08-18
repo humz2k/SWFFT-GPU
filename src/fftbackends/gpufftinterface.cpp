@@ -28,10 +28,13 @@ gpufftHandle GPUFFT<complexDoubleDevice>::findPlans(int ng, int nFFTs){
             return plans[i];
         }
         if (ns[i] == 0){
+            printf("Caching Plan!\n");
             if (gpufftPlan1d(&plans[i], ng, GPUFFT_Z2Z, nFFTs) != GPUFFT_SUCCESS){
                 printf("CUFFT error: Plan creation failed\n");
                 exit(1);
             }
+            ngs[i] = ng;
+            ns[i] = nFFTs;
             return plans[i];
         }
     }

@@ -16,6 +16,7 @@ namespace A2A{
         public:
             int ndims;
             int Ng;
+            int ng[3];
             int nlocal;
             int world_size;
             int world_rank;
@@ -38,9 +39,12 @@ namespace A2A{
 
             gpuStream_t diststream;
 
-            Distribution(MPI_Comm input_comm, int input_Ng, int input_blockSize, int nBatches);
+            Distribution(MPI_Comm input_comm, int ngx, int input_blockSize, int nBatches);
+            Distribution(MPI_Comm input_comm, int ngx, int ngy, int ngz, int input_blockSize, int nBatches);
 
             ~Distribution();
+
+            void init();
 
             void memcpy_d2h(T* h, T* d, int batch, gpuStream_t stream);
             void memcpy_h2d(T* d, T* h, int batch, gpuStream_t stream);
@@ -57,10 +61,6 @@ namespace A2A{
 
             void reorder(T* Buff1, T* Buff2, int n, int direction, int batch, gpuStream_t stream);
 
-            void s_alltoall_forward(T* Buff1, T* Buff2, int n, int pencil_size, MPI_Comm comm_);
-
-            void s_alltoall_backward(T* Buff1, T* Buff2, int n, int pencil_size, MPI_Comm comm_);
-
             void finalize();
     };
 
@@ -72,6 +72,7 @@ namespace A2A{
         
         public:
             int Ng;
+            int ng[3];
             int nlocal;
             int world_size;
             int blockSize;
@@ -114,13 +115,13 @@ class AllToAll{
         AllToAll(){
 
         };
-        AllToAll(int ngx, int ngy, int ngz, int blockSize, int batches, MPI_Comm comm) : dist(comm,ngx,blockSize,batches), dfft(dist){
+        AllToAll(int ngx, int ngy, int ngz, int blockSize, int batches, MPI_Comm comm) : dist(comm,ngx,ngy,ngz,blockSize,batches), dfft(dist){
 
         };
-        AllToAll(int ngx, int ngy, int ngz, int blockSize, MPI_Comm comm) : dist(comm,ngx,blockSize,1), dfft(dist){
+        AllToAll(int ngx, int ngy, int ngz, int blockSize, MPI_Comm comm) : dist(comm,ngx,ngy,ngz,blockSize,1), dfft(dist){
 
         };
-        AllToAll(int ngx, int ngy, int ngz, MPI_Comm comm) : dist(comm,ngx,64,1), dfft(dist){
+        AllToAll(int ngx, int ngy, int ngz, MPI_Comm comm) : dist(comm,ngx,ngy,ngz,64,1), dfft(dist){
 
         };
         AllToAll(int ng, int blockSize, MPI_Comm comm) : dist(comm,ng,blockSize,1), dfft(dist){

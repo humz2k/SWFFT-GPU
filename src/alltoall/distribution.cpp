@@ -34,6 +34,14 @@ void topology2localgrid(int Ng, int* dims, int* grid_size){
 
 }
 
+void topology2localgrid(int ngx, int ngy, int ngz, int* dims, int* grid_size){
+
+    grid_size[0] = ngx / dims[0];
+    grid_size[1] = ngy / dims[1];
+    grid_size[2] = ngz / dims[2];
+
+}
+
 /*
 Gets the global coordinates of the starting point of the local grid.
 */
@@ -73,18 +81,8 @@ MPI_Comm Distribution<T>::shuffle_comm(int start){
     return comm;
 }
 
-
-
 template<class T>
-Distribution<T>::Distribution(MPI_Comm input_comm, int input_Ng, int input_blockSize, int nBatches): 
-            dims {0,0,0}, coords {0,0,0}, local_grid_size {0,0,0}, local_coordinates_start {0,0,0}, batches(nBatches){
-
-    gpuStreamCreate(&diststream);
-
-    ndims = 3; //Number of dimensions
-    Ng = input_Ng; //Ng
-    comm = input_comm; //communicator
-
+void Distribution<T>::init(){
     //get the world_size, world_rank and dims
     MPI_Comm_size(comm, &world_size);
     MPI_Comm_rank(comm, &world_rank);
@@ -92,7 +90,7 @@ Distribution<T>::Distribution(MPI_Comm input_comm, int input_Ng, int input_block
 
 
     rank2coords(world_rank,dims,coords);
-    topology2localgrid(Ng,dims,local_grid_size);
+    topology2localgrid(ng[0],ng[1],ng[2],dims,local_grid_size);
     get_local_grid_start(local_grid_size,coords,local_coordinates_start);
     
     for (int i = 0; i < 3; i++){
@@ -100,9 +98,9 @@ Distribution<T>::Distribution(MPI_Comm input_comm, int input_Ng, int input_block
     }
 
 
-    CheckCondition((Ng % dims[0]) == 0);
-    CheckCondition((Ng % dims[1]) == 0);
-    CheckCondition((Ng % dims[2]) == 0);
+    CheckCondition((ng[0] % dims[0]) == 0);
+    CheckCondition((ng[1] % dims[1]) == 0);
+    CheckCondition((ng[2] % dims[2]) == 0);
 
     CheckCondition((world_size % dims[0]) == 0);
     CheckCondition((world_size % dims[1]) == 0);
@@ -116,7 +114,6 @@ Distribution<T>::Distribution(MPI_Comm input_comm, int input_Ng, int input_block
     //calculate number of local grid cells
     nlocal = local_grid_size[0] * local_grid_size[1] * local_grid_size[2];
 
-    blockSize = input_blockSize;
     numBlocks = (nlocal + blockSize - 1) / blockSize;
 
     //allocate some scratch space to do swaps to host from device if not using cuda-aware MPI
@@ -141,7 +138,41 @@ Distribution<T>::Distribution(MPI_Comm input_comm, int input_Ng, int input_block
         printf("NLOCAL: %d\n",nlocal);
         printf("#######\n\n");
     }
+}
 
+template<class T>
+Distribution<T>::Distribution(MPI_Comm input_comm, int ngx, int input_blockSize, int nBatches): 
+            dims {0,0,0}, coords {0,0,0}, local_grid_size {0,0,0}, local_coordinates_start {0,0,0}, batches(nBatches){
+
+    gpuStreamCreate(&diststream);
+
+    ndims = 3; //Number of dimensions
+    Ng = ngx; //Ng
+    ng[0] = ngx;
+    ng[1] = ngx;
+    ng[2] = ngx;
+    comm = input_comm; //communicator
+    blockSize = input_blockSize;
+
+    init();
+
+}
+
+template<class T>
+Distribution<T>::Distribution(MPI_Comm input_comm, int ngx, int ngy, int ngz, int input_blockSize, int nBatches): 
+            dims {0,0,0}, coords {0,0,0}, local_grid_size {0,0,0}, local_coordinates_start {0,0,0}, batches(nBatches){
+
+    gpuStreamCreate(&diststream);
+
+    ndims = 3; //Number of dimensions
+    Ng = ngx; //Ng
+    ng[0] = ngx;
+    ng[1] = ngy;
+    ng[2] = ngz;
+    comm = input_comm; //communicator
+    blockSize = input_blockSize;
+
+    init();
 
 }
 
@@ -158,78 +189,6 @@ void Distribution<T>::shuffle_indices(T* Buff1, T* Buff2, int n){
             launch_fast_y_to_z(Buff2, Buff1, local_grid_size, blockSize, numBlocks, nlocal);
             break;
     }
-}
-
-template<class T>
-void Distribution<T>::s_alltoall_forward(T* h_src, T* h_dest, int n, int pencil_size, MPI_Comm comm_){
-    int comm_size;
-    int comm_rank;
-    MPI_Comm_size(comm_,&comm_size);
-    MPI_Comm_rank(comm_,&comm_rank);
-
-    int pencils_per_send = n / pencil_size;
-    int stride = comm_size * pencil_size;
-
-    MPI_Datatype strided_t;
-    MPI_Type_vector(pencils_per_send,pencil_size * sizeof(T),stride * sizeof(T),MPI_BYTE,&strided_t);
-
-    MPI_Type_commit(&strided_t);
-
-    MPI_Request send_requests[comm_size];
-    MPI_Request recv_requests[comm_size];
-
-    for (int i = 0; i < comm_size; i++){
-        MPI_Irecv(&h_dest[i*pencil_size],1,strided_t,i,0,comm_,&recv_requests[i]);
-    }
-    for (int i = 0; i < comm_size; i++){
-        MPI_Isend(&h_src[i*n],n * sizeof(T),MPI_BYTE,i,0,comm_,&send_requests[i]);
-    }
-
-    for (int i = 0; i < comm_size; i++){
-        MPI_Wait(&send_requests[i],MPI_STATUS_IGNORE);
-    }
-    for (int i = 0; i < comm_size; i++){
-        MPI_Wait(&recv_requests[i],MPI_STATUS_IGNORE);
-    }
-
-    MPI_Type_free(&strided_t);
-
-}
-
-template<class T>
-void Distribution<T>::s_alltoall_backward(T* h_src, T* h_dest, int n, int pencil_size, MPI_Comm comm_){
-    int comm_size;
-    int comm_rank;
-    MPI_Comm_size(comm_,&comm_size);
-    MPI_Comm_rank(comm_,&comm_rank);
-
-    int pencils_per_send = n / pencil_size;
-    int stride = comm_size * pencil_size;
-
-    MPI_Datatype strided_t;
-    MPI_Type_vector(pencils_per_send,pencil_size * sizeof(T),stride * sizeof(T),MPI_BYTE,&strided_t);
-
-    MPI_Type_commit(&strided_t);
-
-    MPI_Request send_requests[comm_size];
-    MPI_Request recv_requests[comm_size];
-
-    for (int i = 0; i < comm_size; i++){
-        MPI_Irecv(&h_dest[i*n],n * sizeof(T),MPI_BYTE,i,0,comm_,&recv_requests[i]);
-    }
-    for (int i = 0; i < comm_size; i++){
-        MPI_Isend(&h_src[i*pencil_size],1,strided_t,i,0,comm_,&send_requests[i]);
-    }
-
-    for (int i = 0; i < comm_size; i++){
-        MPI_Wait(&send_requests[i],MPI_STATUS_IGNORE);
-    }
-    for (int i = 0; i < comm_size; i++){
-        MPI_Wait(&recv_requests[i],MPI_STATUS_IGNORE);
-    }
-
-    MPI_Type_free(&strided_t);
-
 }
 
 template<class T>
@@ -274,11 +233,7 @@ void Distribution<T>::getPencils(T* Buff1, T* Buff2, int n, int batch){
     T* Buff1Start = &Buff1[batch * (nlocal / batches)];
     T* Buff2Start = &Buff2[batch * (nlocal / batches)];
 
-    #ifdef customalltoall
-    s_alltoall_forward(Buff1Start,Buff2Start,nsends,local_grid_size[dim],my_comm);
-    #else
     MPI_Alltoall(Buff1Start,nsends,TYPE_COMPLEX,Buff2Start,nsends,TYPE_COMPLEX,my_comm);
-    #endif
 }
 
 template<class T>
@@ -293,11 +248,7 @@ void Distribution<T>::returnPencils(T* Buff1, T* Buff2, int n, int batch){
     T* Buff1Start = &Buff1[batch * (nlocal / batches)];
     T* Buff2Start = &Buff2[batch * (nlocal / batches)];
 
-    #ifdef customalltoall
-    s_alltoall_backward(Buff1Start,Buff2Start,nsends,local_grid_size[dim],my_comm);
-    #else
     MPI_Alltoall(Buff1Start,nsends,TYPE_COMPLEX,Buff2Start,nsends,TYPE_COMPLEX,my_comm);
-    #endif
 }
 
 template<class T>

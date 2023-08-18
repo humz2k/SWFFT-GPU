@@ -9,6 +9,9 @@ template<class T, template<class> class FFTBackend>
 Dfft<T, FFTBackend>::Dfft(Distribution<T> &dist) : distribution(dist){
 
     Ng = distribution.Ng;
+    ng[0] = distribution.ng[0];
+    ng[1] = distribution.ng[1];
+    ng[2] = distribution.ng[2];
     world_size = distribution.world_size;
     nlocal = distribution.nlocal;
 
@@ -36,12 +39,14 @@ template<class T, template<class> class FFTBackend>
 void Dfft<T, FFTBackend>::makePlans(T* data_, T* scratch_){
 
     if(PlansMade == 0){
-        int nFFTs = (nlocal / distribution.batches) / Ng;
-        FFTs.cachePlans(data_,scratch_,Ng,nFFTs,FFT_FORWARD,fftstream);
-        FFTs.cachePlans(data_,scratch_,Ng,nFFTs,FFT_BACKWARD,fftstream);
-        data = data_;
-        scratch = scratch_;
-        PlansMade = 1;
+        for (int i = 0; i < 3; i++){
+            int nFFTs = (nlocal / distribution.batches) / ng[i];
+            FFTs.cachePlans(data_,scratch_,ng[i],nFFTs,FFT_FORWARD,fftstream);
+            FFTs.cachePlans(data_,scratch_,ng[i],nFFTs,FFT_BACKWARD,fftstream);
+            data = data_;
+            scratch = scratch_;
+            PlansMade = 1;
+        }
     }
 
 }
@@ -50,12 +55,13 @@ template<class T, template<class> class FFTBackend>
 void Dfft<T, FFTBackend>::makePlans(T* scratch_){
 
     if(PlansMade == 0){
-
-        int nFFTs = (nlocal / distribution.batches) / Ng;
-        FFTs.cachePlans(scratch_,Ng,nFFTs,FFT_FORWARD,fftstream);
-        FFTs.cachePlans(scratch_,Ng,nFFTs,FFT_BACKWARD,fftstream);
-        scratch = scratch_;
-        PlansMade = 2;
+        for (int i = 0; i < 3; i++){
+            int nFFTs = (nlocal / distribution.batches) / ng[i];
+            FFTs.cachePlans(scratch_,ng[i],nFFTs,FFT_FORWARD,fftstream);
+            FFTs.cachePlans(scratch_,ng[i],nFFTs,FFT_BACKWARD,fftstream);
+            scratch = scratch_;
+            PlansMade = 2;
+        }
     }
 
 }
@@ -118,11 +124,11 @@ inline void Dfft<T, FFTBackend>::fft(T* data, fftdirection direction)
 
             distribution.reorder(data,scratch,i,0,batch,fftstream);
             int b_start = batch * (distribution.nlocal / distribution.batches);
-            int nFFTs = (nlocal / distribution.batches) / Ng;
+            int nFFTs = (nlocal / distribution.batches) / ng[i];
             #ifdef customalltoall
             //FFTs.fft(&data[b_start],&scratch[b_start],ng,)
             #else
-            FFTs.fft(&data[b_start],&scratch[b_start],Ng,nFFTs,direction,fftstream);
+            FFTs.fft(&data[b_start],&scratch[b_start],ng[i],nFFTs,direction,fftstream);
             #endif
             
             distribution.reorder(data,scratch,i,1,batch,fftstream);

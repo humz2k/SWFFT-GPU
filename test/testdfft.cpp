@@ -7,7 +7,7 @@
 template<template<class,template<class> class> class Backend, template<class> class FFTBackend, class T>
 void test(){
 
-    swfft<Backend,FFTBackend,T> fft(8,MPI_COMM_WORLD);
+    swfft<Backend,FFTBackend,T> fft(8,8,8,MPI_COMM_WORLD);
 
     complexDoubleDevice* buff1; swfftAlloc(&buff1,sizeof(T) * fft.buffsz());
     complexDoubleDevice* buff2; swfftAlloc(&buff2,sizeof(T) * fft.buffsz());
