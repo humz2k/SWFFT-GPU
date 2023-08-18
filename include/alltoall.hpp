@@ -1,7 +1,13 @@
+#ifndef ALLTOALLSEEN
+#define ALLTOALLSEEN
+
+#ifdef ALLTOALL
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <mpi.h>
-#include "gpu.hpp"
+#include "fftinterface.hpp"
+#include "backend.hpp"
 
 namespace A2A{
 
@@ -9,7 +15,7 @@ namespace A2A{
     class Distribution{
         public:
             int ndims;
-            int ng;
+            int Ng;
             int nlocal;
             int world_size;
             int world_rank;
@@ -65,18 +71,22 @@ namespace A2A{
             inline void fft(T* d_data, int direction);
         
         public:
-            int ng;
+            int Ng;
             int nlocal;
             int world_size;
             int blockSize;
-            Distribution<T> dist;
+            Distribution<T>& distribution;
 
             FFTBackend FFTs;
+
+            gpuStream_t fftstream;
+            gpuEvent_t* fft_events;
+            bool PlansMade;
 
             T* scratch;
             T* data;
 
-            Dfft(Distribution<T> dist_);
+            Dfft(Distribution<T>& dist_);
             ~Dfft();
 
             void makePlans(T* data_, T* scratch_);
@@ -94,3 +104,32 @@ namespace A2A{
     };
 
 }
+
+template<class T, class FFTBackend>
+class AllToAll : public SwfftBackend<T, FFTBackend>{
+    public:
+        A2A::Distribution<T> dist;
+        A2A::Dfft<T,FFTBackend> dfft;
+
+        AllToAll(){};
+        AllToAll(int ngx, int ngy, int ngz, int blockSize, int batches, MPI_Comm comm);
+        AllToAll(int ngx, int ngy, int ngz, int blockSize, MPI_Comm comm);
+        AllToAll(int ngx, int ngy, int ngz, MPI_Comm comm);
+        AllToAll(int ng, int blockSize, MPI_Comm comm);
+        AllToAll(int ng, MPI_Comm comm);
+
+        ~AllToAll(){};
+
+        void makePlans(T* buff1, T* buff2);
+        void makePlans(T* buff2);
+        void makePlans();
+
+        void forward();
+        void forward(T* buff1);
+        void backward();
+        void backward(T* buff1);
+};
+
+#endif
+
+#endif

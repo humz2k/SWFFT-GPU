@@ -1,5 +1,7 @@
-#ifdef CUDA
+#ifndef GPUSEEN
+#define GPUSEEN
 
+#ifdef CUDA
 #include <cuda_runtime.h>
 #include <cufft.h>
 
@@ -42,7 +44,13 @@
 
 #define gpuFree cudaFree
 
+#define gpuStreamCreate cudaStreamCreate
+
 #define gpuLaunch(kernel,numBlocks,blockSize,...) kernel<<<numBlocks,blockSize>>>(__VA_ARGS__)
+
+#define gpuMemcpyAsync cudaMemcpyAsync
+
+#define gpuEventCreate cudaEventCreate
 
 #else 
 
@@ -93,4 +101,5 @@
 
 #endif
 
+#endif
 #endif
