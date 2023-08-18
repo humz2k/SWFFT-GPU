@@ -54,6 +54,8 @@
 
 #define gpuStreamCreate cudaStreamCreate
 
+#define gpuStreamSynchronize cudaStreamSynchronize
+
 #define gpuLaunch(kernel,numBlocks,blockSize,...) kernel<<<numBlocks,blockSize>>>(__VA_ARGS__)
 
 #define gpuMemcpyAsync cudaMemcpyAsync

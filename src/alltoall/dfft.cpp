@@ -125,7 +125,7 @@ inline void Dfft<T, FFTBackend>::fft(T* data, fftdirection direction)
             #endif
         }
         #ifdef nocudampi
-        cudaStreamSynchronize(distribution.diststream);
+        gpuStreamSynchronize(distribution.diststream);
         #endif
 
         distribution.shuffle_indices(data,scratch,i);
@@ -134,6 +134,28 @@ inline void Dfft<T, FFTBackend>::fft(T* data, fftdirection direction)
     #ifdef verbose
     if (distribution.world_rank == 0){printf("Finished 3D FFT\n");}
     #endif
+}
+
+template<class T, template<class> class FFTBackend>
+void Dfft<T,FFTBackend>::forward(T* data_)
+{
+    fft(data_,FFT_FORWARD);   
+}
+
+template<class T, template<class> class FFTBackend>
+void Dfft<T,FFTBackend>::backward(T* data_){
+    fft(data_,FFT_BACKWARD);
+}
+
+template<class T, template<class> class FFTBackend>
+void Dfft<T,FFTBackend>::forward()
+{
+    fft(data,FFT_FORWARD);   
+}
+
+template<class T, template<class> class FFTBackend>
+void Dfft<T,FFTBackend>::backward(){
+    fft(data,FFT_BACKWARD);
 }
 
 
