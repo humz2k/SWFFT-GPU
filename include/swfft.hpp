@@ -32,22 +32,22 @@ class AllToAll : public SwfftBackend<T, FFTBackend>{
         A2A::Dfft<T,FFTBackend> dfft;
 
         AllToAll(){};
-        AllToAll(int ngx, int ngy, int ngz, int blockSize, int batches, MPI_Comm comm) : dist(comm,ngx,blockSize,batches), dfft(dist){};
-        AllToAll(int ngx, int ngy, int ngz, int blockSize, MPI_Comm comm) : dist(comm,ngx,blockSize,1), dfft(dist){};
-        AllToAll(int ngx, int ngy, int ngz, MPI_Comm comm) : dist(comm,ngx,64,1), dfft(dist){};
-        AllToAll(int ng, int blockSize, MPI_Comm comm) : dist(comm,ng,blockSize,1), dfft(dist){};
-        AllToAll(int ng, MPI_Comm comm) : dist(comm,ng,64,1), dfft(dist){};
+        AllToAll(int ngx, int ngy, int ngz, int blockSize, int batches, MPI_Comm comm);
+        AllToAll(int ngx, int ngy, int ngz, int blockSize, MPI_Comm comm);
+        AllToAll(int ngx, int ngy, int ngz, MPI_Comm comm);
+        AllToAll(int ng, int blockSize, MPI_Comm comm);
+        AllToAll(int ng, MPI_Comm comm);
 
         ~AllToAll(){};
 
-        void makePlans(T* buff1, T* buff2) {dfft.makePlans(buff1,buff2);};
-        void makePlans(T* buff2) {dfft.makePlans(buff2);};
-        void makePlans() {dfft.makePlans();};
+        void makePlans(T* buff1, T* buff2);
+        void makePlans(T* buff2);
+        void makePlans();
 
-        void forward() {dfft.forward();};
-        void forward(T* buff1) {dfft.forward(buff1);};
-        void backward() {dfft.backward()};
-        void backward(T* buff1) {dfft.backward(buff1)};
+        void forward();
+        void forward(T* buff1);
+        void backward();
+        void backward(T* buff1);
 };
 
 template<class T, class FFTBackend>
@@ -122,11 +122,11 @@ class swfft{
         Backend<T,FFTBackend> backend;
 
     public:
-        swfft(int ngx, int ngy, int ngz, int blockSize, int batches, MPI_Comm comm) : backend(ngx,ngy,ngz,blockSize,batches,comm){};
-        swfft(int ngx, int ngy, int ngz, int blockSize, MPI_Comm comm) : backend(ngx,ngy,ngz,blockSize,comm){};
-        swfft(int ngx, int ngy, int ngz, MPI_Comm comm) : backend(ngx,ngy,ngz,comm){};
-        swfft(int ng, int blockSize, MPI_Comm comm) : backend(ng,blockSize,comm){};
-        swfft(int ng, MPI_Comm comm) : backend(ng,comm){};
+        swfft(int ngx, int ngy, int ngz, int blockSize, int batches, MPI_Comm comm);
+        swfft(int ngx, int ngy, int ngz, int blockSize, MPI_Comm comm);
+        swfft(int ngx, int ngy, int ngz, MPI_Comm comm);
+        swfft(int ng, int blockSize, MPI_Comm comm);
+        swfft(int ng, MPI_Comm comm);
         
         ~swfft();
 
