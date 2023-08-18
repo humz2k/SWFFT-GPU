@@ -21,7 +21,7 @@ DFFT_CUDA_LD ?= -lcufft -lcudart
 
 DFFT_CUDA_FLAGS ?= -lineinfo -Xptxas -v -Xcompiler="-fPIC"
 
-DFFT_CUDA_MPI ?=
+DFFT_CUDA_MPI ?= -Dnocudampi
 
 DFFT_GPU ?= CUDA
 FFT_BACKEND ?= GPU FFTW

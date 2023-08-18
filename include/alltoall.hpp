@@ -68,7 +68,7 @@ namespace A2A{
     class Dfft {
 
         private:
-            inline void fft(T* d_data, int direction);
+            inline void fft(T* d_data, fftdirection direction);
         
         public:
             int Ng;
@@ -91,7 +91,7 @@ namespace A2A{
 
             void makePlans(T* data_, T* scratch_);
             void makePlans(T* scratch_);
-            void makePlans();
+            //void makePlans();
 
             void forward(T* data_);
             void forward();

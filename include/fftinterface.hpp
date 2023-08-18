@@ -16,6 +16,10 @@ class FFTInterface{
 
         void cachePlans(T* data, T* scratch, int ng, int nFFTs, fftdirection direction);
 
+        void cachePlans(T* scratch, int ng, int nFFTs, fftdirection direction);
+
+        //void cachePlans(int ng, int nFFTs, fftdirection direction);
+
         void fft(T* data, T* scratch, int ng, int nFFTs, fftdirection direction);
 };
 
@@ -34,9 +38,19 @@ class GPUFFT{
 
         gpufftHandle findPlans(int ng, int nFFTs);
 
+        gpufftHandle findPlans(int ng, int nFFTs, gpuStream_t stream);
+
         void cachePlans(T* data, T* scratch, int ng, int nFFTs, fftdirection direction);
 
+        void cachePlans(T* scratch, int ng, int nFFTs, fftdirection direction);
+
+        void cachePlans(T* data, T* scratch, int ng, int nFFTs, fftdirection direction, gpuStream_t stream);
+
+        void cachePlans(T* scratch, int ng, int nFFTs, fftdirection direction, gpuStream_t stream);
+
         void fft(T* data, T* scratch, int ng, int nFFTs, fftdirection direction);
+
+        void fft(T* data, T* scratch, int ng, int nFFTs, fftdirection direction, gpuStream_t stream);
 
 };
 

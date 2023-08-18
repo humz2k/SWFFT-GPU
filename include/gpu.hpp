@@ -28,6 +28,14 @@
 
 #define gpuStream_t cudaStream_t
 
+#define gpuEventDestroy cudaEventDestroy
+
+#define gpuStreamDestroy cudaStreamDestroy
+
+#define gpuEventRecord cudaEventRecord
+
+#define gpuEventSynchronize cudaEventSynchronize
+
 #define gpuMalloc cudaMalloc
 
 #define gpuMemset cudaMemset
@@ -51,6 +59,7 @@
 #define gpuMemcpyAsync cudaMemcpyAsync
 
 #define gpuEventCreate cudaEventCreate
+
 
 #else 
 

@@ -58,9 +58,62 @@ gpufftHandle GPUFFT<complexFloat>::findPlans(int ng, int nFFTs){
     exit(1);
 }
 
+template<>
+gpufftHandle GPUFFT<complexDouble>::findPlans(int ng, int nFFTs,gpuStream_t stream){
+    for (int i = 0; i < nplans; i++){
+        if ((ns[i] == nFFTs) && (ngs[i] == ng)){
+            printf("Found cached plan!\n");
+            return plans[i];
+        }
+        if (ns[i] == 0){
+            if (gpufftPlan1d(&plans[i], ng, GPUFFT_Z2Z, nFFTs) != GPUFFT_SUCCESS){
+                printf("CUFFT error: Plan creation failed\n");
+                exit(1);
+            }
+            return plans[i];
+        }
+    }
+    printf("Out of space for plans!\n");
+    exit(1);
+}
+
+template<>
+gpufftHandle GPUFFT<complexFloat>::findPlans(int ng, int nFFTs, gpuStream_t stream){
+    for (int i = 0; i < nplans; i++){
+        if ((ns[i] == nFFTs) && (ngs[i] == ng)){
+            printf("Found cached plan!\n");
+            return plans[i];
+        }
+        if (ns[i] == 0){
+            if (gpufftPlan1d(&plans[i], ng, GPUFFT_C2C, nFFTs) != GPUFFT_SUCCESS){
+                printf("CUFFT error: Plan creation failed\n");
+                exit(1);
+            }
+            return plans[i];
+        }
+    }
+    printf("Out of space for plans!\n");
+    exit(1);
+}
+
 template<class T>
 void GPUFFT<T>::cachePlans(T* data, T* scratch, int ng, int nFFTs, fftdirection direction){
     findPlans(ng,nFFTs);
+}
+
+template<class T>
+void GPUFFT<T>::cachePlans(T* scratch, int ng, int nFFTs, fftdirection direction){
+    findPlans(ng,nFFTs);
+}
+
+template<class T>
+void GPUFFT<T>::cachePlans(T* data, T* scratch, int ng, int nFFTs, fftdirection direction, gpuStream_t stream){
+    findPlans(ng,nFFTs,stream);
+}
+
+template<class T>
+void GPUFFT<T>::cachePlans(T* scratch, int ng, int nFFTs, fftdirection direction, gpuStream_t stream){
+    findPlans(ng,nFFTs,stream);
 }
 
 template<>

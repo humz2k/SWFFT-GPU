@@ -20,7 +20,7 @@ class SwfftBackend{
 
         void makePlans(T* buff1, T* buff2);
         void makePlans(T* buff2);
-        void makePlans();
+        //void makePlans();
 
         void forward();
         void forward(T* buff1);
