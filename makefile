@@ -42,9 +42,9 @@ OUTPUTS := $(OBJECTS:src%=lib%)
 
 #$(patsubst .cpp,.o,$(wildcard src/**/*.cpp) $(wildcard src/*.cpp))
 
-main: $(DFFT_AR) $(DFFT_BUILD_DIR)/testdfft
+main: $(DFFT_BUILD_DIR)/testdfft
 
-$(DFFT_BUILD_DIR)/testdfft: test/testdfft.cpp | $(DFFT_BUILD_DIR)
+$(DFFT_BUILD_DIR)/testdfft: test/testdfft.cpp | $(DFFT_AR) $(DFFT_BUILD_DIR)
 	$(DFFT_MPI_CXX) $(DFFT_CUDA_MPI) -D$(DFFT_GPU) $(DFFT_DIST_BACKEND_DEFINES) $(DFFT_FFT_BACKEND_DEFINES) $(DFFT_INCLUDE) $< -L$(DFFT_LIB_DIR) -lswfft -L$(DFFT_CUDA_LIB) $(DFFT_CUDA_LD) -o $@
 
 .PHONY: clean
