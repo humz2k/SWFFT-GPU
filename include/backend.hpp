@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <mpi.h>
 
-template<class T, class FFTBackend>
+template<class T, template<class> class FFTBackend>
 class SwfftBackend{
     public:
         SwfftBackend();

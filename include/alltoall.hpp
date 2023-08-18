@@ -64,7 +64,7 @@ namespace A2A{
             void finalize();
     };
 
-    template<class T, class FFTBackend>
+    template<class T, template<class> class FFTBackend>
     class Dfft {
 
         private:
@@ -77,7 +77,7 @@ namespace A2A{
             int blockSize;
             Distribution<T>& distribution;
 
-            FFTBackend FFTs;
+            FFTBackend<T> FFTs;
 
             gpuStream_t fftstream;
             gpuEvent_t* fft_events;
@@ -105,7 +105,7 @@ namespace A2A{
 
 }
 
-template<class T, class FFTBackend>
+template<class T, template<class> class FFTBackend>
 class AllToAll : public SwfftBackend<T, FFTBackend>{
     public:
         A2A::Distribution<T> dist;

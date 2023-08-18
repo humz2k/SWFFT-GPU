@@ -67,7 +67,7 @@ template<>
 void GPUFFT<complexDouble>::fft(complexDouble* data, complexDouble* scratch, int ng, int nFFTs, fftdirection direction){
     gpufftHandle plan = findPlans(ng,nFFTs);
     int dir = GPUFFT_INVERSE;
-    if (direction == forward)dir = GPUFFT_FORWARD;
+    if (direction == FFT_FORWARD)dir = GPUFFT_FORWARD;
     if (gpufftExecZ2Z(plan, data, scratch, dir) != GPUFFT_SUCCESS){
         char backstr[] = "Backward";
         char forstr[] = "Forward";
@@ -84,7 +84,7 @@ template<>
 void GPUFFT<complexFloat>::fft(complexFloat* data, complexFloat* scratch, int ng, int nFFTs, fftdirection direction){
     gpufftHandle plan = findPlans(ng,nFFTs);
     int dir = GPUFFT_INVERSE;
-    if (direction == forward)dir = GPUFFT_FORWARD;
+    if (direction == FFT_FORWARD)dir = GPUFFT_FORWARD;
     if (gpufftExecC2C(plan, data, scratch, dir) != GPUFFT_SUCCESS){
         char backstr[] = "Backward";
         char forstr[] = "Forward";

@@ -5,7 +5,7 @@
 #include "alltoall.hpp"
 #include "pairwise.hpp"
 
-template<template<class,class> class Backend, class T, class FFTBackend>
+template<template<class,class> class Backend, class T, template<class> class FFTBackend>
 class swfft{
     private:
         Backend<T,FFTBackend> backend;

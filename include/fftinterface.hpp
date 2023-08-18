@@ -6,7 +6,7 @@
 
 #define nplans 10
 
-enum fftdirection {forward, backward};
+enum fftdirection {FFT_FORWARD, FFT_BACKWARD};
 
 template<class T>
 class FFTInterface{

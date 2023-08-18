@@ -10,7 +10,7 @@
 #include "backend.hpp"
 
 
-template<class T, class FFTBackend>
+template<class T, template<class> class FFTBackend>
 class Pairwise : public SwfftBackend<T,FFTBackend>{
     public:
         Pairwise();

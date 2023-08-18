@@ -3,7 +3,7 @@
 #ifdef ALLTOALL
 namespace A2A{
 
-template<class T, class FFTBackend>
+template<class T, template<class> class FFTBackend>
 Dfft<T, FFTBackend>::Dfft(Distribution<T> &dist) : distribution(dist){
 
     Ng = distribution.Ng;
@@ -23,13 +23,18 @@ Dfft<T, FFTBackend>::Dfft(Distribution<T> &dist) : distribution(dist){
 
 }
 
-template<class T, class FFTBackend>
+template<class T, template<class> class FFTBackend>
 void Dfft<T, FFTBackend>::makePlans(T* data_, T* scratch_){
 
     int nFFTs = (nlocal / distribution.batches) / Ng;
-
-    FFTs.cachePlans(data_,scratch_,Ng,nFFTs,forward);
+    FFTs.cachePlans(data_,scratch_,Ng,nFFTs,FFT_FORWARD);
+    FFTs.cachePlans(data_,scratch_,Ng,nFFTs,FFT_BACKWARD);
 }
+
+#ifdef GPU
+template class Dfft<complexDouble,GPUFFT>;
+template class Dfft<complexFloat,GPUFFT>;
+#endif
 
 //void makePlans(T* scratch_);
 //void makePlans();
