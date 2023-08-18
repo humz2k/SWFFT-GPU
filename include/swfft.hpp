@@ -28,9 +28,6 @@ class swfft{
         void makePlans(T* buff2){
             backend.makePlans(buff2);
         };
-        void makePlans(){
-            backend.makePlans();
-        };
 
         void forward(){
             backend.forward();
