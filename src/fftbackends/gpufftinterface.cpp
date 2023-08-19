@@ -22,13 +22,15 @@ GPUFFT<T>::~GPUFFT(){
 
 template<>
 gpufftHandle GPUFFT<complexDoubleDevice>::findPlans(int ng, int nFFTs){
+    //int world_rank;
+    //MPI_Comm_rank(MPI_COMM_WORLD,&world_rank);
     for (int i = 0; i < nplans; i++){
         if ((ns[i] == nFFTs) && (ngs[i] == ng)){
-            printf("Found cached plan!\n");
+            //if(world_rank == 0)printf("Found cached plan!\n");
             return plans[i];
         }
         if (ns[i] == 0){
-            printf("Caching Plan!\n");
+            //if(world_rank == 0)printf("Caching Plan!\n");
             if (gpufftPlan1d(&plans[i], ng, GPUFFT_Z2Z, nFFTs) != GPUFFT_SUCCESS){
                 printf("CUFFT error: Plan creation failed\n");
                 exit(1);
@@ -46,7 +48,7 @@ template<>
 gpufftHandle GPUFFT<complexFloatDevice>::findPlans(int ng, int nFFTs){
     for (int i = 0; i < nplans; i++){
         if ((ns[i] == nFFTs) && (ngs[i] == ng)){
-            printf("Found cached plan!\n");
+            //printf("Found cached plan!\n");
             return plans[i];
         }
         if (ns[i] == 0){
@@ -54,6 +56,8 @@ gpufftHandle GPUFFT<complexFloatDevice>::findPlans(int ng, int nFFTs){
                 printf("CUFFT error: Plan creation failed\n");
                 exit(1);
             }
+            ngs[i] = ng;
+            ns[i] = nFFTs;
             return plans[i];
         }
     }
@@ -63,9 +67,11 @@ gpufftHandle GPUFFT<complexFloatDevice>::findPlans(int ng, int nFFTs){
 
 template<>
 gpufftHandle GPUFFT<complexDoubleDevice>::findPlans(int ng, int nFFTs,gpuStream_t stream){
+    //int world_rank;
+    //MPI_Comm_rank(MPI_COMM_WORLD,&world_rank);
     for (int i = 0; i < nplans; i++){
         if ((ns[i] == nFFTs) && (ngs[i] == ng)){
-            printf("Found cached plan!\n");
+            //if(world_rank == 0)printf("Found cached plan!\n");
             return plans[i];
         }
         if (ns[i] == 0){
@@ -73,6 +79,8 @@ gpufftHandle GPUFFT<complexDoubleDevice>::findPlans(int ng, int nFFTs,gpuStream_
                 printf("CUFFT error: Plan creation failed\n");
                 exit(1);
             }
+            ngs[i] = ng;
+            ns[i] = nFFTs;
             return plans[i];
         }
     }
@@ -84,7 +92,7 @@ template<>
 gpufftHandle GPUFFT<complexFloatDevice>::findPlans(int ng, int nFFTs, gpuStream_t stream){
     for (int i = 0; i < nplans; i++){
         if ((ns[i] == nFFTs) && (ngs[i] == ng)){
-            printf("Found cached plan!\n");
+            //printf("Found cached plan!\n");
             return plans[i];
         }
         if (ns[i] == 0){
@@ -92,10 +100,12 @@ gpufftHandle GPUFFT<complexFloatDevice>::findPlans(int ng, int nFFTs, gpuStream_
                 printf("CUFFT error: Plan creation failed\n");
                 exit(1);
             }
+            ngs[i] = ng;
+            ns[i] = nFFTs;
             return plans[i];
         }
     }
-    printf("Out of space for plans!\n");
+    //printf("Out of space for plans!\n");
     exit(1);
 }
 

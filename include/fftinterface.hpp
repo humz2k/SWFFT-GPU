@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "complex-type.h"
+#include <mpi.h>
 
 #define nplans 10
 

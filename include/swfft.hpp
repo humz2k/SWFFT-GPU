@@ -1,12 +1,39 @@
 #ifndef SWFFTSEEN
 #define SWFFTSEEN
 
+#include <type_traits>
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <mpi.h>
 #include "alltoall.hpp"
 #include "pairwise.hpp"
 #include "complex-type.h"
+
+#include <iostream>
+
+#include <cassert>
+
+/*class ctCounter {
+public:
+    ctCounter()
+        : value{ 0 }
+    {
+    }
+    int accumulate(int value_) {
+        return (value += value_), value;
+    }
+    int value;
+
+    constexpr ctCounter() : value{ 0 }{}
+
+    constexpr int accumulate(int value_) {
+        value += value_;
+        return value;
+    }
+
+};*/
+
 
 #ifdef GPU
 void swfftAlloc(complexDoubleDevice** ptr, size_t sz){
@@ -78,13 +105,15 @@ template<template<class,template<class> class> class Backend, template<class> cl
 class swfft{
     private:
         Backend<T,FFTBackend> backend;
+        //constexpr ctCounter which;
+        int plans_type;
 
     public:
-        swfft(int ngx, int ngy, int ngz, int blockSize, int batches, MPI_Comm comm) : backend(ngx,ngy,ngz,blockSize,batches,comm){};
-        swfft(int ngx, int ngy, int ngz, int blockSize, MPI_Comm comm) : backend(ngx,ngy,ngz,blockSize,comm){};
-        swfft(int ngx, int ngy, int ngz, MPI_Comm comm) : backend(ngx,ngy,ngz,comm){};
-        swfft(int ng, int blockSize, MPI_Comm comm) : backend(ng,blockSize,comm){};
-        swfft(int ng, MPI_Comm comm) : backend(ng,comm){};
+        swfft(int ngx, int ngy, int ngz, int blockSize, int batches, MPI_Comm comm) : backend(ngx,ngy,ngz,blockSize,batches,comm), plans_type(0){};
+        swfft(int ngx, int ngy, int ngz, int blockSize, MPI_Comm comm) : backend(ngx,ngy,ngz,blockSize,comm), plans_type(0){};
+        swfft(int ngx, int ngy, int ngz, MPI_Comm comm) : backend(ngx,ngy,ngz,comm), plans_type(0){};
+        swfft(int ng, int blockSize, MPI_Comm comm) : backend(ng,blockSize,comm), plans_type(0){};
+        swfft(int ng, MPI_Comm comm) : backend(ng,comm), plans_type(0){};
         
         ~swfft(){};
 
@@ -149,25 +178,41 @@ class swfft{
         }
         
         void makePlans(T* buff1, T* buff2){
+            //static_assert(which.value == 0, "Plans can only be made once!");
+            //which.accumulate(1);
+            assert(plans_type == 0);
+            plans_type = 1;
             backend.makePlans(buff1,buff2);
         };
+        
         void makePlans(T* buff2){
+            assert(plans_type == 0);
+            plans_type = 2;
             backend.makePlans(buff2);
         };
 
         void forward(){
+            assert(plans_type == 1);
             backend.forward();
         };
+
         template<class T1>
         void forward(T1* buff1){
+            assert(plans_type != 0);
             Caster<T> cast(buff1,buffsz());
             backend.forward(cast.buff);
         };
+
         void backward(){
+            assert(plans_type == 1);
             backend.backward();
         };
-        void backward(T* buff1){
-            backend.backward(buff1);
+
+        template<class T1>
+        void backward(T1* buff1){
+            assert(plans_type != 0);
+            Caster<T> cast(buff1,buffsz());
+            backend.backward(cast.buff);
         };
 
 };

@@ -41,6 +41,7 @@ void Dfft<T, FFTBackend>::makePlans(T* data_, T* scratch_){
     if(PlansMade == 0){
         for (int i = 0; i < 3; i++){
             int nFFTs = (nlocal / distribution.batches) / ng[i];
+            if(distribution.world_rank == 0)printf("%d %d\n",nFFTs,ng[i]);
             FFTs.cachePlans(data_,scratch_,ng[i],nFFTs,FFT_FORWARD,fftstream);
             FFTs.cachePlans(data_,scratch_,ng[i],nFFTs,FFT_BACKWARD,fftstream);
             data = data_;
@@ -55,14 +56,17 @@ template<class T, template<class> class FFTBackend>
 void Dfft<T, FFTBackend>::makePlans(T* scratch_){
 
     if(PlansMade == 0){
+        //printf("???\n");
         for (int i = 0; i < 3; i++){
             int nFFTs = (nlocal / distribution.batches) / ng[i];
             FFTs.cachePlans(scratch_,ng[i],nFFTs,FFT_FORWARD,fftstream);
             FFTs.cachePlans(scratch_,ng[i],nFFTs,FFT_BACKWARD,fftstream);
-            scratch = scratch_;
-            PlansMade = 2;
+            
         }
+        scratch = scratch_;
+        PlansMade = 2;
     }
+        
 
 }
 
@@ -116,7 +120,7 @@ inline void Dfft<T, FFTBackend>::fft(T* data, fftdirection direction)
             #ifdef nocudampi
 
             gpuEventSynchronize(fft_events[batch]);
-            distribution.getPencils((T*)distribution.h_scratch1,(T*)distribution.h_scratch2,i,batch);
+            distribution.getPencils(distribution.h_scratch1,distribution.h_scratch2,i,batch);
             distribution.memcpy_h2d(scratch,distribution.h_scratch2,batch,fftstream);
             #else
             distribution.getPencils(data,scratch,i,batch);
@@ -125,6 +129,7 @@ inline void Dfft<T, FFTBackend>::fft(T* data, fftdirection direction)
             distribution.reorder(data,scratch,i,0,batch,fftstream);
             int b_start = batch * (distribution.nlocal / distribution.batches);
             int nFFTs = (nlocal / distribution.batches) / ng[i];
+            //printf("nFFTs = %d\n",nFFTs);
             #ifdef customalltoall
             //FFTs.fft(&data[b_start],&scratch[b_start],ng,)
             #else
@@ -142,7 +147,7 @@ inline void Dfft<T, FFTBackend>::fft(T* data, fftdirection direction)
             gpuEventSynchronize(fft_events[batch]);
             #ifdef nocudampi
 
-            distribution.returnPencils((T*)distribution.h_scratch1,(T*)distribution.h_scratch2,i,batch);
+            distribution.returnPencils(distribution.h_scratch1,distribution.h_scratch2,i,batch);
 
             distribution.memcpy_h2d(scratch,distribution.h_scratch2,batch,distribution.diststream);
             

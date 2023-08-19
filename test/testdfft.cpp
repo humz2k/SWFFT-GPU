@@ -7,12 +7,13 @@
 template<template<class,template<class> class> class Backend, template<class> class FFTBackend, class T>
 void test(){
 
-    swfft<Backend,FFTBackend,T> fft(8,8,8,MPI_COMM_WORLD);
+    swfft<Backend,FFTBackend,T> fft(32,16,32,MPI_COMM_WORLD);
 
     complexDoubleDevice* buff1; swfftAlloc(&buff1,sizeof(T) * fft.buffsz());
     complexDoubleDevice* buff2; swfftAlloc(&buff2,sizeof(T) * fft.buffsz());
 
     fft.makePlans(buff2);
+    //fft.makePlans(buff1, buff2);
 
     //int3 coords = fft.coords();
     //printf("rank %d coords: %d %d %d\n",fft.rank(),coords.x,coords.y,coords.z);
@@ -24,6 +25,7 @@ void test(){
     fft.forward(buff1);
 
     check_kspace(fft,buff1);
+    check_kspace(fft,buff2);
 
     swfftFree(buff1);
     swfftFree(buff2);
