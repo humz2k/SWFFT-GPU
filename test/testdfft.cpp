@@ -7,12 +7,12 @@
 template<template<class,template<class> class> class Backend, template<class> class FFTBackend, class T>
 void test(){
 
-    swfft<Backend,FFTBackend,T> fft(32,16,32,MPI_COMM_WORLD);
+    swfft<Backend,FFTBackend,T> fft(16,16,32,MPI_COMM_WORLD);
 
     complexDoubleDevice* buff1; swfftAlloc(&buff1,sizeof(T) * fft.buffsz());
     complexDoubleDevice* buff2; swfftAlloc(&buff2,sizeof(T) * fft.buffsz());
 
-    fft.makePlans(buff2);
+    fft.makePlans(buff1,buff2);
     //fft.makePlans(buff1, buff2);
 
     //int3 coords = fft.coords();

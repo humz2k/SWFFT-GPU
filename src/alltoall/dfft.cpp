@@ -170,6 +170,7 @@ inline void Dfft<T, FFTBackend>::fft(T* data, fftdirection direction)
 template<class T, template<class> class FFTBackend>
 void Dfft<T,FFTBackend>::forward(T* data_)
 {
+    //printf("AHH!\n");
     fft(data_,FFT_FORWARD);   
 }
 
