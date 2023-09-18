@@ -8,35 +8,7 @@
 #ifndef HACC_COMPLEXTYPE_H
 #define HACC_COMPLEXTYPE_H
 
-typedef struct {
-    double x;
-    double y;
-} complexDoubleHost;
-
-typedef struct {
-    float x;
-    float y;
-} complexFloatHost;
-
-#include <stdlib.h>
-
-inline void swfftAlloc(complexDoubleHost** ptr, size_t sz){
-    *ptr = (complexDoubleHost*)malloc(sz);
-}
-
-inline void swfftAlloc(complexFloatHost** ptr, size_t sz){
-    *ptr = (complexFloatHost*)malloc(sz);
-}
-
-inline void swfftFree(complexDoubleHost* ptr){
-    free(ptr);
-}
-
-inline void swfftFree(complexFloatHost* ptr){
-    free(ptr);
-}
-
-/*#ifdef __cplusplus
+#ifdef __cplusplus
 
 #include <cmath>
 #include <complex>
@@ -61,6 +33,6 @@ typedef float complex complexFloatHost;
 #define abs(x) fabs(x)
 #define arg(x) carg(x)
 
-#endif  // #ifdef __cplusplus*/
+#endif  // #ifdef __cplusplus
 
 #endif  // HACC_COMPLEXTYPE_H

@@ -1,6 +1,6 @@
 #ifndef GPUSEEN
 #define GPUSEEN
-
+#ifdef GPU
 #ifdef CUDA
 #include <cuda_runtime.h>
 #include <cufft.h>
@@ -14,6 +14,8 @@
 #define gpufftPlan1d cufftPlan1d
 
 #define gpufftDestroy cufftDestroy
+
+#define gpufftType cufftType
 
 #define GPUFFT_Z2Z CUFFT_Z2Z
 #define GPUFFT_C2C CUFFT_C2C
@@ -90,6 +92,8 @@
 
 #define gpufftDestroy hipfftDestroy
 
+#define gpufftType hipfftType
+
 #define gpuMalloc hipMalloc
 
 #define gpuMemcpy hipMemcpy
@@ -113,4 +117,35 @@
 #endif
 
 #endif
+
+inline void swfftAlloc(complexDoubleDevice** ptr, size_t sz){
+    gpuMalloc(ptr,sz);
+}
+inline void swfftAlloc(complexFloatDevice** ptr, size_t sz){
+    gpuMalloc(ptr,sz);
+}
+inline void swfftFree(complexDoubleDevice* ptr){
+    gpuFree(ptr);
+}
+inline void swfftFree(complexFloatDevice* ptr){
+    gpuFree(ptr);
+}
+
 #endif
+#ifndef GPU
+typedef struct {
+    int x;
+    int y;
+    int z;
+} int3;
+
+inline int3 make_int3(int x, int y, int z){
+    int3 out;
+    out.x = x;
+    out.y = y;
+    out.z = z;
+    return out;
+}
+#endif
+#endif
+
