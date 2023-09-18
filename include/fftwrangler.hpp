@@ -5,6 +5,10 @@
 
 #include "complex-type.h"
 
+//#ifdef GPU
+#include "gpu.hpp"
+//#endif
+
 #ifdef FFTW
 #include <fftw3.h>
 #include <map>
@@ -38,17 +42,22 @@ class FFTWPlanManager{
         void forward(complexDoubleHost* data, complexDoubleHost* scratch, int ng, int nFFTs);
         void forward(complexFloatHost* data, complexFloatHost* scratch, int ng, int nFFTs);
 
+        void forward(complexDoubleDevice* data, complexDoubleDevice* scratch, int ng, int nFFTs);
+        void forward(complexFloatDevice* data, complexFloatDevice* scratch, int ng, int nFFTs);
+
         void backward(fftw_complex* data, fftw_complex* scratch, int ng, int nFFTs);
         void backward(fftwf_complex* data, fftwf_complex* scratch, int ng, int nFFTs);
 
         void backward(complexDoubleHost* data, complexDoubleHost* scratch, int ng, int nFFTs);
         void backward(complexFloatHost* data, complexFloatHost* scratch, int ng, int nFFTs);
         
+        void backward(complexDoubleDevice* data, complexDoubleDevice* scratch, int ng, int nFFTs);
+        void backward(complexFloatDevice* data, complexFloatDevice* scratch, int ng, int nFFTs);
+
 };
 #endif
 
 #ifdef GPU
-#include "gpu.hpp"
 
 class GPUPlanWrapper{
     public:
@@ -67,12 +76,18 @@ class GPUPlanManager{
         ~GPUPlanManager();
 
         gpufftHandle find_plan(int ng, int nFFTs, gpufftType t);
-
+        
         void forward(complexDoubleDevice* data, complexDoubleDevice* scratch, int ng, int nFFTs);
         void forward(complexFloatDevice* data, complexFloatDevice* scratch, int ng, int nFFTs);
 
+        void forward(complexDoubleHost* data, complexDoubleHost* scratch, int ng, int nFFTs);
+        void forward(complexFloatHost* data, complexFloatHost* scratch, int ng, int nFFTs);
+
         void backward(complexDoubleDevice* data, complexDoubleDevice* scratch, int ng, int nFFTs);
         void backward(complexFloatDevice* data, complexFloatDevice* scratch, int ng, int nFFTs);
+
+        void backward(complexDoubleHost* data, complexDoubleHost* scratch, int ng, int nFFTs);
+        void backward(complexFloatHost* data, complexFloatHost* scratch, int ng, int nFFTs);
 };
 
 #endif
