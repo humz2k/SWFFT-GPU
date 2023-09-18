@@ -102,6 +102,7 @@ namespace A2A{
         world_size = dims.x * dims.y * dims.z;
     }
     CPUReorder::~CPUReorder(){};
+    CPUReorder::CPUReorder(){};
 
     template<class T>
     void CPUReorder::cpu_shuffle_indices(T* Buff1, T* Buff2, int n){

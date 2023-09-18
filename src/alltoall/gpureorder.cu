@@ -110,6 +110,7 @@ namespace A2A{
         world_size = dims.x * dims.y * dims.z;
     }
     GPUReorder::~GPUReorder(){};
+    GPUReorder::GPUReorder(){};
 
     template<class T>
     void GPUReorder::gpu_shuffle_indices(T* Buff1, T* Buff2, int n){

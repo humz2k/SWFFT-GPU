@@ -22,6 +22,7 @@ namespace A2A{
         int world_size;
         int blockSize;
 
+        GPUReorder();
         GPUReorder(int3 ng_, int3 dims_, int3 coords_, int blockSize_);
         ~GPUReorder();
 
@@ -53,6 +54,7 @@ namespace A2A{
         int world_size;
         int blockSize;
 
+        CPUReorder();
         CPUReorder(int3 ng_, int3 dims_, int3 coords_, int blockSize_);
         ~CPUReorder();
 
