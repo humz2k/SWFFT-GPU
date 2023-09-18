@@ -117,4 +117,18 @@
 #endif
 
 #endif
+
+inline void swfftAlloc(complexDoubleDevice** ptr, size_t sz){
+    gpuMalloc(ptr,sz);
+}
+inline void swfftAlloc(complexFloatDevice** ptr, size_t sz){
+    gpuMalloc(ptr,sz);
+}
+inline void swfftFree(complexDoubleDevice* ptr){
+    gpuFree(ptr);
+}
+inline void swfftFree(complexFloatDevice* ptr){
+    gpuFree(ptr);
+}
+
 #endif

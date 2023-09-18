@@ -3,6 +3,8 @@
 
 #define N_FFT_CACHE 100
 
+#include "complex-type.h"
+
 #ifdef FFTW
 #include <fftw3.h>
 #include <map>
@@ -33,8 +35,14 @@ class FFTWPlanManager{
         void forward(fftw_complex* data, fftw_complex* scratch, int ng, int nFFTs);
         void forward(fftwf_complex* data, fftwf_complex* scratch, int ng, int nFFTs);
 
+        void forward(complexDoubleHost* data, complexDoubleHost* scratch, int ng, int nFFTs);
+        void forward(complexFloatHost* data, complexFloatHost* scratch, int ng, int nFFTs);
+
         void backward(fftw_complex* data, fftw_complex* scratch, int ng, int nFFTs);
         void backward(fftwf_complex* data, fftwf_complex* scratch, int ng, int nFFTs);
+
+        void backward(complexDoubleHost* data, complexDoubleHost* scratch, int ng, int nFFTs);
+        void backward(complexFloatHost* data, complexFloatHost* scratch, int ng, int nFFTs);
         
 };
 #endif
