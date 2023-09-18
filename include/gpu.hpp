@@ -15,6 +15,8 @@
 
 #define gpufftDestroy cufftDestroy
 
+#define gpufftType cufftType
+
 #define GPUFFT_Z2Z CUFFT_Z2Z
 #define GPUFFT_C2C CUFFT_C2C
 #define GPUFFT_SUCCESS CUFFT_SUCCESS
@@ -89,6 +91,8 @@
 #define gpufftPlan1d hipfftPlan1d
 
 #define gpufftDestroy hipfftDestroy
+
+#define gpufftType hipfftType
 
 #define gpuMalloc hipMalloc
 
