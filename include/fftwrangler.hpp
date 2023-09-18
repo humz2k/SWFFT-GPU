@@ -5,6 +5,9 @@
 
 enum fftdirection {FFT_FORWARD, FFT_BACKWARD};
 
+#define gpuFFT GPUPlanManager
+#define fftw FFTWPlanWrapper
+
 #include "complex-type.h"
 
 #ifdef FFTW
