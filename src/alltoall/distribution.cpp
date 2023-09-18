@@ -73,13 +73,13 @@ namespace A2A{
     }
 
     template<class MPI_T, class REORDER_T>
-    Distribution<MPI_T,REORDER_T>::Distribution(MPI_Comm comm_, int ngx, int ngy, int ngz, int blockSize_) : comm(comm_), blockSize(blockSize_){
+    Distribution<MPI_T,REORDER_T>::Distribution(MPI_Comm comm_, int ngx, int ngy, int ngz, int blockSize_) : comm(comm_), blockSize(blockSize_), dims{0,0,0}{
         ng[0] = ngx;
         ng[1] = ngy;
         ng[2] = ngz;
         MPI_Comm_size(comm, &world_size);
         MPI_Comm_rank(comm, &world_rank);
-
+        ndims = 3;
         dims[0] = 0;
         dims[1] = 0;
         dims[2] = 0;

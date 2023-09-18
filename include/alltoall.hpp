@@ -64,7 +64,100 @@ namespace A2A{
 
     };
 
+    template<class MPI_T, class REORDER_T, class FFTBackend>
+    class Dfft {
+        private:
+            template<class T>
+            inline void fft(T* data, T* scratch, fftdirection direction);
+        
+        public:
+            int ng[3];
+            int nlocal;
+            int world_size;
+            int world_rank;
+            int blockSize;
+            Distribution<MPI_T,REORDER_T>& dist;
+
+            FFTBackend FFTs;
+
+            Dfft(Distribution<MPI_T,REORDER_T>& dist_);
+            ~Dfft();
+
+            void forward(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2);
+            void forward(complexDoubleHost* Buff1, complexDoubleHost* Buff2);
+            void forward(complexFloatDevice* Buff1, complexFloatDevice* Buff2);
+            void forward(complexFloatHost* Buff1, complexFloatHost* Buff2);
+            
+            void backward(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2);
+            void backward(complexDoubleHost* Buff1, complexDoubleHost* Buff2);
+            void backward(complexFloatDevice* Buff1, complexFloatDevice* Buff2);
+            void backward(complexFloatHost* Buff1, complexFloatHost* Buff2);
+
+    };
+
 }
+
+template<class MPI_T,class FFTBackend>
+class AllToAllGPU{
+    private:
+        A2A::Distribution<MPI_T,A2A::GPUReorder> dist;
+        A2A::Dfft<MPI_T,A2A::GPUReorder,FFTBackend> dfft;
+
+    public:
+        AllToAllGPU(){
+
+        }
+
+        AllToAllGPU(MPI_Comm comm, int ngx, int blockSize) : dist(comm,ngx,ngx,ngx,blockSize), dfft(dist){
+
+        }
+
+        AllToAllGPU(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize) : dist(comm,ngx,ngx,ngx,blockSize), dfft(dist){
+
+        }
+
+        ~AllToAllGPU(){};
+
+        int buff_sz(){
+            return dist.nlocal;
+        }
+
+        int3 coords(){
+            return make_int3(dist.coords[0],dist.coords[1],dist.coords[2]);
+        }
+
+        int rank(){
+            return dist.world_rank;
+        }
+
+        MPI_Comm comm(){
+            return dist.comm;
+        }
+
+        template<class T>
+        void forward(T* data, T* scratch){
+            dfft.forward(data,scratch);
+        }
+
+        template<class T>
+        void backward(T* data, T* scratch){
+            dfft.backward(data,scratch);
+        }
+
+        template<class T>
+        void forward(T* data){
+            T* scratch; swfftAlloc(&scratch,sizeof(T) * buff_sz());
+            forward(data,scratch);
+            swfftFree(scratch);
+        }
+
+        template<class T>
+        void backward(T* data){
+            T* scratch; swfftAlloc(&scratch,sizeof(T) * buff_sz());
+            backward(data,scratch);
+            swfftFree(scratch);
+        }
+};
 
 #endif
 #endif

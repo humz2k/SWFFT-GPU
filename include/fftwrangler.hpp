@@ -3,6 +3,8 @@
 
 #define N_FFT_CACHE 100
 
+enum fftdirection {FFT_FORWARD, FFT_BACKWARD};
+
 #include "complex-type.h"
 
 #ifdef FFTW
