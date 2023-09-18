@@ -3,8 +3,8 @@
 #endif
 #include "fftwrangler.hpp"
 
+#ifdef GPUFFT
 #ifdef GPU
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -117,4 +117,5 @@ void GPUPlanManager::backward(complexFloatHost* data, complexFloatHost* scratch,
     swfftFree(d_scratch);
 }
 
+#endif
 #endif

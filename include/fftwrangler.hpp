@@ -5,13 +5,12 @@
 
 #include "complex-type.h"
 
-//#ifdef GPU
-#include "gpu.hpp"
-//#endif
-
 #ifdef FFTW
 #include <fftw3.h>
 #include <map>
+#ifdef GPU
+#include "gpu.hpp"
+#endif
 
 template<class T, class plan_t>
 class FFTWPlanWrapper{
@@ -42,8 +41,10 @@ class FFTWPlanManager{
         void forward(complexDoubleHost* data, complexDoubleHost* scratch, int ng, int nFFTs);
         void forward(complexFloatHost* data, complexFloatHost* scratch, int ng, int nFFTs);
 
+        #ifdef GPU
         void forward(complexDoubleDevice* data, complexDoubleDevice* scratch, int ng, int nFFTs);
         void forward(complexFloatDevice* data, complexFloatDevice* scratch, int ng, int nFFTs);
+        #endif
 
         void backward(fftw_complex* data, fftw_complex* scratch, int ng, int nFFTs);
         void backward(fftwf_complex* data, fftwf_complex* scratch, int ng, int nFFTs);
@@ -51,13 +52,17 @@ class FFTWPlanManager{
         void backward(complexDoubleHost* data, complexDoubleHost* scratch, int ng, int nFFTs);
         void backward(complexFloatHost* data, complexFloatHost* scratch, int ng, int nFFTs);
         
+        #ifdef GPU
         void backward(complexDoubleDevice* data, complexDoubleDevice* scratch, int ng, int nFFTs);
         void backward(complexFloatDevice* data, complexFloatDevice* scratch, int ng, int nFFTs);
+        #endif
 
 };
 #endif
 
+#ifdef GPUFFT
 #ifdef GPU
+#include "gpu.hpp"
 
 class GPUPlanWrapper{
     public:
@@ -89,7 +94,7 @@ class GPUPlanManager{
         void backward(complexDoubleHost* data, complexDoubleHost* scratch, int ng, int nFFTs);
         void backward(complexFloatHost* data, complexFloatHost* scratch, int ng, int nFFTs);
 };
-
+#endif
 #endif
 
 #endif

@@ -1,5 +1,5 @@
-#ifdef GPU
-#undef GPU
+#ifdef GPUFFT
+#undef GPUFFT
 #endif
 #include "fftwrangler.hpp"
 
@@ -96,6 +96,7 @@ void FFTWPlanManager::forward(complexFloatHost* data, complexFloatHost* scratch,
     forward((fftwf_complex*)data,(fftwf_complex*)scratch,ng,nFFTs);
 }
 
+#ifdef GPU
 void FFTWPlanManager::forward(complexDoubleDevice* data, complexDoubleDevice* scratch, int ng, int nFFTs){
     complexDoubleHost* h_data; swfftAlloc(&h_data,sizeof(complexDoubleHost) * ng * nFFTs);
     complexDoubleHost* h_scratch; swfftAlloc(&h_scratch,sizeof(complexDoubleHost) * ng * nFFTs);
@@ -111,6 +112,7 @@ void FFTWPlanManager::forward(complexFloatDevice* data, complexFloatDevice* scra
     forward(h_data,h_scratch,ng,nFFTs);
     gpuMemcpy(scratch,h_scratch,sizeof(complexFloatHost) * ng * nFFTs, gpuMemcpyHostToDevice);
 }
+#endif
 
 void FFTWPlanManager::backward(fftw_complex* data, fftw_complex* scratch, int ng, int nFFTs){
     fftw_execute(find_plan(data,scratch,ng,nFFTs,FFTW_BACKWARD));
@@ -128,6 +130,7 @@ void FFTWPlanManager::backward(complexFloatHost* data, complexFloatHost* scratch
     backward((fftwf_complex*)data,(fftwf_complex*)scratch,ng,nFFTs);
 }
 
+#ifdef GPU
 void FFTWPlanManager::backward(complexDoubleDevice* data, complexDoubleDevice* scratch, int ng, int nFFTs){
     complexDoubleHost* h_data; swfftAlloc(&h_data,sizeof(complexDoubleHost) * ng * nFFTs);
     complexDoubleHost* h_scratch; swfftAlloc(&h_scratch,sizeof(complexDoubleHost) * ng * nFFTs);
@@ -143,5 +146,6 @@ void FFTWPlanManager::backward(complexFloatDevice* data, complexFloatDevice* scr
     backward(h_data,h_scratch,ng,nFFTs);
     gpuMemcpy(scratch,h_scratch,sizeof(complexFloatHost) * ng * nFFTs, gpuMemcpyHostToDevice);
 }
+#endif
 
 #endif
