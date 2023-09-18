@@ -37,10 +37,30 @@ namespace A2A{
             MPI_Comm shuffle_comm(int n);
 
             template<class T>
-            void getPencils(T* Buff1, T* Buff2, int dim);
+            inline void getPencils_(T* Buff1, T* Buff2, int dim);
             
+            void getPencils(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2, int dim);
+            void getPencils(complexDoubleHost* Buff1, complexDoubleHost* Buff2, int dim);
+            void getPencils(complexFloatDevice* Buff1, complexFloatDevice* Buff2, int dim);
+            void getPencils(complexFloatHost* Buff1, complexFloatHost* Buff2, int dim);
+
             template<class T>
-            void returnPencils(T* Buff1, T* Buff2, int dim);
+            inline void returnPencils_(T* Buff1, T* Buff2, int dim);
+
+            void returnPencils(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2, int dim);
+            void returnPencils(complexDoubleHost* Buff1, complexDoubleHost* Buff2, int dim);
+            void returnPencils(complexFloatDevice* Buff1, complexFloatDevice* Buff2, int dim);
+            void returnPencils(complexFloatHost* Buff1, complexFloatHost* Buff2, int dim);
+
+            void shuffle_indices(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2, int n);
+            void shuffle_indices(complexDoubleHost* Buff1, complexDoubleHost* Buff2, int n);
+            void shuffle_indices(complexFloatDevice* Buff1, complexFloatDevice* Buff2, int n);
+            void shuffle_indices(complexFloatHost* Buff1, complexFloatHost* Buff2, int n);
+
+            void reorder(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2, int n, int direction);
+            void reorder(complexDoubleHost* Buff1, complexDoubleHost* Buff2, int n, int direction);
+            void reorder(complexFloatDevice* Buff1, complexFloatDevice* Buff2, int n, int direction);
+            void reorder(complexFloatHost* Buff1, complexFloatHost* Buff2, int n, int direction);
 
     };
 

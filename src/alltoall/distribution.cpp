@@ -96,8 +96,9 @@ namespace A2A{
 
         nlocal = local_grid_size[0] * local_grid_size[1] * local_grid_size[2];
 
-        reordering(make_int3(ng[0],ng[1],ng[2]),make_int3(dims[0],dims[1],dims[2]),make_int3(coords[0],coords[1],coords[2]),blockSize);
+        REORDER_T reordering_(make_int3(ng[0],ng[1],ng[2]),make_int3(dims[0],dims[1],dims[2]),make_int3(coords[0],coords[1],coords[2]),blockSize);
 
+        reordering = reordering_;
     }
 
     template<class MPI_T, class REORDER_T>
@@ -105,9 +106,116 @@ namespace A2A{
 
     template<class MPI_T, class REORDER_T>
     template<class T>
-    void Distribution<MPI_T,REORDER_T>::getPencils(T* Buff1, T* Buff2, int dim){
+    inline void Distribution<MPI_T,REORDER_T>::getPencils_(T* Buff1, T* Buff2, int n){
+        int dim = (n+2)%3;
         
+        MPI_Comm my_comm = fftcomms[dim];
+
+        int nsends = (nlocal / world_size);
+
+        mpi.alltoall(Buff1,Buff2,nsends,my_comm);
     }
+
+    template<class MPI_T, class REORDER_T>
+    void Distribution<MPI_T,REORDER_T>::getPencils(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2, int n){
+        getPencils_(Buff1,Buff2,n);
+    }
+
+    template<class MPI_T, class REORDER_T>   
+    void Distribution<MPI_T,REORDER_T>::getPencils(complexDoubleHost* Buff1, complexDoubleHost* Buff2, int n){
+        getPencils_(Buff1,Buff2,n);
+    }
+    
+    template<class MPI_T, class REORDER_T>
+    void Distribution<MPI_T,REORDER_T>::getPencils(complexFloatDevice* Buff1, complexFloatDevice* Buff2, int n){
+        getPencils_(Buff1,Buff2,n);
+    }
+    
+    template<class MPI_T, class REORDER_T>
+    void Distribution<MPI_T,REORDER_T>::getPencils(complexFloatHost* Buff1, complexFloatHost* Buff2, int n){
+        getPencils_(Buff1,Buff2,n);
+    }
+
+    template<class MPI_T, class REORDER_T>
+    template<class T>
+    inline void Distribution<MPI_T,REORDER_T>::returnPencils_(T* Buff1, T* Buff2, int n){
+        int dim = (n+2)%3;
+        
+        MPI_Comm my_comm = fftcomms[dim];
+
+        int nsends = (nlocal / world_size);
+
+        mpi.alltoall(Buff1,Buff2,nsends,my_comm);
+    }
+
+    template<class MPI_T, class REORDER_T>
+    void Distribution<MPI_T,REORDER_T>::returnPencils(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2, int n){
+        returnPencils_(Buff1,Buff2,n);
+    }
+
+    template<class MPI_T, class REORDER_T>   
+    void Distribution<MPI_T,REORDER_T>::returnPencils(complexDoubleHost* Buff1, complexDoubleHost* Buff2, int n){
+        returnPencils_(Buff1,Buff2,n);
+    }
+    
+    template<class MPI_T, class REORDER_T>
+    void Distribution<MPI_T,REORDER_T>::returnPencils(complexFloatDevice* Buff1, complexFloatDevice* Buff2, int n){
+        returnPencils_(Buff1,Buff2,n);
+    }
+    
+    template<class MPI_T, class REORDER_T>
+    void Distribution<MPI_T,REORDER_T>::returnPencils(complexFloatHost* Buff1, complexFloatHost* Buff2, int n){
+        returnPencils_(Buff1,Buff2,n);
+    }
+
+    template<class MPI_T, class REORDER_T>
+    void Distribution<MPI_T,REORDER_T>::shuffle_indices(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2, int n){
+        reordering.shuffle_indices(Buff1,Buff2,n);
+    }
+
+    template<class MPI_T, class REORDER_T>
+    void Distribution<MPI_T,REORDER_T>::shuffle_indices(complexDoubleHost* Buff1, complexDoubleHost* Buff2, int n){
+        reordering.shuffle_indices(Buff1,Buff2,n);
+    }
+
+    template<class MPI_T, class REORDER_T>
+    void Distribution<MPI_T,REORDER_T>::shuffle_indices(complexFloatDevice* Buff1, complexFloatDevice* Buff2, int n){
+        reordering.shuffle_indices(Buff1,Buff2,n);
+    }
+
+    template<class MPI_T, class REORDER_T>
+    void Distribution<MPI_T,REORDER_T>::shuffle_indices(complexFloatHost* Buff1, complexFloatHost* Buff2, int n){
+        reordering.shuffle_indices(Buff1,Buff2,n);
+    }
+
+    template<class MPI_T, class REORDER_T>
+    void Distribution<MPI_T,REORDER_T>::reorder(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2, int n, int direction){
+        reordering.reorder(Buff1,Buff2,n, direction);
+    }
+
+    template<class MPI_T, class REORDER_T>
+    void Distribution<MPI_T,REORDER_T>::reorder(complexDoubleHost* Buff1, complexDoubleHost* Buff2, int n, int direction){
+        reordering.reorder(Buff1,Buff2,n, direction);
+    }
+
+    template<class MPI_T, class REORDER_T>
+    void Distribution<MPI_T,REORDER_T>::reorder(complexFloatDevice* Buff1, complexFloatDevice* Buff2, int n, int direction){
+        reordering.reorder(Buff1,Buff2,n, direction);
+    }
+
+    template<class MPI_T, class REORDER_T>
+    void Distribution<MPI_T,REORDER_T>::reorder(complexFloatHost* Buff1, complexFloatHost* Buff2, int n, int direction){
+        reordering.reorder(Buff1,Buff2,n, direction);
+    }
+
+    template class Distribution<CPUMPI,CPUReorder>;
+    #ifdef GPU
+    template class Distribution<CPUMPI,GPUReorder>;
+    #ifndef nocudampi
+    template class Distribution<GPUMPI,CPUReorder>;
+    template class Distribution<GPUMPI,GPUReorder>;
+    #endif
+    #endif
 }
 
 #endif
