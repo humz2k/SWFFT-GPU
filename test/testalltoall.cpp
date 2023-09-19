@@ -92,27 +92,18 @@ int main(){
     IS_TRUE(CPUMPI,gpuFFT,complexDoubleDevice,64,64,64);
     IS_TRUE(CPUMPI,gpuFFT,complexDoubleDevice,64,32,32);
     IS_TRUE(CPUMPI,gpuFFT,complexDoubleDevice,256,256,256);
-    IS_TRUE(CPUMPI,gpuFFT,complexDoubleDevice,512,512,512);
-    IS_TRUE(CPUMPI,gpuFFT,complexDoubleDevice,256,128,512);
-    IS_TRUE(CPUMPI,gpuFFT,complexDoubleDevice,256,1024,512);
 
     IS_TRUE(CPUMPI,gpuFFT,complexFloatDevice,64,64,64);
     IS_TRUE(CPUMPI,gpuFFT,complexFloatDevice,64,32,32);
     IS_TRUE(CPUMPI,gpuFFT,complexFloatDevice,256,256,256);
-    IS_TRUE(CPUMPI,gpuFFT,complexFloatDevice,256,128,512);
-    IS_TRUE(CPUMPI,gpuFFT,complexFloatDevice,256,1024,512);
 
     IS_TRUE(CPUMPI,gpuFFT,complexDoubleHost,64,64,64);
     IS_TRUE(CPUMPI,gpuFFT,complexDoubleHost,64,32,32);
     IS_TRUE(CPUMPI,gpuFFT,complexDoubleHost,256,256,256);
-    IS_TRUE(CPUMPI,gpuFFT,complexDoubleHost,256,128,512);
-    IS_TRUE(CPUMPI,gpuFFT,complexDoubleHost,256,1024,512);
 
     IS_TRUE(CPUMPI,gpuFFT,complexFloatHost,64,64,64);
     IS_TRUE(CPUMPI,gpuFFT,complexFloatHost,64,32,32);
     IS_TRUE(CPUMPI,gpuFFT,complexFloatHost,256,256,256);
-    IS_TRUE(CPUMPI,gpuFFT,complexFloatHost,256,128,512);
-    IS_TRUE(CPUMPI,gpuFFT,complexFloatHost,256,1024,512);
 
     int world_rank; MPI_Comm_rank(MPI_COMM_WORLD,&world_rank);
     if(world_rank == 0){

@@ -3,7 +3,7 @@
 #endif
 #include "fftwrangler.hpp"
 
-//#include <mpi.h>
+#include <mpi.h>
 #ifdef GPUFFT
 #ifdef GPU
 #include <stdio.h>
@@ -75,14 +75,15 @@ gpufftHandle GPUPlanManager::find_plan(int ng, int nFFTs, gpufftType t){
             cufftResult_t err = gpufftPlan1d(&plans[i].plan,ng,t,nFFTs);
             if (err != GPUFFT_SUCCESS){
                 printf("CUFFT error: Plan creation failed with %s (ng = %d, nFFTs = %d)\n",_cudaGetErrorEnum(err),ng,nFFTs);
-                //MPI_Abort(MPI_COMM_WORLD,err);
+                MPI_Abort(MPI_COMM_WORLD,1);
             }
             return plans[i].plan;
 
         }
     }
     printf("Out of space for plans!\n");
-    exit(1);
+    MPI_Abort(MPI_COMM_WORLD,1);
+    return NULL;
 }
 
 void GPUPlanManager::forward(complexDoubleDevice* data, complexDoubleDevice* scratch, int ng, int nFFTs){
