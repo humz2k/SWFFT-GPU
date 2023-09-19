@@ -24,16 +24,13 @@ void allreduce(float* local, float* global, int n, MPI_Op op, MPI_Comm comm){
 }
 
 template<class FFT, class T>
-void check_kspace_(FFT &fft, T *a){
-
-    //complexDoubleDevice* a = (T*)malloc(sizeof(complexDoubleDevice) * fft.buffsz());
-    //gpuMemcpy(a,a_,sizeof(complexDoubleDevice)*fft.buffsz(),gpuMemcpyDeviceToHost);
+bool check_kspace_(FFT &fft, T *a){
 
     T LocalRealMin, LocalRealMax, LocalImagMin, LocalImagMax;
     LocalRealMin = LocalRealMax = a[2];
     LocalImagMin = LocalImagMax = a[3];
 
-    for(int local_indx=0; local_indx<fft.buffsz(); local_indx++) {
+    for(int local_indx=0; local_indx<fft.buff_sz(); local_indx++) {
         T re = a[local_indx*2];
         T im = a[local_indx*2 + 1];
 
@@ -43,7 +40,7 @@ void check_kspace_(FFT &fft, T *a){
         LocalImagMax = im > LocalImagMax ? im : LocalImagMax;
     }
 
-    const MPI_Comm comm = fft.world_comm();
+    const MPI_Comm comm = fft.comm();
 
     T GlobalRealMin, GlobalRealMax, GlobalImagMin, GlobalImagMax;
     allreduce(&LocalRealMin,&GlobalRealMin,1,MPI_MIN,comm);
@@ -51,7 +48,7 @@ void check_kspace_(FFT &fft, T *a){
     allreduce(&LocalImagMin,&GlobalImagMin,1,MPI_MIN,comm);
     allreduce(&LocalImagMax,&GlobalImagMax,1,MPI_MIN,comm);
 
-    if(fft.rank() == 0) {
+    /*if(fft.rank() == 0) {
     std::cout << std::endl << "k-space:" << std::endl
             << "real in " << std::scientific
             << "[" << GlobalRealMin << "," << GlobalRealMax << "]"
@@ -65,22 +62,25 @@ void check_kspace_(FFT &fft, T *a){
                 << "[" << f2u(GlobalImagMin) << ","
             << f2u(GlobalImagMax) << "]"
             << std::endl << std::endl << std::fixed;
-    }
+    }*/
+
+    if ((round(GlobalRealMin) == 1.0f) && (round(GlobalRealMax) == 1.0f) && (round(GlobalImagMin) == 0.0f) && (round(GlobalImagMax) == 0.0f))return true;
+    return false;
 
 }
 
 template<class FFT>
 void check_kspace(FFT& fft, complexDoubleDevice* a_){
-    double* a = (double*)malloc(sizeof(complexDoubleDevice) * fft.buffsz());
-    gpuMemcpy(a,a_,sizeof(complexDoubleDevice)*fft.buffsz(),gpuMemcpyDeviceToHost);
+    double* a = (double*)malloc(sizeof(complexDoubleDevice) * fft.buff_sz());
+    gpuMemcpy(a,a_,sizeof(complexDoubleDevice)*fft.buff_sz(),gpuMemcpyDeviceToHost);
     check_kspace_(fft,a);
     free(a);
 }
 
 template<class FFT>
 void check_kspace(FFT& fft, complexFloatDevice* a_){
-    float* a = (float*)malloc(sizeof(complexFloatDevice) * fft.buffsz());
-    gpuMemcpy(a,a_,sizeof(complexFloatDevice)*fft.buffsz(),gpuMemcpyDeviceToHost);
+    float* a = (float*)malloc(sizeof(complexFloatDevice) * fft.buff_sz());
+    gpuMemcpy(a,a_,sizeof(complexFloatDevice)*fft.buff_sz(),gpuMemcpyDeviceToHost);
     check_kspace_(fft,a);
     free(a);
 }

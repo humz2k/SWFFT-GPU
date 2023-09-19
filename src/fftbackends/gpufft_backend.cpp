@@ -3,10 +3,49 @@
 #endif
 #include "fftwrangler.hpp"
 
+//#include <mpi.h>
 #ifdef GPUFFT
 #ifdef GPU
 #include <stdio.h>
 #include <stdlib.h>
+
+static const char *_cudaGetErrorEnum(cufftResult error)
+{
+    switch (error)
+    {
+        case CUFFT_SUCCESS:
+            return "CUFFT_SUCCESS";
+
+        case CUFFT_INVALID_PLAN:
+            return "CUFFT_INVALID_PLAN";
+
+        case CUFFT_ALLOC_FAILED:
+            return "CUFFT_ALLOC_FAILED";
+
+        case CUFFT_INVALID_TYPE:
+            return "CUFFT_INVALID_TYPE";
+
+        case CUFFT_INVALID_VALUE:
+            return "CUFFT_INVALID_VALUE";
+
+        case CUFFT_INTERNAL_ERROR:
+            return "CUFFT_INTERNAL_ERROR";
+
+        case CUFFT_EXEC_FAILED:
+            return "CUFFT_EXEC_FAILED";
+
+        case CUFFT_SETUP_FAILED:
+            return "CUFFT_SETUP_FAILED";
+
+        case CUFFT_INVALID_SIZE:
+            return "CUFFT_INVALID_SIZE";
+
+        case CUFFT_UNALIGNED_DATA:
+            return "CUFFT_UNALIGNED_DATA";
+    }
+
+    return "<unknown>";
+}
 
 GPUPlanManager::GPUPlanManager(){
     for (int i = 0; i < N_FFT_CACHE; i++){
@@ -33,9 +72,10 @@ gpufftHandle GPUPlanManager::find_plan(int ng, int nFFTs, gpufftType t){
             plans[i].ng = ng;
             plans[i].nFFTs = nFFTs;
             plans[i].t = t;
-            if (gpufftPlan1d(&plans[i].plan,ng,t,nFFTs) != GPUFFT_SUCCESS){
-                printf("CUFFT error: Plan creation failed\n");
-                exit(1);
+            cufftResult_t err = gpufftPlan1d(&plans[i].plan,ng,t,nFFTs);
+            if (err != GPUFFT_SUCCESS){
+                printf("CUFFT error: Plan creation failed with %s (ng = %d, nFFTs = %d)\n",_cudaGetErrorEnum(err),ng,nFFTs);
+                //MPI_Abort(MPI_COMM_WORLD,err);
             }
             return plans[i].plan;
 

@@ -139,9 +139,9 @@ namespace A2A{
     void GPUReorder::shuffle_indices(complexDoubleHost* Buff1, complexDoubleHost* Buff2, int n){
         complexDoubleDevice* d_buff1; swfftAlloc(&d_buff1,nlocal*sizeof(complexDoubleDevice));
         complexDoubleDevice* d_buff2; swfftAlloc(&d_buff2,nlocal*sizeof(complexDoubleDevice));
-        gpuMemcpy(d_buff1,Buff1,nlocal*sizeof(complexDoubleHost),cudaMemcpyHostToDevice);
+        gpuMemcpy(d_buff2,Buff2,nlocal*sizeof(complexDoubleHost),cudaMemcpyHostToDevice);
         gpu_shuffle_indices(d_buff1,d_buff2,n);
-        gpuMemcpy(Buff2,d_buff2,nlocal*sizeof(complexDoubleHost),cudaMemcpyDeviceToHost);
+        gpuMemcpy(Buff1,d_buff1,nlocal*sizeof(complexDoubleHost),cudaMemcpyDeviceToHost);
         swfftFree(d_buff1);
         swfftFree(d_buff2);
     }
@@ -149,9 +149,9 @@ namespace A2A{
     void GPUReorder::shuffle_indices(complexFloatHost* Buff1, complexFloatHost* Buff2, int n){
         complexFloatDevice* d_buff1; swfftAlloc(&d_buff1,nlocal*sizeof(complexFloatHost));
         complexFloatDevice* d_buff2; swfftAlloc(&d_buff2,nlocal*sizeof(complexFloatHost));
-        gpuMemcpy(d_buff1,Buff1,nlocal*sizeof(complexFloatDevice),cudaMemcpyHostToDevice);
+        gpuMemcpy(d_buff2,Buff2,nlocal*sizeof(complexFloatDevice),cudaMemcpyHostToDevice);
         gpu_shuffle_indices(d_buff1,d_buff2,n);
-        gpuMemcpy(Buff2,d_buff2,nlocal*sizeof(complexFloatDevice),cudaMemcpyDeviceToHost);
+        gpuMemcpy(Buff1,d_buff1,nlocal*sizeof(complexFloatDevice),cudaMemcpyDeviceToHost);
         swfftFree(d_buff1);
         swfftFree(d_buff2);
     }
@@ -179,9 +179,9 @@ namespace A2A{
     void GPUReorder::reorder(complexDoubleHost* Buff1, complexDoubleHost* Buff2, int n, int direction){
         complexDoubleDevice* d_buff1; swfftAlloc(&d_buff1,nlocal*sizeof(complexDoubleDevice));
         complexDoubleDevice* d_buff2; swfftAlloc(&d_buff2,nlocal*sizeof(complexDoubleDevice));
-        gpuMemcpy(d_buff1,Buff1,nlocal*sizeof(complexDoubleHost),cudaMemcpyHostToDevice);
+        gpuMemcpy(d_buff2,Buff2,nlocal*sizeof(complexDoubleHost),cudaMemcpyHostToDevice);
         gpu_reorder(d_buff1,d_buff2,n,direction);
-        gpuMemcpy(Buff2,d_buff2,nlocal*sizeof(complexDoubleHost),cudaMemcpyDeviceToHost);
+        gpuMemcpy(Buff1,d_buff1,nlocal*sizeof(complexDoubleHost),cudaMemcpyDeviceToHost);
         swfftFree(d_buff1);
         swfftFree(d_buff2);
     }
@@ -189,9 +189,9 @@ namespace A2A{
     void GPUReorder::reorder(complexFloatHost* Buff1, complexFloatHost* Buff2, int n, int direction){
         complexFloatDevice* d_buff1; swfftAlloc(&d_buff1,nlocal*sizeof(complexFloatDevice));
         complexFloatDevice* d_buff2; swfftAlloc(&d_buff2,nlocal*sizeof(complexFloatDevice));
-        gpuMemcpy(d_buff1,Buff1,nlocal*sizeof(complexFloatHost),cudaMemcpyHostToDevice);
+        gpuMemcpy(d_buff2,Buff2,nlocal*sizeof(complexFloatHost),cudaMemcpyHostToDevice);
         gpu_reorder(d_buff1,d_buff2,n,direction);
-        gpuMemcpy(Buff2,d_buff2,nlocal*sizeof(complexFloatHost),cudaMemcpyDeviceToHost);
+        gpuMemcpy(Buff1,d_buff1,nlocal*sizeof(complexFloatHost),cudaMemcpyDeviceToHost);
         swfftFree(d_buff1);
         swfftFree(d_buff2);
     }
