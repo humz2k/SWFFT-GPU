@@ -46,13 +46,9 @@ namespace A2A{
 
     }
 
+    #ifdef GPU
     template<class MPI_T,class REORDER_T,class FFTBackend>
     void Dfft<MPI_T,REORDER_T,FFTBackend>::forward(complexDoubleDevice* data, complexDoubleDevice* scratch){
-        fft(data,scratch,FFT_FORWARD);
-    }
-
-    template<class MPI_T,class REORDER_T,class FFTBackend>
-    void Dfft<MPI_T,REORDER_T,FFTBackend>::forward(complexDoubleHost* data, complexDoubleHost* scratch){
         fft(data,scratch,FFT_FORWARD);
     }
 
@@ -62,22 +58,28 @@ namespace A2A{
     }
 
     template<class MPI_T,class REORDER_T,class FFTBackend>
-    void Dfft<MPI_T,REORDER_T,FFTBackend>::forward(complexFloatHost* data, complexFloatHost* scratch){
-        fft(data,scratch,FFT_FORWARD);
-    }
-
-    template<class MPI_T,class REORDER_T,class FFTBackend>
     void Dfft<MPI_T,REORDER_T,FFTBackend>::backward(complexDoubleDevice* data, complexDoubleDevice* scratch){
         fft(data,scratch,FFT_BACKWARD);
     }
 
     template<class MPI_T,class REORDER_T,class FFTBackend>
-    void Dfft<MPI_T,REORDER_T,FFTBackend>::backward(complexDoubleHost* data, complexDoubleHost* scratch){
+    void Dfft<MPI_T,REORDER_T,FFTBackend>::backward(complexFloatDevice* data, complexFloatDevice* scratch){
         fft(data,scratch,FFT_BACKWARD);
+    }
+    #endif
+
+    template<class MPI_T,class REORDER_T,class FFTBackend>
+    void Dfft<MPI_T,REORDER_T,FFTBackend>::forward(complexDoubleHost* data, complexDoubleHost* scratch){
+        fft(data,scratch,FFT_FORWARD);
     }
 
     template<class MPI_T,class REORDER_T,class FFTBackend>
-    void Dfft<MPI_T,REORDER_T,FFTBackend>::backward(complexFloatDevice* data, complexFloatDevice* scratch){
+    void Dfft<MPI_T,REORDER_T,FFTBackend>::forward(complexFloatHost* data, complexFloatHost* scratch){
+        fft(data,scratch,FFT_FORWARD);
+    }
+
+    template<class MPI_T,class REORDER_T,class FFTBackend>
+    void Dfft<MPI_T,REORDER_T,FFTBackend>::backward(complexDoubleHost* data, complexDoubleHost* scratch){
         fft(data,scratch,FFT_BACKWARD);
     }
 

@@ -127,6 +127,7 @@ namespace A2A{
         cpu_shuffle_indices(Buff1,Buff2,n);
     }
 
+    #ifdef GPU
     void CPUReorder::shuffle_indices(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2, int n){
         complexDoubleHost* d_buff1; swfftAlloc(&d_buff1,nlocal*sizeof(complexDoubleDevice));
         complexDoubleHost* d_buff2; swfftAlloc(&d_buff2,nlocal*sizeof(complexDoubleDevice));
@@ -146,6 +147,7 @@ namespace A2A{
         swfftFree(d_buff1);
         swfftFree(d_buff2);
     }
+    #endif
 
     template<class T>
     void CPUReorder::cpu_reorder(T* Buff1, T* Buff2, int n, int direction){
@@ -166,6 +168,7 @@ namespace A2A{
         cpu_reorder(Buff1,Buff2,n,direction);
     }
 
+    #ifdef GPU
     void CPUReorder::reorder(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2, int n, int direction){
         complexDoubleHost* d_buff1; swfftAlloc(&d_buff1,nlocal*sizeof(complexDoubleDevice));
         complexDoubleHost* d_buff2; swfftAlloc(&d_buff2,nlocal*sizeof(complexDoubleDevice));
@@ -185,6 +188,7 @@ namespace A2A{
         swfftFree(d_buff1);
         swfftFree(d_buff2);
     }
+    #endif
 
 }
 

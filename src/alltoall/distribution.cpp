@@ -116,18 +116,20 @@ namespace A2A{
         mpi.alltoall(Buff1,Buff2,nsends,my_comm);
     }
 
+    #ifdef GPU
     template<class MPI_T, class REORDER_T>
     void Distribution<MPI_T,REORDER_T>::getPencils(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2, int n){
         getPencils_(Buff1,Buff2,n);
     }
 
-    template<class MPI_T, class REORDER_T>   
-    void Distribution<MPI_T,REORDER_T>::getPencils(complexDoubleHost* Buff1, complexDoubleHost* Buff2, int n){
-        getPencils_(Buff1,Buff2,n);
-    }
-    
     template<class MPI_T, class REORDER_T>
     void Distribution<MPI_T,REORDER_T>::getPencils(complexFloatDevice* Buff1, complexFloatDevice* Buff2, int n){
+        getPencils_(Buff1,Buff2,n);
+    }
+    #endif
+
+    template<class MPI_T, class REORDER_T>   
+    void Distribution<MPI_T,REORDER_T>::getPencils(complexDoubleHost* Buff1, complexDoubleHost* Buff2, int n){
         getPencils_(Buff1,Buff2,n);
     }
     
@@ -148,18 +150,20 @@ namespace A2A{
         mpi.alltoall(Buff1,Buff2,nsends,my_comm);
     }
 
+    #ifdef GPU
     template<class MPI_T, class REORDER_T>
     void Distribution<MPI_T,REORDER_T>::returnPencils(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2, int n){
         returnPencils_(Buff1,Buff2,n);
     }
 
-    template<class MPI_T, class REORDER_T>   
-    void Distribution<MPI_T,REORDER_T>::returnPencils(complexDoubleHost* Buff1, complexDoubleHost* Buff2, int n){
-        returnPencils_(Buff1,Buff2,n);
-    }
-    
     template<class MPI_T, class REORDER_T>
     void Distribution<MPI_T,REORDER_T>::returnPencils(complexFloatDevice* Buff1, complexFloatDevice* Buff2, int n){
+        returnPencils_(Buff1,Buff2,n);
+    }
+    #endif
+
+    template<class MPI_T, class REORDER_T>   
+    void Distribution<MPI_T,REORDER_T>::returnPencils(complexDoubleHost* Buff1, complexDoubleHost* Buff2, int n){
         returnPencils_(Buff1,Buff2,n);
     }
     
@@ -168,18 +172,20 @@ namespace A2A{
         returnPencils_(Buff1,Buff2,n);
     }
 
+    #ifdef GPU
     template<class MPI_T, class REORDER_T>
     void Distribution<MPI_T,REORDER_T>::shuffle_indices(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2, int n){
         reordering.shuffle_indices(Buff1,Buff2,n);
     }
 
     template<class MPI_T, class REORDER_T>
-    void Distribution<MPI_T,REORDER_T>::shuffle_indices(complexDoubleHost* Buff1, complexDoubleHost* Buff2, int n){
+    void Distribution<MPI_T,REORDER_T>::shuffle_indices(complexFloatDevice* Buff1, complexFloatDevice* Buff2, int n){
         reordering.shuffle_indices(Buff1,Buff2,n);
     }
+    #endif
 
     template<class MPI_T, class REORDER_T>
-    void Distribution<MPI_T,REORDER_T>::shuffle_indices(complexFloatDevice* Buff1, complexFloatDevice* Buff2, int n){
+    void Distribution<MPI_T,REORDER_T>::shuffle_indices(complexDoubleHost* Buff1, complexDoubleHost* Buff2, int n){
         reordering.shuffle_indices(Buff1,Buff2,n);
     }
 
@@ -188,18 +194,20 @@ namespace A2A{
         reordering.shuffle_indices(Buff1,Buff2,n);
     }
 
+    #ifdef GPU
     template<class MPI_T, class REORDER_T>
     void Distribution<MPI_T,REORDER_T>::reorder(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2, int n, int direction){
         reordering.reorder(Buff1,Buff2,n, direction);
     }
 
     template<class MPI_T, class REORDER_T>
-    void Distribution<MPI_T,REORDER_T>::reorder(complexDoubleHost* Buff1, complexDoubleHost* Buff2, int n, int direction){
+    void Distribution<MPI_T,REORDER_T>::reorder(complexFloatDevice* Buff1, complexFloatDevice* Buff2, int n, int direction){
         reordering.reorder(Buff1,Buff2,n, direction);
     }
+    #endif
 
     template<class MPI_T, class REORDER_T>
-    void Distribution<MPI_T,REORDER_T>::reorder(complexFloatDevice* Buff1, complexFloatDevice* Buff2, int n, int direction){
+    void Distribution<MPI_T,REORDER_T>::reorder(complexDoubleHost* Buff1, complexDoubleHost* Buff2, int n, int direction){
         reordering.reorder(Buff1,Buff2,n, direction);
     }
 

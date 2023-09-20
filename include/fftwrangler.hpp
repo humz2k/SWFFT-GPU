@@ -6,16 +6,15 @@
 enum fftdirection {FFT_FORWARD, FFT_BACKWARD};
 
 #define gpuFFT GPUPlanManager
-#define fftw FFTWPlanWrapper
+#define fftw FFTWPlanManager
 
 #include "complex-type.h"
+
+#include "gpu.hpp"
 
 #ifdef FFTW
 #include <fftw3.h>
 #include <map>
-#ifdef GPU
-#include "gpu.hpp"
-#endif
 
 template<class T, class plan_t>
 class FFTWPlanWrapper{
@@ -67,7 +66,6 @@ class FFTWPlanManager{
 
 #ifdef GPUFFT
 #ifdef GPU
-#include "gpu.hpp"
 
 class GPUPlanWrapper{
     public:

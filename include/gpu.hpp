@@ -1,6 +1,6 @@
 #ifndef GPUSEEN
 #define GPUSEEN
-
+#ifdef GPU
 #ifdef CUDA
 #include <cuda_runtime.h>
 #include <cufft.h>
@@ -132,3 +132,20 @@ inline void swfftFree(complexFloatDevice* ptr){
 }
 
 #endif
+#ifndef GPU
+typedef struct {
+    int x;
+    int y;
+    int z;
+} int3;
+
+inline int3 make_int3(int x, int y, int z){
+    int3 out;
+    out.x = x;
+    out.y = y;
+    out.z = z;
+    return out;
+}
+#endif
+#endif
+

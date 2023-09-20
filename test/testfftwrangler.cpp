@@ -218,8 +218,8 @@ int main(){
             IS_TRUE(test_fftwrangler,complexFloatDevice,GPUPlanManager,256);
         #endif
     #endif*/
-    IS_TRUE(test_fftwrangler,complexFloatDevice,GPUPlanManager,256);
-    IS_TRUE(test_fftwrangler,complexFloatDevice,GPUPlanManager,512);
+    //IS_TRUE(test_fftwrangler,complexFloatDevice,GPUPlanManager,256);
+    //IS_TRUE(test_fftwrangler,complexFloatDevice,GPUPlanManager,512);
     printf("%d/%d tests passed\n",n_passed,n_tests);
     return 0;
 }

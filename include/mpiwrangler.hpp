@@ -2,9 +2,7 @@
 #define MPI_WRANGLER_INCLUDED
 #include <mpi.h>
 
-#ifdef GPU
 #include "gpu.hpp"
-#endif
 
 #include "complex-type.h"
 

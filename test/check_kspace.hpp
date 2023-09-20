@@ -2,6 +2,7 @@
 #include "swfft.hpp"
 #include <string.h>
 #include <iostream>
+#include <math.h>
 
 uint64_t f2u(double d) {
   uint64_t i;
@@ -48,27 +49,28 @@ bool check_kspace_(FFT &fft, T *a){
     allreduce(&LocalImagMin,&GlobalImagMin,1,MPI_MIN,comm);
     allreduce(&LocalImagMax,&GlobalImagMax,1,MPI_MIN,comm);
 
-    /*if(fft.rank() == 0) {
-    std::cout << std::endl << "k-space:" << std::endl
-            << "real in " << std::scientific
+    if(fft.rank() == 0) {
+    std::cout << "k-space:" << std::endl
+            << "      real in " << std::scientific
             << "[" << GlobalRealMin << "," << GlobalRealMax << "]"
             << " = " << std::hex
             << "[" << f2u(GlobalRealMin) << ","
             << f2u(GlobalRealMax) << "]"
             << std::endl
-            << "imag in " << std::scientific
+            << "      imag in " << std::scientific
             << "[" << GlobalImagMin << "," << GlobalImagMax << "]"
             << " = " << std::hex
                 << "[" << f2u(GlobalImagMin) << ","
             << f2u(GlobalImagMax) << "]"
-            << std::endl << std::endl << std::fixed;
-    }*/
+            << std::endl << "   " << std::fixed;
+    }
 
     if ((round(GlobalRealMin) == 1) && (round(GlobalRealMax) == 1) && (round(GlobalImagMin) == 0) && (round(GlobalImagMax) == 0))return true;
     return false;
 
 }
 
+#ifdef GPU
 template<class FFT>
 bool check_kspace(FFT& fft, complexDoubleDevice* a_){
     double* a = (double*)malloc(sizeof(complexDoubleDevice) * fft.buff_sz());
@@ -86,6 +88,7 @@ bool check_kspace(FFT& fft, complexFloatDevice* a_){
     free(a);
     return out;
 }
+#endif
 
 template<class FFT>
 bool check_kspace(FFT& fft, complexDoubleHost* a){
