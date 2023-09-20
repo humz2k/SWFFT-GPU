@@ -95,10 +95,17 @@ namespace A2A{
             #ifdef GPU
             void fill_test(complexDoubleDevice* data);
             void fill_test(complexFloatDevice* data);
+            bool check_test(complexDoubleDevice* data);
+            bool check_test(complexFloatDevice* data);
             #endif
-            
+
             void fill_test(complexDoubleHost* data);
             void fill_test(complexFloatHost* data);
+            bool check_test(complexDoubleHost* data);
+            bool check_test(complexFloatHost* data);
+
+            template<class T>
+            bool _test_distribution();
         
         public:
             int ng[3];
@@ -114,7 +121,6 @@ namespace A2A{
             Dfft(Distribution<MPI_T,REORDER_T>& dist_, bool ks_as_block_);
             ~Dfft();
 
-            template<class T>
             bool test_distribution();
 
             int3 k_idx(int idx);
@@ -159,6 +165,10 @@ class AllToAllGPU{
         }
 
         ~AllToAllGPU(){};
+
+        bool test_distribution(){
+            return dfft.test_distribution();
+        }
 
         int ngx(){
             return dfft.ng[0];
@@ -338,6 +348,10 @@ class AllToAllCPU{
         }
 
         ~AllToAllCPU(){};
+
+        bool test_distribution(){
+            return dfft.test_distribution();
+        }
 
         int ngx(){
             return dfft.ng[0];

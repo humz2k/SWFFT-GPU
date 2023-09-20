@@ -59,7 +59,7 @@ endif
 
 #$(patsubst .cpp,.o,$(wildcard src/**/*.cpp) $(wildcard src/*.cpp))
 
-main: $(DFFT_BUILD_DIR)/testdfft $(DFFT_BUILD_DIR)/testfftwrangler $(DFFT_BUILD_DIR)/testmpiwrangler $(DFFT_BUILD_DIR)/testalltoall
+main: $(DFFT_BUILD_DIR)/testdfft $(DFFT_BUILD_DIR)/testfftwrangler $(DFFT_BUILD_DIR)/testmpiwrangler $(DFFT_BUILD_DIR)/testalltoall $(DFFT_BUILD_DIR)/testdistribution
 
 $(DFFT_BUILD_DIR)/%: test/%.cpp | $(DFFT_AR) $(DFFT_BUILD_DIR)
 	$(DFFT_MPI_CXX) $(GPU_FLAG) $(DFFT_CUDA_MPI) -D$(DFFT_GPU) $(DFFT_DIST_BACKEND_DEFINES) $(DFFT_FFT_BACKEND_DEFINES) $(DFFT_INCLUDE) $< $(DFFT_FFTW_LDFLAGS) -L$(DFFT_LIB_DIR) -lswfft -L$(DFFT_CUDA_LIB) $(DFFT_CUDA_LD) -o $@

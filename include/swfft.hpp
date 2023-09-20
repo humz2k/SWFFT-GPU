@@ -23,6 +23,10 @@ class swfft{
 
         }
 
+        bool test_distribution(){
+            return backend.test_distribution();
+        }
+
         int ngx(){
             return backend.ngx();
         }

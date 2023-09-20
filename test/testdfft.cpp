@@ -89,6 +89,8 @@ bool test(int ngx, int ngy_ = 0, int ngz_ = 0){
     if (out){
         if(world_rank == 0)printf("Passed!\n\n");
         n_passed++;
+    } else {
+        if(world_rank == 0)printf("Failed...\n\n");
     }
 
     swfftFree(data);
