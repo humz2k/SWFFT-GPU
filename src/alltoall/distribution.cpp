@@ -127,7 +127,11 @@ namespace A2A{
     }
 
     template<class MPI_T, class REORDER_T>
-    Distribution<MPI_T,REORDER_T>::~Distribution(){};
+    Distribution<MPI_T,REORDER_T>::~Distribution(){
+        for (int i = 0; i < 2; i++){
+            MPI_Comm_free(&fftcomms[i]);
+        }
+    };
 
     template<class MPI_T, class REORDER_T>
     template<class T>
