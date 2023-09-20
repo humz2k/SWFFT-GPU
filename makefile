@@ -45,10 +45,17 @@ DFFT_MPI_CXX ?= mpicxx -O3
 DFFT_CUDA_CC ?= nvcc -O3
 
 SOURCEDIR ?= src
+ifeq ($(USE_GPU), TRUE)
 SOURCES := $(shell find $(SOURCEDIR) -name '*.cpp') $(shell find $(SOURCEDIR) -name '*.cu')
 OBJECTS := $(SOURCES:%.cpp=%.o)
 OBJECTS := $(OBJECTS:%.cu=%.o)
 OUTPUTS := $(OBJECTS:src%=lib%)
+else
+SOURCES := $(shell find $(SOURCEDIR) -name '*.cpp')
+OBJECTS := $(SOURCES:%.cpp=%.o)
+OUTPUTS := $(OBJECTS:src%=lib%)
+endif
+
 
 #$(patsubst .cpp,.o,$(wildcard src/**/*.cpp) $(wildcard src/*.cpp))
 
