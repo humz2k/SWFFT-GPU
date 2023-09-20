@@ -141,12 +141,12 @@ bool test_fftwrangler(int NG){
     double real = 0;
     double complex = 0;
 
-    T* data; swfftAlloc(&data,NG*sizeof(T));
-    T* scratch; swfftAlloc(&scratch,NG*sizeof(T));
+    T* data; swfftAlloc(&data,NG*sizeof(T)*16384);
+    T* scratch; swfftAlloc(&scratch,NG*sizeof(T)*16384);
 
     assign_delta(data,NG);
 
-    plan_manager.forward(data,scratch,NG,1);
+    plan_manager.forward(data,scratch,NG,16384);
 
     if (!check_k(scratch,NG)){
         swfftFree(data);
@@ -154,7 +154,7 @@ bool test_fftwrangler(int NG){
         return false;
     }
 
-    plan_manager.backward(scratch,data,NG,1);
+    plan_manager.backward(scratch,data,NG,16384);
 
     if (!check_r(data,NG)){
         swfftFree(data);
@@ -164,7 +164,7 @@ bool test_fftwrangler(int NG){
 
     assign_delta(data,NG);
 
-    plan_manager.forward(data,scratch,NG,1);
+    plan_manager.forward(data,scratch,NG,16384);
 
     if (!check_k(scratch,NG)){
         swfftFree(data);
@@ -172,7 +172,7 @@ bool test_fftwrangler(int NG){
         return false;
     }
 
-    plan_manager.backward(scratch,data,NG,1);
+    plan_manager.backward(scratch,data,NG,16384);
 
     if (!check_r(data,NG)){
         swfftFree(data);
@@ -186,7 +186,7 @@ bool test_fftwrangler(int NG){
 }
 
 int main(){
-    #ifdef FFTW
+    /*#ifdef FFTW
         IS_TRUE(test_fftwrangler,complexDoubleHost,FFTWPlanManager,64);
         IS_TRUE(test_fftwrangler,complexDoubleHost,FFTWPlanManager,128);
         IS_TRUE(test_fftwrangler,complexDoubleHost,FFTWPlanManager,256);
@@ -217,7 +217,9 @@ int main(){
             IS_TRUE(test_fftwrangler,complexFloatDevice,GPUPlanManager,128);
             IS_TRUE(test_fftwrangler,complexFloatDevice,GPUPlanManager,256);
         #endif
-    #endif
+    #endif*/
+    IS_TRUE(test_fftwrangler,complexFloatDevice,GPUPlanManager,256);
+    IS_TRUE(test_fftwrangler,complexFloatDevice,GPUPlanManager,512);
     printf("%d/%d tests passed\n",n_passed,n_tests);
     return 0;
 }

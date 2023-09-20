@@ -117,13 +117,16 @@ namespace A2A{
         int numBlocks = (nlocal + (blockSize - 1)) / blockSize;
         switch(n){
             case 0:
-                GPUREORDER::d_fast_z_to_x<<<numBlocks,blockSize>>>(Buff2,Buff1,local_grid.z,local_grid.y,local_grid.z,nlocal);
+                gpuLaunch(GPUREORDER::d_fast_z_to_x,numBlocks,blockSize,Buff2,Buff1,local_grid.x,local_grid.y,local_grid.z,nlocal);
+                //GPUREORDER::d_fast_z_to_x<<<numBlocks,blockSize>>>();
                 break;
             case 1:
-                GPUREORDER::d_fast_x_to_y<<<numBlocks,blockSize>>>(Buff2,Buff1,local_grid.z,local_grid.y,local_grid.z,nlocal);
+                gpuLaunch(GPUREORDER::d_fast_x_to_y,numBlocks,blockSize,Buff2,Buff1,local_grid.x,local_grid.y,local_grid.z,nlocal);
+                //GPUREORDER::d_fast_x_to_y<<<numBlocks,blockSize>>>(Buff2,Buff1,local_grid.z,local_grid.y,local_grid.z,nlocal);
                 break;
             case 2:
-                GPUREORDER::d_fast_y_to_z<<<numBlocks,blockSize>>>(Buff2,Buff1,local_grid.z,local_grid.y,local_grid.z,nlocal);
+                gpuLaunch(GPUREORDER::d_fast_y_to_z,numBlocks,blockSize,Buff2,Buff1,local_grid.x,local_grid.y,local_grid.z,nlocal);
+                //GPUREORDER::d_fast_y_to_z<<<numBlocks,blockSize>>>(Buff2,Buff1,local_grid.z,local_grid.y,local_grid.z,nlocal);
                 break;
         }
     }
@@ -162,9 +165,11 @@ namespace A2A{
         int nsends = (nlocal / world_size);
         int numBlocks = (nlocal + (blockSize - 1)) / blockSize;
         if (direction == 0){
-            GPUREORDER::reorder_forwards_kernel<<<numBlocks,blockSize>>>(Buff2,Buff1,nsends / local_grid_size[dim],world_size,local_grid_size[dim],nlocal);
+            gpuLaunch(GPUREORDER::reorder_forwards_kernel,numBlocks,blockSize,Buff2,Buff1,nsends / local_grid_size[dim],world_size,local_grid_size[dim],nlocal);
+            //GPUREORDER::reorder_forwards_kernel<<<numBlocks,blockSize>>>(Buff2,Buff1,nsends / local_grid_size[dim],world_size,local_grid_size[dim],nlocal);
         } else {
-            GPUREORDER::reorder_backwards_kernel<<<numBlocks,blockSize>>>(Buff2,Buff1,nsends / local_grid_size[dim],world_size,local_grid_size[dim],nlocal);
+            gpuLaunch(GPUREORDER::reorder_backwards_kernel,numBlocks,blockSize,Buff2,Buff1,nsends / local_grid_size[dim],world_size,local_grid_size[dim],nlocal);
+            //GPUREORDER::reorder_backwards_kernel<<<numBlocks,blockSize>>>(Buff2,Buff1,nsends / local_grid_size[dim],world_size,local_grid_size[dim],nlocal);
         }
     }
 

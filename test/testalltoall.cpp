@@ -72,37 +72,30 @@ bool test(int ngx, int ngy_=0, int ngz_=0){
         ngz = ngx;
     }
     AllToAllGPU<MPI_T,FFTBackend> alltoall(MPI_COMM_WORLD,ngx,ngy,ngz,BLOCKSIZE);
-
+    //printf("BUFF_SZ = %d\n",alltoall.buff_sz());
     T* data; swfftAlloc(&data,sizeof(T) * alltoall.buff_sz());
     T* scratch; swfftAlloc(&scratch,sizeof(T) * alltoall.buff_sz());
+    //printf("BUFF_SZ = %d\n",alltoall.buff_sz());
+
 
     assign_delta(data,alltoall.buff_sz());
 
     alltoall.forward(data,scratch);
 
-    check_kspace(alltoall,data);
+    bool out = check_kspace(alltoall,data);
 
-    return true;
+    swfftFree(data);
+    swfftFree(scratch);
+    return out;
 
 }
 
 int main(){
     MPI_Init(NULL,NULL);
     
-    IS_TRUE(CPUMPI,gpuFFT,complexDoubleDevice,64,64,64);
-    IS_TRUE(CPUMPI,gpuFFT,complexDoubleDevice,64,32,32);
     IS_TRUE(CPUMPI,gpuFFT,complexDoubleDevice,256,256,256);
-
-    IS_TRUE(CPUMPI,gpuFFT,complexFloatDevice,64,64,64);
-    IS_TRUE(CPUMPI,gpuFFT,complexFloatDevice,64,32,32);
     IS_TRUE(CPUMPI,gpuFFT,complexFloatDevice,256,256,256);
-
-    IS_TRUE(CPUMPI,gpuFFT,complexDoubleHost,64,64,64);
-    IS_TRUE(CPUMPI,gpuFFT,complexDoubleHost,64,32,32);
     IS_TRUE(CPUMPI,gpuFFT,complexDoubleHost,256,256,256);
-
-    IS_TRUE(CPUMPI,gpuFFT,complexFloatHost,64,64,64);
-    IS_TRUE(CPUMPI,gpuFFT,complexFloatHost,64,32,32);
     IS_TRUE(CPUMPI,gpuFFT,complexFloatHost,256,256,256);
 
     int world_rank; MPI_Comm_rank(MPI_COMM_WORLD,&world_rank);

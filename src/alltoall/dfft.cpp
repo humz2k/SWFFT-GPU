@@ -27,7 +27,7 @@ namespace A2A{
         for (int i = 0; i < 3; i++){
             dist.getPencils(data,scratch,i);
             dist.reorder(data,scratch,i,0);
-
+            //gpuDeviceSynchronize();
             int nFFTs = (nlocal / ng[i]);
             if (direction == FFT_FORWARD){
                 FFTs.forward(data,scratch,ng[i],nFFTs);
@@ -36,10 +36,11 @@ namespace A2A{
             }
 
             dist.reorder(data,scratch,i,1);
-
+            //gpuDeviceSynchronize();
             dist.returnPencils(data,scratch,i);
 
             dist.shuffle_indices(data,scratch,i);
+            //gpuDeviceSynchronize();
 
         }
 

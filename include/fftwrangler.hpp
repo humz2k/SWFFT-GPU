@@ -85,7 +85,7 @@ class GPUPlanManager{
         GPUPlanManager();
         ~GPUPlanManager();
 
-        gpufftHandle find_plan(int ng, int nFFTs, gpufftType t);
+        gpufftHandle* find_plan(int ng, int nFFTs, gpufftType t);
         
         void forward(complexDoubleDevice* data, complexDoubleDevice* scratch, int ng, int nFFTs);
         void forward(complexFloatDevice* data, complexFloatDevice* scratch, int ng, int nFFTs);

@@ -108,13 +108,13 @@ namespace A2A{
     void CPUReorder::cpu_shuffle_indices(T* Buff1, T* Buff2, int n){
         switch(n){
             case 0:
-                CPUREORDER::d_fast_z_to_x(Buff2,Buff1,local_grid.z,local_grid.y,local_grid.z,nlocal);
+                CPUREORDER::d_fast_z_to_x(Buff2,Buff1,local_grid.x,local_grid.y,local_grid.z,nlocal);
                 break;
             case 1:
-                CPUREORDER::d_fast_x_to_y(Buff2,Buff1,local_grid.z,local_grid.y,local_grid.z,nlocal);
+                CPUREORDER::d_fast_x_to_y(Buff2,Buff1,local_grid.x,local_grid.y,local_grid.z,nlocal);
                 break;
             case 2:
-                CPUREORDER::d_fast_y_to_z(Buff2,Buff1,local_grid.z,local_grid.y,local_grid.z,nlocal);
+                CPUREORDER::d_fast_y_to_z(Buff2,Buff1,local_grid.x,local_grid.y,local_grid.z,nlocal);
                 break;
         }
     }
