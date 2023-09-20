@@ -1,3 +1,9 @@
+
+#ifndef ALLTOALL
+int main(){
+    return 0;
+}
+#else
 #include "alltoall.hpp"
 #include "check_kspace.hpp"
 #include <stdio.h>
@@ -154,3 +160,4 @@ int main(){
     MPI_Finalize();
     return 0;
 }
+#endif

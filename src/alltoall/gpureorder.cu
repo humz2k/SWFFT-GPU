@@ -134,7 +134,7 @@ namespace A2A{
     GPUReorder::GPUReorder(){};
 
     template<class T>
-    void GPUReorder::gpu_shuffle_indices(T* Buff1, T* Buff2, int n){
+    inline void GPUReorder::gpu_shuffle_indices(T* Buff1, T* Buff2, int n){
         int numBlocks = (nlocal + (blockSize - 1)) / blockSize;
         switch(n){
             case 0:
@@ -185,7 +185,7 @@ namespace A2A{
     }
 
     template<class T>
-    void GPUReorder::gpu_reorder(T* Buff1, T* Buff2, int n, int direction){
+    inline void GPUReorder::gpu_reorder(T* Buff1, T* Buff2, int n, int direction){
         int dim = (n+2)%3;
         int nsends = (nlocal / world_size);
         int numBlocks = (nlocal + (blockSize - 1)) / blockSize;

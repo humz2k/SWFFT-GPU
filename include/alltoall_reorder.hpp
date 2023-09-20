@@ -26,7 +26,7 @@ namespace A2A{
             ~GPUReorder();
 
             template<class T>
-            void gpu_shuffle_indices(T* Buff1, T* Buff2, int n);
+            inline void gpu_shuffle_indices(T* Buff1, T* Buff2, int n);
 
             void shuffle_indices(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2, int n);
             void shuffle_indices(complexFloatDevice* Buff1, complexFloatDevice* Buff2, int n);
@@ -34,7 +34,7 @@ namespace A2A{
             void shuffle_indices(complexFloatHost* Buff1, complexFloatHost* Buff2, int n);
 
             template<class T>
-            void gpu_reorder(T* Buff1, T* Buff2, int n, int direction);
+            inline void gpu_reorder(T* Buff1, T* Buff2, int n, int direction);
 
             void reorder(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2, int n, int direction);
             void reorder(complexFloatDevice* Buff1, complexFloatDevice* Buff2, int n, int direction);

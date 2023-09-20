@@ -64,11 +64,11 @@ GPUPlanManager::~GPUPlanManager(){
     }
 }
 
-gpufftHandle* GPUPlanManager::find_plan(int ng, int nFFTs, gpufftType t){
+gpufftHandle GPUPlanManager::find_plan(int ng, int nFFTs, gpufftType t){
     for (int i = 0; i < N_FFT_CACHE; i++){
         if (plans[i].valid){
             if ((plans[i].ng == ng) && (plans[i].nFFTs == nFFTs) && (plans[i].t == t)){
-                return &plans[i].plan;
+                return plans[i].plan;
             }
         } else {
             plans[i].valid = true;
@@ -78,7 +78,7 @@ gpufftHandle* GPUPlanManager::find_plan(int ng, int nFFTs, gpufftType t){
             if (gpufftPlan1d(&plans[i].plan,ng,t,nFFTs) != GPUFFT_SUCCESS){
                 printf("CUFFT error: Plan creation failed with (ng = %d, nFFTs = %d)\n",ng,nFFTs);
             }
-            return &plans[i].plan;
+            return plans[i].plan;
 
         }
     }
@@ -88,19 +88,19 @@ gpufftHandle* GPUPlanManager::find_plan(int ng, int nFFTs, gpufftType t){
 }
 
 void GPUPlanManager::forward(complexDoubleDevice* data, complexDoubleDevice* scratch, int ng, int nFFTs){
-    if (gpufftExecZ2Z(*find_plan(ng,nFFTs,GPUFFT_Z2Z),data,scratch,GPUFFT_FORWARD) != GPUFFT_SUCCESS){
+    if (gpufftExecZ2Z(find_plan(ng,nFFTs,GPUFFT_Z2Z),data,scratch,GPUFFT_FORWARD) != GPUFFT_SUCCESS){
         printf("CUFFT error: ExecZ2Z FORWARD failed\n");
         return;
     }
-    gpuDeviceSynchronize();
+    //gpuDeviceSynchronize();
 }
 
 void GPUPlanManager::forward(complexFloatDevice* data, complexFloatDevice* scratch, int ng, int nFFTs){
-    if (gpufftExecC2C(*find_plan(ng,nFFTs,GPUFFT_C2C),data,scratch,GPUFFT_FORWARD) != GPUFFT_SUCCESS){
+    if (gpufftExecC2C(find_plan(ng,nFFTs,GPUFFT_C2C),data,scratch,GPUFFT_FORWARD) != GPUFFT_SUCCESS){
         printf("CUFFT error: ExecC2C FORWARD failed\n");
         return;
     }
-    gpuDeviceSynchronize();
+    //gpuDeviceSynchronize();
 }
 
 void GPUPlanManager::forward(complexDoubleHost* data, complexDoubleHost* scratch, int ng, int nFFTs){
@@ -125,14 +125,14 @@ void GPUPlanManager::forward(complexFloatHost* data, complexFloatHost* scratch, 
 }
 
 void GPUPlanManager::backward(complexDoubleDevice* data, complexDoubleDevice* scratch, int ng, int nFFTs){
-    if (gpufftExecZ2Z(*find_plan(ng,nFFTs,GPUFFT_Z2Z),data,scratch,GPUFFT_INVERSE) != GPUFFT_SUCCESS){
+    if (gpufftExecZ2Z(find_plan(ng,nFFTs,GPUFFT_Z2Z),data,scratch,GPUFFT_INVERSE) != GPUFFT_SUCCESS){
         printf("CUFFT error: ExecZ2Z BACKWARD failed\n");
         return;
     }
 }
 
 void GPUPlanManager::backward(complexFloatDevice* data, complexFloatDevice* scratch, int ng, int nFFTs){
-    if (gpufftExecC2C(*find_plan(ng,nFFTs,GPUFFT_C2C),data,scratch,GPUFFT_INVERSE) != GPUFFT_SUCCESS){
+    if (gpufftExecC2C(find_plan(ng,nFFTs,GPUFFT_C2C),data,scratch,GPUFFT_INVERSE) != GPUFFT_SUCCESS){
         printf("CUFFT error: ExecC2C BACKWARD failed\n");
         return;
     }

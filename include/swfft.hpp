@@ -4,6 +4,7 @@
 #include "mpiwrangler.hpp"
 #include "gpu.hpp"
 #include "complex-type.h"
+#include "timing-stats.h"
 
 #ifdef ALLTOALL
 #include "alltoall.hpp"
@@ -13,14 +14,19 @@ template<template<class,class>class DistBackend, class MPI_T, class FFTBackend>
 class swfft{
     private:
         DistBackend<MPI_T,FFTBackend> backend;
+        double last_time;
     
     public:
-        swfft(MPI_Comm comm, int ngx, int blockSize, bool ks_as_block = true) : backend(comm,ngx,blockSize,ks_as_block){
+        swfft(MPI_Comm comm, int ngx, int blockSize, bool ks_as_block = true) : backend(comm,ngx,blockSize,ks_as_block), last_time(0){
 
         }
 
-        swfft(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize, bool ks_as_block = true) : backend(comm,ngx,ngx,ngx,blockSize,ks_as_block){
+        swfft(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize, bool ks_as_block = true) : backend(comm,ngx,ngx,ngx,blockSize,ks_as_block), last_time(0){
 
+        }
+
+        void printLastTime(){
+            printTimingStats(backend.comm(),"DFFT",last_time);
         }
 
         bool test_distribution(){
@@ -65,22 +71,42 @@ class swfft{
 
         template<class T>
         void forward(T* buff1, T* buff2){
+            double start = MPI_Wtime();
+
             backend.forward(buff1,buff2);
+
+            double end = MPI_Wtime();
+            last_time = end-start;
         }
 
         template<class T>
         void backward(T* buff1, T* buff2){
+            double start = MPI_Wtime();
+
             backend.backward(buff1,buff2);
+
+            double end = MPI_Wtime();
+            last_time = end-start;
         }
 
         template<class T>
         void forward(T* buff1){
+            double start = MPI_Wtime();
+
             backend.forward(buff1);
+
+            double end = MPI_Wtime();
+            last_time = end-start;
         }
 
         template<class T>
         void backward(T* buff1){
+            double start = MPI_Wtime();
+
             backend.backward(buff1);
+
+            double end = MPI_Wtime();
+            last_time = end-start;
         }
 
 };

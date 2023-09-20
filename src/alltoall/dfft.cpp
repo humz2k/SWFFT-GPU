@@ -187,7 +187,8 @@ namespace A2A{
 
     template<class MPI_T,class REORDER_T,class FFTBackend>
     template<class T>
-    void Dfft<MPI_T,REORDER_T,FFTBackend>::fft(T* data, T* scratch, fftdirection direction){
+    double Dfft<MPI_T,REORDER_T,FFTBackend>::fft(T* data, T* scratch, fftdirection direction){
+        double start = MPI_Wtime();
         if (ks_as_block){
             #pragma GCC unroll 3
             for (int i = 0; i < 3; i++){
@@ -260,49 +261,50 @@ namespace A2A{
             }
 
         }
-
+        double end = MPI_Wtime();
+        return end - start;
     }
 
     #ifdef GPU
     template<class MPI_T,class REORDER_T,class FFTBackend>
-    void Dfft<MPI_T,REORDER_T,FFTBackend>::forward(complexDoubleDevice* data, complexDoubleDevice* scratch){
-        fft(data,scratch,FFT_FORWARD);
+    double Dfft<MPI_T,REORDER_T,FFTBackend>::forward(complexDoubleDevice* data, complexDoubleDevice* scratch){
+        return fft(data,scratch,FFT_FORWARD);
     }
 
     template<class MPI_T,class REORDER_T,class FFTBackend>
-    void Dfft<MPI_T,REORDER_T,FFTBackend>::forward(complexFloatDevice* data, complexFloatDevice* scratch){
-        fft(data,scratch,FFT_FORWARD);
+    double Dfft<MPI_T,REORDER_T,FFTBackend>::forward(complexFloatDevice* data, complexFloatDevice* scratch){
+        return fft(data,scratch,FFT_FORWARD);
     }
 
     template<class MPI_T,class REORDER_T,class FFTBackend>
-    void Dfft<MPI_T,REORDER_T,FFTBackend>::backward(complexDoubleDevice* data, complexDoubleDevice* scratch){
-        fft(data,scratch,FFT_BACKWARD);
+    double Dfft<MPI_T,REORDER_T,FFTBackend>::backward(complexDoubleDevice* data, complexDoubleDevice* scratch){
+        return fft(data,scratch,FFT_BACKWARD);
     }
 
     template<class MPI_T,class REORDER_T,class FFTBackend>
-    void Dfft<MPI_T,REORDER_T,FFTBackend>::backward(complexFloatDevice* data, complexFloatDevice* scratch){
-        fft(data,scratch,FFT_BACKWARD);
+    double Dfft<MPI_T,REORDER_T,FFTBackend>::backward(complexFloatDevice* data, complexFloatDevice* scratch){
+        return fft(data,scratch,FFT_BACKWARD);
     }
     #endif
 
     template<class MPI_T,class REORDER_T,class FFTBackend>
-    void Dfft<MPI_T,REORDER_T,FFTBackend>::forward(complexDoubleHost* data, complexDoubleHost* scratch){
-        fft(data,scratch,FFT_FORWARD);
+    double Dfft<MPI_T,REORDER_T,FFTBackend>::forward(complexDoubleHost* data, complexDoubleHost* scratch){
+        return fft(data,scratch,FFT_FORWARD);
     }
 
     template<class MPI_T,class REORDER_T,class FFTBackend>
-    void Dfft<MPI_T,REORDER_T,FFTBackend>::forward(complexFloatHost* data, complexFloatHost* scratch){
-        fft(data,scratch,FFT_FORWARD);
+    double Dfft<MPI_T,REORDER_T,FFTBackend>::forward(complexFloatHost* data, complexFloatHost* scratch){
+        return fft(data,scratch,FFT_FORWARD);
     }
 
     template<class MPI_T,class REORDER_T,class FFTBackend>
-    void Dfft<MPI_T,REORDER_T,FFTBackend>::backward(complexDoubleHost* data, complexDoubleHost* scratch){
-        fft(data,scratch,FFT_BACKWARD);
+    double Dfft<MPI_T,REORDER_T,FFTBackend>::backward(complexDoubleHost* data, complexDoubleHost* scratch){
+        return fft(data,scratch,FFT_BACKWARD);
     }
 
     template<class MPI_T,class REORDER_T,class FFTBackend>
-    void Dfft<MPI_T,REORDER_T,FFTBackend>::backward(complexFloatHost* data, complexFloatHost* scratch){
-        fft(data,scratch,FFT_BACKWARD);
+    double Dfft<MPI_T,REORDER_T,FFTBackend>::backward(complexFloatHost* data, complexFloatHost* scratch){
+        return fft(data,scratch,FFT_BACKWARD);
     }
 
     #ifdef FFTW

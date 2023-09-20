@@ -7,11 +7,22 @@
 #include "complex-type.h"
 
 class CPUMPI{
+    private:
+        void* _h_buff1;
+        void* _h_buff2;
+        size_t last_size;
+
+        void* get_h_buff1(size_t sz);
+        void* get_h_buff2(size_t sz);
+
     public:
         CPUMPI();
         ~CPUMPI();
 
         #ifdef GPU
+        template<class T>
+        void gpu_memcpy_alltoall(T* buff1, T* buff2, int n, MPI_Comm comm);
+        
         void alltoall(complexDoubleDevice* buff1, complexDoubleDevice* buff2, int n, MPI_Comm comm);
         void alltoall(complexFloatDevice* buff1, complexFloatDevice* buff2, int n, MPI_Comm comm);
         #endif

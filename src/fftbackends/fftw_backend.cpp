@@ -5,7 +5,7 @@
 
 #ifdef FFTW
 
-FFTWPlanManager::FFTWPlanManager(){
+FFTWPlanManager::FFTWPlanManager() : last_size(0){
     for (int i = 0; i < N_FFT_CACHE; i++){
         double_plans[i].valid = false;
         float_plans[i].valid = false;
@@ -21,6 +21,28 @@ FFTWPlanManager::~FFTWPlanManager(){
             fftwf_destroy_plan(float_plans[i].plan);
         }
     }
+    if (last_size != 0){
+        free(h_data);
+        free(h_scratch);
+    }
+}
+
+void FFTWPlanManager::allocate_host(size_t sz){
+    if (last_size == 0){
+        h_data = malloc(sz);
+        h_scratch = malloc(sz);
+        last_size = sz;
+        return;
+    }
+    if (last_size < sz){
+        free(h_data);
+        free(h_scratch);
+        h_data = malloc(sz);
+        h_scratch = malloc(sz);
+        last_size = sz;
+        return;
+    }
+    return;
 }
 
 
@@ -98,18 +120,20 @@ void FFTWPlanManager::forward(complexFloatHost* data, complexFloatHost* scratch,
 
 #ifdef GPU
 void FFTWPlanManager::forward(complexDoubleDevice* data, complexDoubleDevice* scratch, int ng, int nFFTs){
-    complexDoubleHost* h_data; swfftAlloc(&h_data,sizeof(complexDoubleHost) * ng * nFFTs);
-    complexDoubleHost* h_scratch; swfftAlloc(&h_scratch,sizeof(complexDoubleHost) * ng * nFFTs);
+    //complexDoubleHost* h_data; swfftAlloc(&h_data,sizeof(complexDoubleHost) * ng * nFFTs);
+    //complexDoubleHost* h_scratch; swfftAlloc(&h_scratch,sizeof(complexDoubleHost) * ng * nFFTs);
+    allocate_host(sizeof(complexDoubleHost) * ng * nFFTs);
     gpuMemcpy(h_data,data,sizeof(complexDoubleHost) * ng * nFFTs, gpuMemcpyDeviceToHost);
-    forward(h_data,h_scratch,ng,nFFTs);
+    forward((complexDoubleHost*)h_data,(complexDoubleHost*)h_scratch,ng,nFFTs);
     gpuMemcpy(scratch,h_scratch,sizeof(complexDoubleHost) * ng * nFFTs, gpuMemcpyHostToDevice);
 }
 
 void FFTWPlanManager::forward(complexFloatDevice* data, complexFloatDevice* scratch, int ng, int nFFTs){
-    complexFloatHost* h_data; swfftAlloc(&h_data,sizeof(complexFloatHost) * ng * nFFTs);
-    complexFloatHost* h_scratch; swfftAlloc(&h_scratch,sizeof(complexFloatHost) * ng * nFFTs);
+    //complexFloatHost* h_data; swfftAlloc(&h_data,sizeof(complexFloatHost) * ng * nFFTs);
+    //complexFloatHost* h_scratch; swfftAlloc(&h_scratch,sizeof(complexFloatHost) * ng * nFFTs);
+    allocate_host(sizeof(complexFloatHost) * ng * nFFTs);
     gpuMemcpy(h_data,data,sizeof(complexFloatHost) * ng * nFFTs, gpuMemcpyDeviceToHost);
-    forward(h_data,h_scratch,ng,nFFTs);
+    forward((complexFloatHost*)h_data,(complexFloatHost*)h_scratch,ng,nFFTs);
     gpuMemcpy(scratch,h_scratch,sizeof(complexFloatHost) * ng * nFFTs, gpuMemcpyHostToDevice);
 }
 #endif
@@ -132,18 +156,20 @@ void FFTWPlanManager::backward(complexFloatHost* data, complexFloatHost* scratch
 
 #ifdef GPU
 void FFTWPlanManager::backward(complexDoubleDevice* data, complexDoubleDevice* scratch, int ng, int nFFTs){
-    complexDoubleHost* h_data; swfftAlloc(&h_data,sizeof(complexDoubleHost) * ng * nFFTs);
-    complexDoubleHost* h_scratch; swfftAlloc(&h_scratch,sizeof(complexDoubleHost) * ng * nFFTs);
+    //complexDoubleHost* h_data; swfftAlloc(&h_data,sizeof(complexDoubleHost) * ng * nFFTs);
+    //complexDoubleHost* h_scratch; swfftAlloc(&h_scratch,sizeof(complexDoubleHost) * ng * nFFTs);
+    allocate_host(sizeof(complexDoubleHost) * ng * nFFTs);
     gpuMemcpy(h_data,data,sizeof(complexDoubleHost) * ng * nFFTs, gpuMemcpyDeviceToHost);
-    backward(h_data,h_scratch,ng,nFFTs);
+    backward((complexDoubleHost*)h_data,(complexDoubleHost*)h_scratch,ng,nFFTs);
     gpuMemcpy(scratch,h_scratch,sizeof(complexDoubleHost) * ng * nFFTs, gpuMemcpyHostToDevice);
 }
 
 void FFTWPlanManager::backward(complexFloatDevice* data, complexFloatDevice* scratch, int ng, int nFFTs){
-    complexFloatHost* h_data; swfftAlloc(&h_data,sizeof(complexFloatHost) * ng * nFFTs);
-    complexFloatHost* h_scratch; swfftAlloc(&h_scratch,sizeof(complexFloatHost) * ng * nFFTs);
+    //complexFloatHost* h_data; swfftAlloc(&h_data,sizeof(complexFloatHost) * ng * nFFTs);
+    //complexFloatHost* h_scratch; swfftAlloc(&h_scratch,sizeof(complexFloatHost) * ng * nFFTs);
+    allocate_host(sizeof(complexFloatHost) * ng * nFFTs);
     gpuMemcpy(h_data,data,sizeof(complexFloatHost) * ng * nFFTs, gpuMemcpyDeviceToHost);
-    backward(h_data,h_scratch,ng,nFFTs);
+    backward((complexFloatHost*)h_data,(complexFloatHost*)h_scratch,ng,nFFTs);
     gpuMemcpy(scratch,h_scratch,sizeof(complexFloatHost) * ng * nFFTs, gpuMemcpyHostToDevice);
 }
 #endif

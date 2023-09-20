@@ -29,6 +29,13 @@ class FFTWPlanWrapper{
 };
 
 class FFTWPlanManager{
+    private:
+        void* h_data;
+        void* h_scratch;
+        size_t last_size;
+
+        void allocate_host(size_t sz);
+
     public:
         FFTWPlanWrapper<fftw_complex,fftw_plan> double_plans[N_FFT_CACHE];
         FFTWPlanWrapper<fftwf_complex,fftwf_plan> float_plans[N_FFT_CACHE];
@@ -83,7 +90,7 @@ class GPUPlanManager{
         GPUPlanManager();
         ~GPUPlanManager();
 
-        gpufftHandle* find_plan(int ng, int nFFTs, gpufftType t);
+        gpufftHandle find_plan(int ng, int nFFTs, gpufftType t);
         
         void forward(complexDoubleDevice* data, complexDoubleDevice* scratch, int ng, int nFFTs);
         void forward(complexFloatDevice* data, complexFloatDevice* scratch, int ng, int nFFTs);
