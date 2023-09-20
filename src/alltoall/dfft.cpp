@@ -20,6 +20,48 @@ namespace A2A{
     Dfft<MPI_T,REORDER_T,FFTBackend>::~Dfft(){}
 
     template<class MPI_T,class REORDER_T,class FFTBackend>
+    int3 Dfft<MPI_T,REORDER_T,FFTBackend>::get_ks(int idx){
+        if (ks_as_block){
+            int3 local_idx;
+            local_idx.x = idx / (dist.local_grid_size[1] * dist.local_grid_size[2]);
+            local_idx.y = (idx - local_idx.x * (dist.local_grid_size[1] * dist.local_grid_size[2])) / dist.local_grid_size[2];
+            local_idx.z = (idx - local_idx.x * (dist.local_grid_size[1] * dist.local_grid_size[2])) - (local_idx.y * dist.local_grid_size[2]);
+            int3 global_idx = make_int3(dist.local_coordinates_start[0] + local_idx.x, dist.local_coordinates_start[1] + local_idx.y, dist.local_coordinates_start[2] + local_idx.z);
+            return global_idx;
+        }
+        int mini_pencil_size = dist.local_grid_size[1];
+        int global_mini_pencil_offset = world_size * mini_pencil_size;
+        int mini_pencils_per_rank = (nlocal / world_size) / mini_pencil_size;
+
+        int sub_mini_pencil_idx = idx % mini_pencil_size;
+        int my_pencil_start = idx - sub_mini_pencil_idx;
+        int rank = (my_pencil_start / mini_pencil_size) % world_size;
+
+        int my_mini_pencil_offset = my_pencil_start - rank * mini_pencil_size;
+        int local_mini_pencil_id = my_mini_pencil_offset / global_mini_pencil_offset;
+
+        int global_mini_pencil_id = rank * mini_pencils_per_rank + local_mini_pencil_id;
+
+        int i = global_mini_pencil_id * mini_pencil_size + sub_mini_pencil_idx;
+
+        int3 rank_coords;
+        rank_coords.y = rank / (dist.dims[0] * dist.dims[2]);
+        rank_coords.z = (rank - rank_coords.y * (dist.dims[0] * dist.dims[2])) / dist.dims[0];
+        rank_coords.x = (rank - rank_coords.y * (dist.dims[0] * dist.dims[2])) - rank_coords.z * dist.dims[0];
+
+        int global_start = rank_coords.x * dist.local_grid_size[1] * dist.local_grid_size[2] + rank_coords.y * dist.local_grid_size[2] + rank_coords.z;
+        int global_1d_idx = global_start + world_rank * (nlocal / world_size) + (i % (nlocal / world_size));
+
+        int3 local_idx;
+        local_idx.x = i;
+        local_idx.z = 0;//(global_1d_idx - local_idx.x * (ng[1] * ng[2])) / ng[1];
+        local_idx.y = 0;//(global_1d_idx - local_idx.x * (ng[1] * ng[2])) - (local_idx.z * ng[1]);
+        //int3 global_idx = make_int3(dist.local_coordinates_start[0] + local_idx.x, dist.local_coordinates_start[1] + local_idx.y, dist.local_coordinates_start[2] + local_idx.z);
+        return local_idx;
+
+    }
+
+    template<class MPI_T,class REORDER_T,class FFTBackend>
     void Dfft<MPI_T,REORDER_T,FFTBackend>::fill_test(complexDoubleHost* data){
         int my_start = (dist.world_rank * nlocal) * 2;
         for (int i = 0; i < nlocal; i++){

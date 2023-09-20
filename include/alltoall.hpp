@@ -123,7 +123,7 @@ namespace A2A{
 
             bool test_distribution();
 
-            int3 k_idx(int idx);
+            int3 get_ks(int idx);
 
             #ifdef GPU
             double forward(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2);
@@ -165,6 +165,10 @@ class AllToAllGPU{
         }
 
         ~AllToAllGPU(){};
+
+        inline int3 get_ks(int idx){
+            return dfft.get_ks(idx);
+        }
 
         inline bool test_distribution(){
             return dfft.test_distribution();
@@ -360,6 +364,10 @@ class AllToAllCPU{
         }
 
         ~AllToAllCPU(){};
+
+        inline int3 get_ks(int idx){
+            return dfft.get_ks(idx);
+        }
 
         bool test_distribution(){
             return dfft.test_distribution();

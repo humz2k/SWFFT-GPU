@@ -33,6 +33,10 @@ class swfft{
             return backend.test_distribution();
         }
 
+        inline int3 get_ks(int idx){
+            return backend.get_ks(idx);
+        }
+
         int ngx(){
             return backend.ngx();
         }

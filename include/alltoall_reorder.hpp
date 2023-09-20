@@ -43,6 +43,10 @@ namespace A2A{
     };
     #endif
 
+    namespace CPUREORDER{
+        int calc_mini_pencil_idx(int i, int mini_pencils_per_rank, int world_size, int mini_pencil_size);
+    }
+
     class CPUReorder{
         public:
             int3 ng;
