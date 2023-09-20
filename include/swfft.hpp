@@ -15,12 +15,32 @@ class swfft{
         DistBackend<MPI_T,FFTBackend> backend;
     
     public:
-        swfft(MPI_Comm comm, int ngx, int blockSize) : backend(comm,ngx,blockSize){
+        swfft(MPI_Comm comm, int ngx, int blockSize, bool ks_as_block = true) : backend(comm,ngx,blockSize,ks_as_block){
 
         }
 
-        swfft(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize) : backend(comm,ngx,ngx,ngx,blockSize){
+        swfft(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize, bool ks_as_block = true) : backend(comm,ngx,ngx,ngx,blockSize,ks_as_block){
 
+        }
+
+        int ngx(){
+            return backend.ngx();
+        }
+
+        int ngy(){
+            return backend.ngy();
+        }
+
+        int ngz(){
+            return backend.ngz();
+        }
+
+        int3 ng(){
+            return backend.ng();
+        }
+
+        int ng(int i){
+            return backend.ng(i);
         }
 
         int buff_sz(){

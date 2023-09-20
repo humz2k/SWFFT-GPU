@@ -71,7 +71,7 @@ bool test(int ngx, int ngy_ = 0, int ngz_ = 0){
     int world_rank; MPI_Comm_rank(MPI_COMM_WORLD,&world_rank);
     n_tests++;
     if(world_rank == 0)printf("Testing %s with T = %s and ng = [%d %d %d]\n   ",typeid(SWFFT_T).name(),typeid(T).name(),ngx,ngy,ngz);
-    SWFFT_T my_swfft(MPI_COMM_WORLD,ngx,ngy,ngz,BLOCKSIZE);
+    SWFFT_T my_swfft(MPI_COMM_WORLD,ngx,ngy,ngz,BLOCKSIZE,true);
 
     T* data; swfftAlloc(&data,sizeof(T) * my_swfft.buff_sz());
     T* scratch; swfftAlloc(&scratch,sizeof(T) * my_swfft.buff_sz());
@@ -82,8 +82,12 @@ bool test(int ngx, int ngy_ = 0, int ngz_ = 0){
 
     bool out = check_kspace(my_swfft,data);
 
+    my_swfft.backward(data,scratch);
+
+    out = out && check_rspace(my_swfft,data);
+
     if (out){
-        if(world_rank == 0)printf("   Passed!\n\n");
+        if(world_rank == 0)printf("Passed!\n\n");
         n_passed++;
     }
 

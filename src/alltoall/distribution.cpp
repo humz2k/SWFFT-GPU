@@ -44,6 +44,31 @@ namespace A2A{
 
     }
 
+    #ifdef GPU
+    template<class MPI_T, class REORDER_T>
+    void Distribution<MPI_T,REORDER_T>::copy(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2){
+        gpuMemcpy(Buff1,Buff2,sizeof(complexDoubleDevice) * nlocal,gpuMemcpyDeviceToDevice);
+    }
+
+    template<class MPI_T, class REORDER_T>
+    void Distribution<MPI_T,REORDER_T>::copy(complexFloatDevice* Buff1, complexFloatDevice* Buff2){
+        gpuMemcpy(Buff1,Buff2,sizeof(complexFloatDevice) * nlocal,gpuMemcpyDeviceToDevice);
+    }
+    #endif
+    template<class MPI_T, class REORDER_T>
+    void Distribution<MPI_T,REORDER_T>::copy(complexDoubleHost* __restrict Buff1, const complexDoubleHost* __restrict Buff2){
+        for (int i = 0; i < nlocal; i++){
+            Buff1[i] = Buff2[i];
+        }
+    }
+
+    template<class MPI_T, class REORDER_T>
+    void Distribution<MPI_T,REORDER_T>::copy(complexFloatHost* __restrict Buff1, const complexFloatHost* __restrict Buff2){
+        for (int i = 0; i < nlocal; i++){
+            Buff1[i] = Buff2[i];
+        }
+    }
+
     template<class MPI_T, class REORDER_T>
     MPI_Comm Distribution<MPI_T,REORDER_T>::shuffle_comm_1(){
         int new_rank = coords[2] * dims[0] * dims[1] + coords[0] * dims[1] + coords[1];
@@ -73,7 +98,7 @@ namespace A2A{
     }
 
     template<class MPI_T, class REORDER_T>
-    Distribution<MPI_T,REORDER_T>::Distribution(MPI_Comm comm_, int ngx, int ngy, int ngz, int blockSize_) : comm(comm_), blockSize(blockSize_), dims{0,0,0}{
+    Distribution<MPI_T,REORDER_T>::Distribution(MPI_Comm comm_, int ngx, int ngy, int ngz, int blockSize_, bool ks_as_block_) : comm(comm_), blockSize(blockSize_), dims{0,0,0}, ks_as_block(ks_as_block_){
         ng[0] = ngx;
         ng[1] = ngy;
         ng[2] = ngz;

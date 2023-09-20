@@ -51,6 +51,24 @@ namespace A2A{
 
         }
 
+        template<class T>
+        void d_fast_x_to_z(const T* __restrict source, T* __restrict dest, int lgridx, int lgridy, int lgridz, int nlocal){
+
+            for (int idx = 0; idx < nlocal; idx++){
+
+                int i = idx / (lgridx * lgridy);
+                int j = (idx - (i * lgridx * lgridy)) / lgridx;
+                int k = idx - (i * (lgridx * lgridy)) - (j * lgridx);
+
+                int dest_index = i*lgridy*lgridx + j*lgridx + k;
+                int source_index = k*lgridy*lgridz + j*lgridz + i;
+
+                dest[source_index] = source[dest_index];
+                //dest[dest_index * 2 + 1] = source[source_index * 2 + 1];
+
+            }
+
+        }
 
         template<class T>
         void d_fast_x_to_y(const T* __restrict source, T* __restrict dest, int lgridx, int lgridy, int lgridz, int nlocal){
@@ -115,6 +133,9 @@ namespace A2A{
                 break;
             case 2:
                 CPUREORDER::d_fast_y_to_z(Buff2,Buff1,local_grid.x,local_grid.y,local_grid.z,nlocal);
+                break;
+            case 3:
+                CPUREORDER::d_fast_x_to_z(Buff2,Buff1,local_grid.x,local_grid.y,local_grid.z,nlocal);
                 break;
         }
     }

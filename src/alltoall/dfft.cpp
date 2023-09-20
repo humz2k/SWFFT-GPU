@@ -3,7 +3,7 @@
 
 namespace A2A{
     template<class MPI_T,class REORDER_T,class FFTBackend>
-    Dfft<MPI_T,REORDER_T,FFTBackend>::Dfft(Distribution<MPI_T,REORDER_T>& dist_) : dist(dist_){
+    Dfft<MPI_T,REORDER_T,FFTBackend>::Dfft(Distribution<MPI_T,REORDER_T>& dist_, bool ks_as_block_) : dist(dist_), ks_as_block(ks_as_block_){
         ng[0] = dist.ng[0];
         ng[1] = dist.ng[1];
         ng[2] = dist.ng[2];
@@ -21,26 +21,156 @@ namespace A2A{
 
     template<class MPI_T,class REORDER_T,class FFTBackend>
     template<class T>
-    void Dfft<MPI_T,REORDER_T,FFTBackend>::fft(T* data, T* scratch, fftdirection direction){
+    bool Dfft<MPI_T,REORDER_T,FFTBackend>::test_distribution(){
 
-        #pragma GCC unroll 3
-        for (int i = 0; i < 3; i++){
-            dist.getPencils(data,scratch,i);
-            dist.reorder(data,scratch,i,0);
-            //gpuDeviceSynchronize();
-            int nFFTs = (nlocal / ng[i]);
+        T* data; swfftAlloc(data,sizeof(T) * nlocal);
+        T* scratch; swfftAlloc(scratch,sizeof(T) * nlocal);
+
+        int my_start = dist.world_rank * nlocal;
+
+        if (ks_as_block){
+            #pragma GCC unroll 3
+            for (int i = 0; i < 3; i++){
+                dist.getPencils(data,scratch,i);
+                dist.reorder(data,scratch,i,0);
+
+                //gpuDeviceSynchronize();
+                dist.copy(scratch,data);
+
+                dist.reorder(data,scratch,i,1);
+                //gpuDeviceSynchronize();
+                dist.returnPencils(data,scratch,i);
+
+                dist.shuffle_indices(data,scratch,i);
+                //gpuDeviceSynchronize();
+
+            }
+        } else {
+
             if (direction == FFT_FORWARD){
-                FFTs.forward(data,scratch,ng[i],nFFTs);
+                for (int i = 0; i < 2; i++){
+                    dist.getPencils(data,scratch,i);
+                    dist.reorder(data,scratch,i,0);
+                    
+                    dist.copy(scratch,data);
+
+                    dist.reorder(data,scratch,i,1);
+                    dist.returnPencils(data,scratch,i);
+                    dist.shuffle_indices(data,scratch,i);
+                }
+                dist.getPencils(data,scratch,2);
+                dist.reorder(data,scratch,2,0);
+
+                dist.copy(scratch,data);
+
+                dist.copy(data,scratch);
+
             } else {
-                FFTs.backward(data,scratch,ng[i],nFFTs);
+                dist.copy(scratch,data);
+
+                dist.reorder(data,scratch,2,1);
+                dist.returnPencils(data,scratch,2);
+                dist.shuffle_indices(data,scratch,2);
+
+                dist.getPencils(data,scratch,0);
+                dist.reorder(data,scratch,0,0);
+
+                dist.copy(scratch,data);
+
+                dist.reorder(data,scratch,0,1);
+                dist.returnPencils(data,scratch,0);
+                dist.shuffle_indices(data,scratch,0);
+
+                dist.getPencils(data,scratch,1);
+                dist.reorder(data,scratch,1,0);
+
+                dist.copy(scratch,data);
+
+                dist.reorder(data,scratch,1,1);
+                dist.returnPencils(data,scratch,1);
+                dist.shuffle_indices(data,scratch,3);
             }
 
-            dist.reorder(data,scratch,i,1);
-            //gpuDeviceSynchronize();
-            dist.returnPencils(data,scratch,i);
+        }
 
-            dist.shuffle_indices(data,scratch,i);
-            //gpuDeviceSynchronize();
+        swfftFree(data);
+        swfftFree(scratch);
+
+    }
+
+    template<class MPI_T,class REORDER_T,class FFTBackend>
+    template<class T>
+    void Dfft<MPI_T,REORDER_T,FFTBackend>::fft(T* data, T* scratch, fftdirection direction){
+        if (ks_as_block){
+            #pragma GCC unroll 3
+            for (int i = 0; i < 3; i++){
+                dist.getPencils(data,scratch,i);
+                dist.reorder(data,scratch,i,0);
+
+                //gpuDeviceSynchronize();
+                int nFFTs = (nlocal / ng[i]);
+                if (direction == FFT_FORWARD){
+                    FFTs.forward(data,scratch,ng[i],nFFTs);
+                } else {
+                    FFTs.backward(data,scratch,ng[i],nFFTs);
+                }
+
+                dist.reorder(data,scratch,i,1);
+                //gpuDeviceSynchronize();
+                dist.returnPencils(data,scratch,i);
+
+                dist.shuffle_indices(data,scratch,i);
+                //gpuDeviceSynchronize();
+
+            }
+        } else {
+
+            if (direction == FFT_FORWARD){
+                for (int i = 0; i < 2; i++){
+                    dist.getPencils(data,scratch,i);
+                    dist.reorder(data,scratch,i,0);
+                    
+                    int nFFTs = (nlocal / ng[i]);
+                    FFTs.forward(data,scratch,ng[i],nFFTs);
+
+                    dist.reorder(data,scratch,i,1);
+                    dist.returnPencils(data,scratch,i);
+                    dist.shuffle_indices(data,scratch,i);
+                }
+                dist.getPencils(data,scratch,2);
+                dist.reorder(data,scratch,2,0);
+                int nFFTs = (nlocal / ng[2]);
+                FFTs.forward(data,scratch,ng[2],nFFTs);
+                dist.copy(data,scratch);
+
+            } else {
+                int nFFTs = (nlocal / ng[2]);
+                FFTs.backward(data,scratch,ng[2],nFFTs);
+
+                dist.reorder(data,scratch,2,1);
+                dist.returnPencils(data,scratch,2);
+                dist.shuffle_indices(data,scratch,2);
+
+                dist.getPencils(data,scratch,0);
+                dist.reorder(data,scratch,0,0);
+
+                nFFTs = (nlocal / ng[0]);
+                FFTs.backward(data,scratch,ng[0],nFFTs);
+
+                dist.reorder(data,scratch,0,1);
+                dist.returnPencils(data,scratch,0);
+                dist.shuffle_indices(data,scratch,0);
+
+                dist.getPencils(data,scratch,1);
+                dist.reorder(data,scratch,1,0);
+
+                nFFTs = (nlocal / ng[1]);
+                FFTs.backward(data,scratch,ng[1],nFFTs);
+
+                dist.reorder(data,scratch,1,1);
+                dist.returnPencils(data,scratch,1);
+                dist.shuffle_indices(data,scratch,3);
+            }
 
         }
 

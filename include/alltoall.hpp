@@ -21,6 +21,7 @@ namespace A2A{
             int dims[3];
             int coords[3];
             int local_coordinates_start[3];
+            bool ks_as_block;
             MPI_Comm comm;
             MPI_Comm fftcomms[3];
 
@@ -29,7 +30,7 @@ namespace A2A{
 
             int blockSize;
 
-            Distribution(MPI_Comm comm_, int ngx, int ngy, int ngz, int blockSize_);
+            Distribution(MPI_Comm comm_, int ngx, int ngy, int ngz, int blockSize_, bool ks_as_block_);
             ~Distribution();
 
             MPI_Comm shuffle_comm_1();
@@ -38,6 +39,14 @@ namespace A2A{
 
             template<class T>
             inline void getPencils_(T* Buff1, T* Buff2, int dim);
+
+            #ifdef GPU
+            void copy(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2);
+            void copy(complexFloatDevice* Buff1, complexFloatDevice* Buff2);
+            #endif
+
+            void copy(complexDoubleHost* __restrict Buff1, const complexDoubleHost* __restrict Buff2);
+            void copy(complexFloatHost* __restrict Buff1, const complexFloatHost* __restrict Buff2);
             
             #ifdef GPU
             void getPencils(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2, int dim);
@@ -81,6 +90,15 @@ namespace A2A{
         private:
             template<class T>
             inline void fft(T* data, T* scratch, fftdirection direction);
+            bool ks_as_block;
+
+            #ifdef GPU
+            void fill_test(complexDoubleDevice* data);
+            void fill_test(complexFloatDevice* data);
+            #endif
+            
+            void fill_test(complexDoubleHost* data);
+            void fill_test(complexFloatHost* data);
         
         public:
             int ng[3];
@@ -88,12 +106,18 @@ namespace A2A{
             int world_size;
             int world_rank;
             int blockSize;
+            
             Distribution<MPI_T,REORDER_T>& dist;
 
             FFTBackend FFTs;
 
-            Dfft(Distribution<MPI_T,REORDER_T>& dist_);
+            Dfft(Distribution<MPI_T,REORDER_T>& dist_, bool ks_as_block_);
             ~Dfft();
+
+            template<class T>
+            bool test_distribution();
+
+            int3 k_idx(int idx);
 
             #ifdef GPU
             void forward(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2);
@@ -126,15 +150,35 @@ class AllToAllGPU{
 
         }
 
-        AllToAllGPU(MPI_Comm comm, int ngx, int blockSize) : dist(comm,ngx,ngx,ngx,blockSize), dfft(dist){
+        AllToAllGPU(MPI_Comm comm, int ngx, int blockSize, bool ks_as_block=true) : dist(comm,ngx,ngx,ngx,blockSize,ks_as_block), dfft(dist,ks_as_block){
 
         }
 
-        AllToAllGPU(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize) : dist(comm,ngx,ngx,ngx,blockSize), dfft(dist){
+        AllToAllGPU(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize, bool ks_as_block=true) : dist(comm,ngx,ngx,ngx,blockSize,ks_as_block), dfft(dist,ks_as_block){
 
         }
 
         ~AllToAllGPU(){};
+
+        int ngx(){
+            return dfft.ng[0];
+        }
+
+        int ngy(){
+            return dfft.ng[1];
+        }
+
+        int ngz(){
+            return dfft.ng[2];
+        }
+
+        int3 ng(){
+            return make_int3(dfft.ng[0],dfft.ng[1],dfft.ng[2]);
+        }
+
+        int ng(int i){
+            return dfft.ng[i];
+        }
 
         int buff_sz(){
             return dist.nlocal;
@@ -285,15 +329,35 @@ class AllToAllCPU{
 
         }
 
-        AllToAllCPU(MPI_Comm comm, int ngx, int blockSize) : dist(comm,ngx,ngx,ngx,blockSize), dfft(dist){
+        AllToAllCPU(MPI_Comm comm, int ngx, int blockSize, bool ks_as_block = true) : dist(comm,ngx,ngx,ngx,blockSize,ks_as_block), dfft(dist,ks_as_block){
 
         }
 
-        AllToAllCPU(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize) : dist(comm,ngx,ngx,ngx,blockSize), dfft(dist){
+        AllToAllCPU(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize, bool ks_as_block = true) : dist(comm,ngx,ngx,ngx,blockSize,ks_as_block), dfft(dist,ks_as_block){
 
         }
 
         ~AllToAllCPU(){};
+
+        int ngx(){
+            return dfft.ng[0];
+        }
+
+        int ngy(){
+            return dfft.ng[1];
+        }
+
+        int ngz(){
+            return dfft.ng[2];
+        }
+
+        int3 ng(){
+            return make_int3(dfft.ng[0],dfft.ng[1],dfft.ng[2]);
+        }
+
+        int ng(int i){
+            return dfft.ng[i];
+        }
 
         int buff_sz(){
             return dist.nlocal;

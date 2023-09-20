@@ -55,6 +55,27 @@ namespace A2A{
 
         }
 
+        template<class T>
+        __global__ void d_fast_x_to_z(const T* __restrict source, T* __restrict dest, int lgridx, int lgridy, int lgridz, int nlocal){
+
+            int idx = blockDim.x * blockIdx.x + threadIdx.x;
+
+            if (idx < nlocal){
+
+                int i = idx / (lgridx * lgridy);
+                int j = (idx - (i * lgridx * lgridy)) / lgridx;
+                int k = idx - (i * (lgridx * lgridy)) - (j * lgridx);
+
+                int dest_index = i*lgridy*lgridx + j*lgridx + k;
+                int source_index = k*lgridy*lgridz + j*lgridz + i;
+
+                dest[source_index] = __ldg(&source[dest_index]);
+                //dest[dest_index * 2 + 1] = source[source_index * 2 + 1];
+
+            }
+
+        }
+
 
         template<class T>
         __global__ void d_fast_x_to_y(const T* __restrict source, T* __restrict dest, int lgridx, int lgridy, int lgridz, int nlocal){
@@ -127,6 +148,10 @@ namespace A2A{
             case 2:
                 gpuLaunch(GPUREORDER::d_fast_y_to_z,numBlocks,blockSize,Buff2,Buff1,local_grid.x,local_grid.y,local_grid.z,nlocal);
                 //GPUREORDER::d_fast_y_to_z<<<numBlocks,blockSize>>>(Buff2,Buff1,local_grid.z,local_grid.y,local_grid.z,nlocal);
+                break;
+            case 3:
+                gpuLaunch(GPUREORDER::d_fast_x_to_z,numBlocks,blockSize,Buff2,Buff1,local_grid.x,local_grid.y,local_grid.z,nlocal);
+                //GPUREORDER::d_fast_z_to_x<<<numBlocks,blockSize>>>();
                 break;
         }
     }
