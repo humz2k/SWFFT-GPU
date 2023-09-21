@@ -10,6 +10,10 @@
 #include "alltoall.hpp"
 #endif
 
+#ifdef PAIRWISE
+#include "pairwise.hpp"
+#endif
+
 template<template<class,class>class DistBackend, class MPI_T, class FFTBackend>
 class swfft{
     private:
