@@ -29,35 +29,33 @@ namespace A2A{
             int3 global_idx = make_int3(dist.local_coordinates_start[0] + local_idx.x, dist.local_coordinates_start[1] + local_idx.y, dist.local_coordinates_start[2] + local_idx.z);
             return global_idx;
         }
-        int mini_pencil_size = dist.local_grid_size[1];
-        int global_mini_pencil_offset = world_size * mini_pencil_size;
-        int mini_pencils_per_rank = (nlocal / world_size) / mini_pencil_size;
 
-        int sub_mini_pencil_idx = idx % mini_pencil_size;
-        int my_pencil_start = idx - sub_mini_pencil_idx;
-        int rank = (my_pencil_start / mini_pencil_size) % world_size;
+        int n_lines = dist.local_grid_size[0] * dist.local_grid_size[2];
+        int i;
+        //this is really really dumb please fix
+        for (i = 0; i < nlocal; i++){
+            if ((A2A::CPUREORDER::calc_mini_pencil_idx(i,(nlocal / world_size) / dist.local_grid_size[1],world_size,dist.local_grid_size[1])) == idx)break;
+        }
 
-        int my_mini_pencil_offset = my_pencil_start - rank * mini_pencil_size;
-        int local_mini_pencil_id = my_mini_pencil_offset / global_mini_pencil_offset;
+        int rank_of_origin = i / (nlocal / world_size);
+        int rank_z = rank_of_origin / (dist.dims[0] * dist.dims[1]);
+        int rank_x = (rank_of_origin - rank_z * dist.dims[0] * dist.dims[1]) / dist.dims[1];
+        int rank_y = (rank_of_origin - rank_z * dist.dims[0] * dist.dims[1]) - rank_x * dist.dims[1];
 
-        int global_mini_pencil_id = rank * mini_pencils_per_rank + local_mini_pencil_id;
+        int local_rank_idx = (i % (nlocal / world_size)) + (nlocal / world_size) * world_rank;
 
-        int i = global_mini_pencil_id * mini_pencil_size + sub_mini_pencil_idx;
+        int local_rank_idx_x = local_rank_idx / (dist.local_grid_size[1] * dist.local_grid_size[2]);
+        int local_rank_idx_z = (local_rank_idx - (local_rank_idx_x * dist.local_grid_size[1] * dist.local_grid_size[2])) / dist.local_grid_size[1];
+        int local_rank_idx_y = (local_rank_idx - (local_rank_idx_x * dist.local_grid_size[1] * dist.local_grid_size[2])) - local_rank_idx_z * dist.local_grid_size[1];
 
-        int3 rank_coords;
-        rank_coords.y = rank / (dist.dims[0] * dist.dims[2]);
-        rank_coords.z = (rank - rank_coords.y * (dist.dims[0] * dist.dims[2])) / dist.dims[0];
-        rank_coords.x = (rank - rank_coords.y * (dist.dims[0] * dist.dims[2])) - rank_coords.z * dist.dims[0];
+        int local_rank_idx_fixed = 0;
 
-        int global_start = rank_coords.x * dist.local_grid_size[1] * dist.local_grid_size[2] + rank_coords.y * dist.local_grid_size[2] + rank_coords.z;
-        int global_1d_idx = global_start + world_rank * (nlocal / world_size) + (i % (nlocal / world_size));
-
-        int3 local_idx;
-        local_idx.x = i;
-        local_idx.z = 0;//(global_1d_idx - local_idx.x * (ng[1] * ng[2])) / ng[1];
-        local_idx.y = 0;//(global_1d_idx - local_idx.x * (ng[1] * ng[2])) - (local_idx.z * ng[1]);
-        //int3 global_idx = make_int3(dist.local_coordinates_start[0] + local_idx.x, dist.local_coordinates_start[1] + local_idx.y, dist.local_coordinates_start[2] + local_idx.z);
-        return local_idx;
+        int3 global_idx;
+        global_idx.x = local_rank_idx_x + rank_x * dist.local_grid_size[0];
+        global_idx.y = local_rank_idx_y + rank_y * dist.local_grid_size[1];
+        global_idx.z = local_rank_idx_z + rank_z * dist.local_grid_size[2];
+        
+        return global_idx;
 
     }
 
