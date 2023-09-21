@@ -72,17 +72,15 @@ bool test(bool k_in_blocks, int ngx, int ngy_ = 0, int ngz_ = 0){
     n_tests++;
     if(world_rank == 0)printf("Testing %s with T = %s, k_in_blocks = %d and ng = [%d %d %d]\n   ",typeid(SWFFT_T).name(),typeid(T).name(),k_in_blocks,ngx,ngy,ngz);
     SWFFT_T my_swfft(MPI_COMM_WORLD,ngx,ngy,ngz,BLOCKSIZE,k_in_blocks);
-
+    //printf("my_swfft.buff_sz() = %d\n",my_swfft.buff_sz());
     T* data; swfftAlloc(&data,sizeof(T) * my_swfft.buff_sz());
     T* scratch; swfftAlloc(&scratch,sizeof(T) * my_swfft.buff_sz());
-
+    
     bool out;
 
     for (int i = 0; i < 1; i++){
 
         assign_delta(data,my_swfft.buff_sz());
-
-        check_rspace(my_swfft,data);
 
         my_swfft.forward(data,scratch);
 
@@ -108,11 +106,12 @@ bool test(bool k_in_blocks, int ngx, int ngy_ = 0, int ngz_ = 0){
     } else {
         if(world_rank == 0)printf("Failed...\n\n");
     }
-
+    
     swfftFree(data);
     swfftFree(scratch);
 
     return out;
+    //return false;
 }
 
 int main(){
@@ -120,12 +119,24 @@ int main(){
     #ifdef GPU
     gpuFree(0);
     #endif
-
-    test<swfft<Pairwise,CPUMPI,fftw>, complexDoubleHost>(false,8);
-
-    /*#ifdef ALLTOALL
+    
+    #ifdef PAIRWISE
+        test<swfft<Pairwise,CPUMPI,fftw>, complexDoubleHost>(false,256);
+        test<swfft<Pairwise,CPUMPI,fftw>, complexFloatHost>(false,256);
         #ifdef GPU
-        test<swfft<AllToAllGPU,CPUMPI,gpuFFT>, complexDoubleDevice>(false,8);
+        test<swfft<Pairwise,CPUMPI,fftw>, complexDoubleDevice>(false,256);
+        test<swfft<Pairwise,CPUMPI,fftw>, complexFloatDevice>(false,256);
+
+        test<swfft<Pairwise,CPUMPI,gpuFFT>, complexDoubleHost>(false,256);
+        test<swfft<Pairwise,CPUMPI,gpuFFT>, complexFloatHost>(false,256);
+        test<swfft<Pairwise,CPUMPI,gpuFFT>, complexDoubleDevice>(false,256);
+        test<swfft<Pairwise,CPUMPI,gpuFFT>, complexFloatDevice>(false,256);
+        #endif
+    #endif
+
+    #ifdef ALLTOALL
+        #ifdef GPU
+        //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>, complexDoubleDevice>(false,8);
         test<swfft<AllToAllGPU,CPUMPI,gpuFFT>, complexDoubleDevice>(false,256);
         test<swfft<AllToAllGPU,CPUMPI,gpuFFT>, complexFloatDevice>(true,256);
         test<swfft<AllToAllGPU,CPUMPI,gpuFFT>, complexFloatDevice>(false,256);
@@ -159,7 +170,7 @@ int main(){
         test<swfft<AllToAllCPU,CPUMPI,fftw>, complexDoubleHost>(false,256);
         test<swfft<AllToAllCPU,CPUMPI,fftw>, complexFloatHost>(true,256);
         test<swfft<AllToAllCPU,CPUMPI,fftw>, complexFloatHost>(false,256);
-    #endif*/
+    #endif
 
     int world_rank;MPI_Comm_rank(MPI_COMM_WORLD,&world_rank);
     if(world_rank == 0)printf("%d/%d tests passed\n",n_passed,n_tests);

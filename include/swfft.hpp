@@ -19,18 +19,24 @@ class swfft{
     private:
         DistBackend<MPI_T,FFTBackend> backend;
         double last_time;
+        int last_was;
     
     public:
-        swfft(MPI_Comm comm, int ngx, int blockSize, bool ks_as_block = true) : backend(comm,ngx,blockSize,ks_as_block), last_time(0){
+        swfft(MPI_Comm comm, int ngx, int blockSize, bool ks_as_block = true) : backend(comm,ngx,blockSize,ks_as_block), last_time(0), last_was(-1){
 
         }
 
-        swfft(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize, bool ks_as_block = true) : backend(comm,ngx,ngx,ngx,blockSize,ks_as_block), last_time(0){
+        swfft(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize, bool ks_as_block = true) : backend(comm,ngx,ngx,ngx,blockSize,ks_as_block), last_time(0), last_was(-1){
 
         }
 
         void printLastTime(){
-            printTimingStats(backend.comm(),"DFFT",last_time);
+            if (last_was == 0){
+                printTimingStats(backend.comm(),"FORWARD ",last_time);
+            } else {
+                printTimingStats(backend.comm(),"BACKWARD",last_time);
+            }
+            
         }
 
         bool test_distribution(){
@@ -85,6 +91,7 @@ class swfft{
 
             double end = MPI_Wtime();
             last_time = end-start;
+            last_was = 0;
         }
 
         template<class T>
@@ -95,6 +102,7 @@ class swfft{
 
             double end = MPI_Wtime();
             last_time = end-start;
+            last_was = 1;
         }
 
         template<class T>
@@ -105,6 +113,7 @@ class swfft{
 
             double end = MPI_Wtime();
             last_time = end-start;
+            last_was = 0;
         }
 
         template<class T>
@@ -115,6 +124,7 @@ class swfft{
 
             double end = MPI_Wtime();
             last_time = end-start;
+            last_was = 1;
         }
 
 };

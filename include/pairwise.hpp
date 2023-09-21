@@ -42,8 +42,6 @@ namespace PAIR{
             T* d3_chunk;
             MPI_Comm parent;
 
-            distribution_t();
-
             distribution_t(MPI_Comm comm, int nx, int ny, int nz, bool debug_);
             /*distribution_t(MPI_Comm comm, const int n_[], 
                                 int nproc_1d[],

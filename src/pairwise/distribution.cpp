@@ -11,6 +11,8 @@
 
 #define DEBUG_CONDITION false
 
+//#define PRINT_DISTRIBUTION
+
 namespace PAIR{
 
 
@@ -18,9 +20,6 @@ namespace PAIR{
     {
         return i == (n - 1) ? "." : ", ";
     }
-
-    template<class T, class MPI_T>
-    distribution_t<T,MPI_T>::distribution_t(){}
 
     template<class T, class MPI_T>
     distribution_t<T,MPI_T>::distribution_t(MPI_Comm comm, int nx, int ny, int nz, bool debug_) : parent(comm), n{nx,ny,nz}, debug(debug_){
@@ -40,6 +39,7 @@ namespace PAIR{
 
         MPI_Dims_create(nproc,ndim,process_topology_1.nproc);
 
+        #ifdef PRINT_DISTRIBUTION
         if(self == 0) {
             printf("distribution 1D: [%d:%d:%d]\n",
             process_topology_1.nproc[0],
@@ -47,6 +47,7 @@ namespace PAIR{
             process_topology_1.nproc[2]);
             fflush(stdout);
         }
+        #endif
 
         //creates the new communicator
         MPI_Cart_create(comm, ndim, process_topology_1.nproc, period, 0, 
@@ -67,6 +68,7 @@ namespace PAIR{
         period[0] = period[1] = period[2] = 1;
         MPI_Dims_create(nproc, ndim, process_topology_3.nproc);
 
+        #ifdef PRINT_DISTRIBUTION
         if(self == 0) {
             printf("distribution 3D: [%d:%d:%d]\n",
             process_topology_3.nproc[0],
@@ -74,6 +76,7 @@ namespace PAIR{
             process_topology_3.nproc[2]);
             fflush(stdout);
         }
+        #endif
 
         MPI_Cart_create(comm, ndim, process_topology_3.nproc, period, 0, 
 		  &process_topology_3.cart);
@@ -251,6 +254,7 @@ namespace PAIR{
         //find the cartesian coord of the current rank (for the z_pencil)
         coord_z_pencils(self,process_topology_2_z.self);
 
+        #ifdef PRINT_DISTRIBUTION
         if(self == 0) {
             printf("distribution 2z: [%d:%d:%d]\n",
             process_topology_2_z.nproc[0],
@@ -258,6 +262,7 @@ namespace PAIR{
             process_topology_2_z.nproc[2]);
             fflush(stdout);
         }
+        #endif
 
 
 
@@ -416,6 +421,7 @@ namespace PAIR{
                 &process_topology_2_x.cart);
         coord_x_pencils(self, process_topology_2_x.self);
 
+        #ifdef PRINT_DISTRIBUTION
         if(self == 0) {
             printf("distribution 2x: [%d:%d:%d]\n",
             process_topology_2_x.nproc[0],
@@ -423,6 +429,7 @@ namespace PAIR{
             process_topology_2_x.nproc[2]);
             fflush(stdout);
         }
+        #endif
         
 
 
@@ -581,6 +588,7 @@ namespace PAIR{
         //find the cartesian coord of the current rank (for the y_pencil)
         coord_y_pencils(self,process_topology_2_y.self);
 
+        #ifdef PRINT_DISTRIBUTION
         if(self == 0) {
             printf("distribution 2y: [%d:%d:%d]\n",
             process_topology_2_y.nproc[0],
@@ -588,6 +596,7 @@ namespace PAIR{
             process_topology_2_y.nproc[2]);
             fflush(stdout);
         }
+        #endif
 
 
         
@@ -653,8 +662,6 @@ namespace PAIR{
         d2_chunk=(T *) malloc(sizeof(T)*buff_size);
         d3_chunk=(T *) malloc(sizeof(T)*buff_size);
 
-
-
     }
 
     template<class T, class MPI_T>
@@ -702,6 +709,21 @@ namespace PAIR{
         }
     }
 
+    template<class T>
+    void make_mpi_subarray(int ndims, const int* array_of_sizes, const int* array_of_subsizes, const int* array_of_starts, MPI_Datatype* new_dt);
+
+    template<>
+    void make_mpi_subarray<complexDoubleHost>(int ndims, const int* array_of_sizes, const int* array_of_subsizes, const int* array_of_starts, MPI_Datatype* new_dt){
+        MPI_Type_create_subarray(ndims, array_of_sizes, array_of_subsizes, array_of_starts, MPI_ORDER_C, MPI_DOUBLE_COMPLEX, new_dt);
+        MPI_Type_commit(new_dt);
+    }
+
+    template<>
+    void make_mpi_subarray<complexFloatHost>(int ndims, const int* array_of_sizes, const int* array_of_subsizes, const int* array_of_starts, MPI_Datatype* new_dt){
+        MPI_Type_create_subarray(ndims, array_of_sizes, array_of_subsizes, array_of_starts, MPI_ORDER_C, MPI_COMPLEX, new_dt);
+        MPI_Type_commit(new_dt);
+    }
+
     template<class T, class MPI_T>
     void distribution_t<T,MPI_T>::redistribute(const T* a, T* b, redist_t direction){
         int remaining_dim[3];
@@ -747,8 +769,9 @@ namespace PAIR{
         starts[0] = 0;
         starts[1] = coord[0] * process_topology_3.n[1];
         starts[2] = coord[1] * process_topology_3.n[2];
-        MPI_Type_create_subarray(3, sizes, subsizes, starts, MPI_ORDER_C, MPI_DOUBLE_COMPLEX, &d1_type);
-        MPI_Type_commit(&d1_type);
+        make_mpi_subarray<T>(3,sizes,subsizes,starts,&d1_type);
+        //MPI_Type_create_subarray(3, sizes, subsizes, starts, MPI_ORDER_C, MPI_DOUBLE_COMPLEX, &d1_type);
+        //MPI_Type_commit(&d1_type);
 
         sizes[0] = process_topology_3.n[0];
         sizes[1] = process_topology_3.n[1];
@@ -759,8 +782,9 @@ namespace PAIR{
         starts[0] = d3_peer * process_topology_1.n[0];
         starts[1] = 0;
         starts[2] = 0;
-        MPI_Type_create_subarray(3, sizes, subsizes, starts, MPI_ORDER_C, MPI_DOUBLE_COMPLEX, &d3_type);
-        MPI_Type_commit(&d3_type);
+        make_mpi_subarray<T>(3,sizes,subsizes,starts,&d3_type);
+        //MPI_Type_create_subarray(3, sizes, subsizes, starts, MPI_ORDER_C, MPI_DOUBLE_COMPLEX, &d3_type);
+        //MPI_Type_commit(&d3_type);
 
         // exchange data
 
@@ -834,11 +858,15 @@ namespace PAIR{
             subsizes[1] = process_topology_3.n[2];
             starts[0] = coord[0] * process_topology_3.n[1];
             starts[1] = coord[1] * process_topology_3.n[2];
-            MPI_Type_create_subarray(2, sizes, subsizes, starts, MPI_ORDER_C, MPI_DOUBLE_COMPLEX, &d1_type);
-            MPI_Type_commit(&d1_type);
+            make_mpi_subarray<T>(2,sizes,subsizes,starts,&d1_type);
+            //MPI_Type_create_subarray(2, sizes, subsizes, starts, MPI_ORDER_C, MPI_DOUBLE_COMPLEX, &d1_type);
+            //MPI_Type_commit(&d1_type);
             
-            MPI_Type_contiguous(process_topology_3.n[1] * process_topology_3.n[2],
+            /*MPI_Type_contiguous(process_topology_3.n[1] * process_topology_3.n[2],
                     MPI_DOUBLE_COMPLEX,
+                    &d3_type);*/
+            MPI_Type_contiguous(process_topology_3.n[1] * process_topology_3.n[2] * sizeof(T),
+                    MPI_BYTE,
                     &d3_type);
             MPI_Type_commit(&d3_type);
             
@@ -1234,10 +1262,12 @@ namespace PAIR{
             if(direction == REDISTRIBUTE_3_TO_2){
             
             if((self == me) && print_mess)fprintf(stderr, " I am %d, making request to recieve from %d...\n", self,recv_peer);
-            if(!print_mess)MPI_Irecv((void *) d2_chunk, chunk_size, MPI_DOUBLE_COMPLEX, recv_peer, 0, process_topology_1.cart, &req1);
+            //if(!print_mess)MPI_Irecv((void *) d2_chunk, chunk_size, MPI_DOUBLE_COMPLEX, recv_peer, 0, process_topology_1.cart, &req1);
+            if(!print_mess)MPI_Irecv((void *) d2_chunk, chunk_size * sizeof(T), MPI_BYTE, recv_peer, 0, process_topology_1.cart, &req1);
             
             if((self == me) && print_mess)fprintf(stderr, " I am %d, making request to send to %d...\n", self,send_peer);
-            if(!print_mess)MPI_Isend((void *) d3_chunk, chunk_size, MPI_DOUBLE_COMPLEX, send_peer, 0, process_topology_1.cart, &req2);
+            //if(!print_mess)MPI_Isend((void *) d3_chunk, chunk_size, MPI_DOUBLE_COMPLEX, send_peer, 0, process_topology_1.cart, &req2);
+            if(!print_mess)MPI_Isend((void *) d3_chunk, chunk_size * sizeof(T), MPI_BYTE, send_peer, 0, process_topology_1.cart, &req2);
             
             if((self == me) && print_mess)fprintf(stderr, " I am %d, waiting to recieve from %d...\n", self,recv_peer);
             //fprintf(stderr, " I am %d, waiting to recieve from %d...\n", self,recv_peer);
@@ -1274,10 +1304,12 @@ namespace PAIR{
             else if (direction == REDISTRIBUTE_2_TO_3) {
             
             if((self == me) && print_mess)fprintf(stderr, " I am %d, making request to recieve from %d...\n", self,recv_peer);
-            if(!print_mess)MPI_Irecv((void *) d3_chunk, chunk_size, MPI_DOUBLE_COMPLEX, recv_peer, 0, process_topology_1.cart, &req1);
+            //if(!print_mess)MPI_Irecv((void *) d3_chunk, chunk_size, MPI_DOUBLE_COMPLEX, recv_peer, 0, process_topology_1.cart, &req1);
+            if(!print_mess)MPI_Irecv((void *) d3_chunk, chunk_size * sizeof(T), MPI_BYTE, recv_peer, 0, process_topology_1.cart, &req1);
             
             if((self == me) && print_mess)fprintf(stderr, " I am %d, making request to send to %d...\n", self,send_peer);
-            if(!print_mess)MPI_Isend((void *) d2_chunk, chunk_size, MPI_DOUBLE_COMPLEX, send_peer, 0, process_topology_1.cart, &req2);
+            //if(!print_mess)MPI_Isend((void *) d2_chunk, chunk_size, MPI_DOUBLE_COMPLEX, send_peer, 0, process_topology_1.cart, &req2);
+            if(!print_mess)MPI_Isend((void *) d2_chunk, chunk_size * sizeof(T), MPI_BYTE, send_peer, 0, process_topology_1.cart, &req2);
             
             if((self == me) && print_mess)fprintf(stderr, " I am %d, waiting to recieve from %d...\n", self,recv_peer);
             if(!print_mess)MPI_Wait(&req1,MPI_STATUS_IGNORE);
