@@ -1,5 +1,7 @@
-#ifdef ALLTOALL
+#ifdef SWFFT_ALLTOALL
 #include "alltoall.hpp"
+
+namespace SWFFT{
 
 namespace A2A{
     template<class MPI_T,class REORDER_T,class FFTBackend>
@@ -9,6 +11,7 @@ namespace A2A{
         ng[2] = dist.ng[2];
 
         nlocal = dist.nlocal;
+        
 
         world_size = dist.world_size;
         world_rank = dist.world_rank;
@@ -97,7 +100,7 @@ namespace A2A{
         return true;
     }
 
-    #ifdef GPU
+    #ifdef SWFFT_GPU
     template<class MPI_T,class REORDER_T,class FFTBackend>
     void Dfft<MPI_T,REORDER_T,FFTBackend>::fill_test(complexDoubleDevice* data){
         complexDoubleHost* h_data; swfftAlloc(&h_data, sizeof(complexDoubleHost) * nlocal);
@@ -218,7 +221,7 @@ namespace A2A{
     bool Dfft<MPI_T,REORDER_T,FFTBackend>::test_distribution(){
         bool out = _test_distribution<complexDoubleHost>();
         out = out && _test_distribution<complexFloatHost>();
-        #ifdef GPU
+        #ifdef SWFFT_GPU
         out = out && _test_distribution<complexDoubleDevice>();
         out = out && _test_distribution<complexFloatDevice>();
         #endif
@@ -235,12 +238,14 @@ namespace A2A{
                 dist.getPencils(data,scratch,i);
                 dist.reorder(data,scratch,i,0);
 
+                int dim = (i+2)%3;
+
                 //gpuDeviceSynchronize();
-                int nFFTs = (nlocal / ng[i]);
+                int nFFTs = (nlocal / ng[dim]);
                 if (direction == FFT_FORWARD){
-                    FFTs.forward(data,scratch,ng[i],nFFTs);
+                    FFTs.forward(data,scratch,ng[dim],nFFTs);
                 } else {
-                    FFTs.backward(data,scratch,ng[i],nFFTs);
+                    FFTs.backward(data,scratch,ng[dim],nFFTs);
                 }
 
                 dist.reorder(data,scratch,i,1);
@@ -255,11 +260,14 @@ namespace A2A{
 
             if (direction == FFT_FORWARD){
                 for (int i = 0; i < 2; i++){
+                    
+                    int dim = (i+2)%3;
+
                     dist.getPencils(data,scratch,i);
                     dist.reorder(data,scratch,i,0);
                     
-                    int nFFTs = (nlocal / ng[i]);
-                    FFTs.forward(data,scratch,ng[i],nFFTs);
+                    int nFFTs = (nlocal / ng[dim]);
+                    FFTs.forward(data,scratch,ng[dim],nFFTs);
 
                     dist.reorder(data,scratch,i,1);
                     dist.returnPencils(data,scratch,i);
@@ -267,13 +275,15 @@ namespace A2A{
                 }
                 dist.getPencils(data,scratch,2);
                 dist.reorder(data,scratch,2,0);
-                int nFFTs = (nlocal / ng[2]);
-                FFTs.forward(data,scratch,ng[2],nFFTs);
+                int dim = (2+2)%3;
+                int nFFTs = (nlocal / ng[dim]);
+                FFTs.forward(data,scratch,ng[dim],nFFTs);
                 dist.copy(data,scratch);
 
             } else {
-                int nFFTs = (nlocal / ng[2]);
-                FFTs.backward(data,scratch,ng[2],nFFTs);
+                int dim = (2+2)%3;
+                int nFFTs = (nlocal / ng[dim]);
+                FFTs.backward(data,scratch,ng[dim],nFFTs);
 
                 dist.reorder(data,scratch,2,1);
                 dist.returnPencils(data,scratch,2);
@@ -282,8 +292,9 @@ namespace A2A{
                 dist.getPencils(data,scratch,0);
                 dist.reorder(data,scratch,0,0);
 
-                nFFTs = (nlocal / ng[0]);
-                FFTs.backward(data,scratch,ng[0],nFFTs);
+                dim = (0+2)%3;
+                nFFTs = (nlocal / ng[dim]);
+                FFTs.backward(data,scratch,ng[dim],nFFTs);
 
                 dist.reorder(data,scratch,0,1);
                 dist.returnPencils(data,scratch,0);
@@ -292,8 +303,9 @@ namespace A2A{
                 dist.getPencils(data,scratch,1);
                 dist.reorder(data,scratch,1,0);
 
-                nFFTs = (nlocal / ng[1]);
-                FFTs.backward(data,scratch,ng[1],nFFTs);
+                dim = (1+2)%3;
+                nFFTs = (nlocal / ng[dim]);
+                FFTs.backward(data,scratch,ng[dim],nFFTs);
 
                 dist.reorder(data,scratch,1,1);
                 dist.returnPencils(data,scratch,1);
@@ -305,7 +317,7 @@ namespace A2A{
         return end - start;
     }
 
-    #ifdef GPU
+    #ifdef SWFFT_GPU
     template<class MPI_T,class REORDER_T,class FFTBackend>
     double Dfft<MPI_T,REORDER_T,FFTBackend>::forward(complexDoubleDevice* data, complexDoubleDevice* scratch){
         return fft(data,scratch,FFT_FORWARD);
@@ -347,28 +359,29 @@ namespace A2A{
         return fft(data,scratch,FFT_BACKWARD);
     }
 
-    #ifdef FFTW
-    template class Dfft<CPUMPI,CPUReorder,FFTWPlanManager>;
-    #ifdef GPU
-    template class Dfft<CPUMPI,GPUReorder,FFTWPlanManager>;
-    #ifndef nocudampi
-    template class Dfft<GPUMPI,CPUReorder,FFTWPlanManager>;
-    template class Dfft<GPUMPI,GPUReorder,FFTWPlanManager>;
-    #endif
-    #endif
-    #endif
-
-    #ifdef GPU
-    #ifdef GPUFFT
-    template class Dfft<CPUMPI,CPUReorder,GPUPlanManager>;
-    template class Dfft<CPUMPI,GPUReorder,GPUPlanManager>;
-    #ifndef nocudampi
-    template class Dfft<GPUMPI,CPUReorder,GPUPlanManager>;
-    template class Dfft<GPUMPI,GPUReorder,GPUPlanManager>;
-    #endif
-    #endif
-    #endif
-
 }
+}
+
+    #ifdef SWFFT_FFTW
+    template class SWFFT::A2A::Dfft<SWFFT::CPUMPI,SWFFT::A2A::CPUReorder,SWFFT::FFTWPlanManager>;
+    #ifdef SWFFT_GPU
+    template class SWFFT::A2A::Dfft<SWFFT::CPUMPI,SWFFT::A2A::GPUReorder,SWFFT::FFTWPlanManager>;
+    #ifndef nocudampi
+    template class SWFFT::A2A::Dfft<SWFFT::GPUMPI,SWFFT::A2A::CPUReorder,SWFFT::FFTWPlanManager>;
+    template class SWFFT::A2A::Dfft<SWFFT::GPUMPI,SWFFT::A2A::GPUReorder,SWFFT::FFTWPlanManager>;
+    #endif
+    #endif
+    #endif
+
+    #ifdef SWFFT_GPU
+    #ifdef SWFFT_CUFFT
+    template class SWFFT::A2A::Dfft<SWFFT::CPUMPI,SWFFT::A2A::CPUReorder,SWFFT::GPUPlanManager>;
+    template class SWFFT::A2A::Dfft<SWFFT::CPUMPI,SWFFT::A2A::GPUReorder,SWFFT::GPUPlanManager>;
+    #ifndef nocudampi
+    template class SWFFT::A2A::Dfft<SWFFT::GPUMPI,SWFFT::A2A::CPUReorder,SWFFT::GPUPlanManager>;
+    template class SWFFT::A2A::Dfft<SWFFT::GPUMPI,SWFFT::A2A::GPUReorder,SWFFT::GPUPlanManager>;
+    #endif
+    #endif
+    #endif
 
 #endif

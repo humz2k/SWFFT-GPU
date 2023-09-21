@@ -1,6 +1,6 @@
-#ifdef ALLTOALL
-#ifndef ALLTOALL_REORDER_SEEN
-#define ALLTOALL_REORDER_SEEN
+#ifdef SWFFT_ALLTOALL
+#ifndef SWFFT_ALLTOALL_REORDER_SEEN
+#define SWFFT_ALLTOALL_REORDER_SEEN
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -8,8 +8,10 @@
 #include "complex-type.h"
 #include "gpu.hpp"
 
+namespace SWFFT{
+
 namespace A2A{
-    #ifdef GPU
+    #ifdef SWFFT_GPU
     class GPUReorder{
         public:
             int3 ng;
@@ -65,7 +67,7 @@ namespace A2A{
             template<class T>
             void cpu_shuffle_indices(T* Buff1, T* Buff2, int n);
 
-            #ifdef GPU
+            #ifdef SWFFT_GPU
             void shuffle_indices(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2, int n);
             void shuffle_indices(complexFloatDevice* Buff1, complexFloatDevice* Buff2, int n);
             #endif
@@ -75,13 +77,15 @@ namespace A2A{
             template<class T>
             void cpu_reorder(T* Buff1, T* Buff2, int n, int direction);
 
-            #ifdef GPU
+            #ifdef SWFFT_GPU
             void reorder(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2, int n, int direction);
             void reorder(complexFloatDevice* Buff1, complexFloatDevice* Buff2, int n, int direction);
             #endif
             void reorder(complexDoubleHost* Buff1, complexDoubleHost* Buff2, int n, int direction);
             void reorder(complexFloatHost* Buff1, complexFloatHost* Buff2, int n, int direction);
     };
+}
+
 }
 
 #endif

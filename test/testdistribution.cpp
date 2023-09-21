@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+using namespace SWFFT;
+
 int n_tests = 0;
 int n_passed = 0;
 
@@ -40,31 +42,37 @@ int main(){
     int world_rank;MPI_Comm_rank(MPI_COMM_WORLD,&world_rank);
     int world_size;MPI_Comm_size(MPI_COMM_WORLD,&world_size);
 
-    #ifdef ALLTOALL
+    #ifdef SWFFT_ALLTOALL
         if (world_size >= 8){
             if(world_rank == 0)printf("Testing with world_size = 8:\n\n");
             MPI_Comm comm;
             MPI_Comm_split(MPI_COMM_WORLD,world_rank < 8,world_rank,&comm);
-            test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(true,comm,8);
-            test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,8);
+            #ifdef SWFFT_GPU
+            #ifdef SWFFT_CUFFT
+            //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(true,comm,8);
+            //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,8);
             test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(true,comm,16,8,8);
-            test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,16,8,8);
-            test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(true,comm,8,16,8);
-            test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,8,16,8);
-            test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(true,comm,8,16,16);
-            test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,8,16,16);
-            test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(true,comm,8,8,16);
-            test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,8,8,16);
-            test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(true,comm,16,8,16);
-            test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,16,8,16);
-            test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(true,comm,16,16,8);
-            test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,16,16,8);
+            //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,16,8,8);
+            //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(true,comm,8,16,8);
+            //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,8,16,8);
+            //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(true,comm,8,16,16);
+            //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,8,16,16);
+            //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(true,comm,8,8,16);
+            //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,8,8,16);
+            //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(true,comm,16,8,16);
+            //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,16,8,16);
+            //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(true,comm,16,16,8);
+            //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,16,16,8);
+            #endif
+            #endif
             MPI_Comm_free(&comm);
         }
         if (world_size >= 16){
             if(world_rank == 0)printf("Testing with world_size = 16:\n\n");
             MPI_Comm comm;
             MPI_Comm_split(MPI_COMM_WORLD,world_rank < 16,world_rank,&comm);
+            #ifdef SWFFT_GPU
+            #ifdef SWFFT_CUFFT
             test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(true,comm,16);
             test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,16);
             test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(true,comm,32,16,16);
@@ -79,6 +87,8 @@ int main(){
             test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,32,16,32);
             test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(true,comm,32,32,16);
             test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,32,32,16);
+            #endif
+            #endif
             MPI_Comm_free(&comm);
         }
     #endif

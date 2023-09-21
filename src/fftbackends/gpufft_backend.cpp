@@ -1,14 +1,14 @@
-#ifdef FFTW
-#undef FFTW
+#ifdef SWFFT_FFTW
+#undef SWFFT_FFTW
 #endif
 #include "fftwrangler.hpp"
 
 #include <mpi.h>
-#ifdef GPUFFT
-#ifdef GPU
+#ifdef SWFFT_CUFFT
+#ifdef SWFFT_GPU
 #include <stdio.h>
 #include <stdlib.h>
-
+namespace SWFFT{
 static const char *_cudaGetErrorEnum(cufftResult error)
 {
     switch (error)
@@ -62,6 +62,10 @@ GPUPlanManager::~GPUPlanManager(){
             }
         }
     }
+}
+
+void GPUPlanManager::query(){
+    printf("Using gpuFFT\n");
 }
 
 gpufftHandle GPUPlanManager::find_plan(int ng, int nFFTs, gpufftType t){
@@ -158,6 +162,6 @@ void GPUPlanManager::backward(complexFloatHost* data, complexFloatHost* scratch,
     swfftFree(d_data);
     swfftFree(d_scratch);
 }
-
+}
 #endif
 #endif

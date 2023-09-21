@@ -4,3 +4,6 @@
 
 build/**
 lib/**
+
+*.log
+**/*.log

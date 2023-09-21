@@ -1,20 +1,41 @@
-#ifndef FFT_WRANGLER_INCLUDED
-#define FFT_WRANGLER_INCLUDED
+#ifndef SWFFT_FFT_WRANGLER_INCLUDED
+#define SWFFT_FFT_WRANGLER_INCLUDED
 
 #define N_FFT_CACHE 100
-
-enum fftdirection {FFT_FORWARD, FFT_BACKWARD};
-
-#define gpuFFT GPUPlanManager
-#define fftw FFTWPlanManager
 
 #include "complex-type.h"
 
 #include "gpu.hpp"
 
-#ifdef FFTW
+#ifdef SWFFT_FFTW
+
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 #include <fftw3.h>
 #include <map>
+#endif
+
+namespace SWFFT{
+
+//#define gpuFFT GPUPlanManager
+//#define fftw FFTWPlanManager
+
+#ifdef SWFFT_FFTW
+
+enum fftdirection {FFT_FORWARD, FFT_BACKWARD};
+
+inline int swfft_fftw_init_threads(int omt){
+    #ifdef _OPENMP
+    if(!fftw_init_threads()){
+        return 1;
+    }
+    fftw_plan_with_nthreads(omt);
+    return omt;
+    #endif
+    return 1;
+}
 
 template<class T, class plan_t>
 class FFTWPlanWrapper{
@@ -39,6 +60,8 @@ class FFTWPlanManager{
     public:
         FFTWPlanWrapper<fftw_complex,fftw_plan> double_plans[N_FFT_CACHE];
         FFTWPlanWrapper<fftwf_complex,fftwf_plan> float_plans[N_FFT_CACHE];
+
+        void query();
         
         FFTWPlanManager();
         ~FFTWPlanManager();
@@ -52,7 +75,7 @@ class FFTWPlanManager{
         void forward(complexDoubleHost* data, complexDoubleHost* scratch, int ng, int nFFTs);
         void forward(complexFloatHost* data, complexFloatHost* scratch, int ng, int nFFTs);
 
-        #ifdef GPU
+        #ifdef SWFFT_GPU
         void forward(complexDoubleDevice* data, complexDoubleDevice* scratch, int ng, int nFFTs);
         void forward(complexFloatDevice* data, complexFloatDevice* scratch, int ng, int nFFTs);
         #endif
@@ -63,16 +86,18 @@ class FFTWPlanManager{
         void backward(complexDoubleHost* data, complexDoubleHost* scratch, int ng, int nFFTs);
         void backward(complexFloatHost* data, complexFloatHost* scratch, int ng, int nFFTs);
         
-        #ifdef GPU
+        #ifdef SWFFT_GPU
         void backward(complexDoubleDevice* data, complexDoubleDevice* scratch, int ng, int nFFTs);
         void backward(complexFloatDevice* data, complexFloatDevice* scratch, int ng, int nFFTs);
         #endif
 
 };
+
+typedef FFTWPlanManager fftw;
 #endif
 
-#ifdef GPUFFT
-#ifdef GPU
+#ifdef SWFFT_CUFFT
+#ifdef SWFFT_GPU
 
 class GPUPlanWrapper{
     public:
@@ -90,6 +115,8 @@ class GPUPlanManager{
         GPUPlanManager();
         ~GPUPlanManager();
 
+        void query();
+
         gpufftHandle find_plan(int ng, int nFFTs, gpufftType t);
         
         void forward(complexDoubleDevice* data, complexDoubleDevice* scratch, int ng, int nFFTs);
@@ -104,7 +131,10 @@ class GPUPlanManager{
         void backward(complexDoubleHost* data, complexDoubleHost* scratch, int ng, int nFFTs);
         void backward(complexFloatHost* data, complexFloatHost* scratch, int ng, int nFFTs);
 };
+
+typedef GPUPlanManager gpuFFT;
 #endif
 #endif
 
+}
 #endif

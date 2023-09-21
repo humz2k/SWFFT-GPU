@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <iostream>
 
+using namespace SWFFT;
+
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 
@@ -29,7 +31,7 @@ void assign_delta(complexFloatHost* data, int NG){
     data[0].y = 0;
 }
 
-#ifdef GPU
+#ifdef SWFFT_GPU
 void assign_delta(complexDoubleDevice* data, int NG){
     gpuMemset(data,0,sizeof(complexDoubleDevice)*NG);
     complexDoubleDevice start;
@@ -65,7 +67,7 @@ bool check_k(complexFloatHost* data, int NG){
     return true;
 }
 
-#ifdef GPU
+#ifdef SWFFT_GPU
 bool check_k(complexDoubleDevice* d_data, int NG){
     complexDoubleHost* h_data; swfftAlloc(&h_data, sizeof(complexDoubleHost) * NG);
     gpuMemcpy(h_data,d_data,sizeof(complexDoubleDevice)*NG,gpuMemcpyDeviceToHost);
@@ -115,7 +117,7 @@ bool check_r(complexFloatHost* data, int NG){
     return true;
 }
 
-#ifdef GPU
+#ifdef SWFFT_GPU
 bool check_r(complexDoubleDevice* d_data, int NG){
     complexDoubleHost* h_data; swfftAlloc(&h_data, sizeof(complexDoubleHost) * NG);
     gpuMemcpy(h_data,d_data,sizeof(complexDoubleDevice)*NG,gpuMemcpyDeviceToHost);
@@ -186,14 +188,14 @@ bool test_fftwrangler(int NG){
 }
 
 int main(){
-    /*#ifdef FFTW
+    /*#ifdef SWFFT_FFTW
         IS_TRUE(test_fftwrangler,complexDoubleHost,FFTWPlanManager,64);
         IS_TRUE(test_fftwrangler,complexDoubleHost,FFTWPlanManager,128);
         IS_TRUE(test_fftwrangler,complexDoubleHost,FFTWPlanManager,256);
         IS_TRUE(test_fftwrangler,complexFloatHost,FFTWPlanManager,64);
         IS_TRUE(test_fftwrangler,complexFloatHost,FFTWPlanManager,128);
         IS_TRUE(test_fftwrangler,complexFloatHost,FFTWPlanManager,256);
-            #ifdef GPU
+            #ifdef SWFFT_GPU
                 IS_TRUE(test_fftwrangler,complexDoubleDevice,FFTWPlanManager,64);
                 IS_TRUE(test_fftwrangler,complexDoubleDevice,FFTWPlanManager,128);
                 IS_TRUE(test_fftwrangler,complexDoubleDevice,FFTWPlanManager,256);
@@ -202,7 +204,7 @@ int main(){
                 IS_TRUE(test_fftwrangler,complexFloatDevice,FFTWPlanManager,256);
             #endif
     #endif
-    #ifdef GPU
+    #ifdef SWFFT_GPU
         #ifdef GPUFFT
             IS_TRUE(test_fftwrangler,complexDoubleHost,GPUPlanManager,64);
             IS_TRUE(test_fftwrangler,complexDoubleHost,GPUPlanManager,128);

@@ -1,12 +1,17 @@
-#ifndef GPUSEEN
-#define GPUSEEN
-#ifdef GPU
-#ifdef CUDA
+#ifndef SWFFT_GPUSEEN
+#define SWFFT_GPUSEEN
+#ifdef SWFFT_GPU
+#ifdef SWFFT_CUDA
 #include <cuda_runtime.h>
 #include <cufft.h>
 
-#define complexDoubleDevice cufftDoubleComplex
-#define complexFloatDevice cufftComplex
+namespace SWFFT{
+typedef cufftDoubleComplex complexDoubleDevice;
+typedef cufftComplex complexFloatDevice;
+}
+
+//#define complexDoubleDevice cufftDoubleComplex
+//#define complexFloatDevice cufftComplex
 //#define complexFFT_t cufftDoubleComplex
 
 #define gpufftHandle cufftHandle
@@ -67,7 +72,7 @@
 
 #else 
 
-#ifdef HIP
+#ifdef SWFFT_HIP
 
 #include <hip/hip_runtime_api.h>
 #include <hipfft.h>
@@ -117,7 +122,7 @@
 #endif
 
 #endif
-
+namespace SWFFT{
 inline void swfftAlloc(complexDoubleDevice** ptr, size_t sz){
     gpuMalloc(ptr,sz);
 }
@@ -130,9 +135,10 @@ inline void swfftFree(complexDoubleDevice* ptr){
 inline void swfftFree(complexFloatDevice* ptr){
     gpuFree(ptr);
 }
+}
 
 #endif
-#ifndef GPU
+#ifndef SWFFT_GPU
 typedef struct {
     int x;
     int y;

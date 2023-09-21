@@ -1,6 +1,7 @@
-#ifdef ALLTOALL
+#ifdef SWFFT_ALLTOALL
 #include "alltoall.hpp"
 
+namespace SWFFT{
 namespace A2A{
 
     /*
@@ -44,7 +45,7 @@ namespace A2A{
 
     }
 
-    #ifdef GPU
+    #ifdef SWFFT_GPU
     template<class MPI_T, class REORDER_T>
     void Distribution<MPI_T,REORDER_T>::copy(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2){
         gpuMemcpy(Buff1,Buff2,sizeof(complexDoubleDevice) * nlocal,gpuMemcpyDeviceToDevice);
@@ -145,7 +146,7 @@ namespace A2A{
         mpi.alltoall(Buff1,Buff2,nsends,my_comm);
     }
 
-    #ifdef GPU
+    #ifdef SWFFT_GPU
     template<class MPI_T, class REORDER_T>
     void Distribution<MPI_T,REORDER_T>::getPencils(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2, int n){
         getPencils_(Buff1,Buff2,n);
@@ -179,7 +180,7 @@ namespace A2A{
         mpi.alltoall(Buff1,Buff2,nsends,my_comm);
     }
 
-    #ifdef GPU
+    #ifdef SWFFT_GPU
     template<class MPI_T, class REORDER_T>
     void Distribution<MPI_T,REORDER_T>::returnPencils(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2, int n){
         returnPencils_(Buff1,Buff2,n);
@@ -201,7 +202,7 @@ namespace A2A{
         returnPencils_(Buff1,Buff2,n);
     }
 
-    #ifdef GPU
+    #ifdef SWFFT_GPU
     template<class MPI_T, class REORDER_T>
     void Distribution<MPI_T,REORDER_T>::shuffle_indices(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2, int n){
         reordering.shuffle_indices(Buff1,Buff2,n);
@@ -223,7 +224,7 @@ namespace A2A{
         reordering.shuffle_indices(Buff1,Buff2,n);
     }
 
-    #ifdef GPU
+    #ifdef SWFFT_GPU
     template<class MPI_T, class REORDER_T>
     void Distribution<MPI_T,REORDER_T>::reorder(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2, int n, int direction){
         reordering.reorder(Buff1,Buff2,n, direction);
@@ -244,15 +245,16 @@ namespace A2A{
     void Distribution<MPI_T,REORDER_T>::reorder(complexFloatHost* Buff1, complexFloatHost* Buff2, int n, int direction){
         reordering.reorder(Buff1,Buff2,n, direction);
     }
-
-    template class Distribution<CPUMPI,CPUReorder>;
-    #ifdef GPU
-    template class Distribution<CPUMPI,GPUReorder>;
-    #ifndef nocudampi
-    template class Distribution<GPUMPI,CPUReorder>;
-    template class Distribution<GPUMPI,GPUReorder>;
-    #endif
-    #endif
 }
+}
+    template class SWFFT::A2A::Distribution<SWFFT::CPUMPI,SWFFT::A2A::CPUReorder>;
+    #ifdef SWFFT_GPU
+    template class SWFFT::A2A::Distribution<SWFFT::CPUMPI,SWFFT::A2A::GPUReorder>;
+    #ifndef nocudampi
+    template class SWFFT:A2A::Distribution<SWFFT::GPUMPI,SWFFT:A2A::CPUReorder>;
+    template class SWFFT::A2A::Distribution<SWFFT::GPUMPI,SWFFT:A2A::GPUReorder>;
+    #endif
+    #endif
+
 
 #endif

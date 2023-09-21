@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <iostream>
 
+using namespace SWFFT;
+
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 
@@ -27,7 +29,7 @@ void fill(complexFloatHost* data, int val, int n){
     base_fill(data,val,n);
 }
 
-#ifdef GPU
+#ifdef SWFFT_GPU
 void fill(complexDoubleDevice* data, int val, int n){
     complexDoubleHost* h_data; swfftAlloc(&h_data,sizeof(complexDoubleHost) * n);
     fill(h_data,val,n);
@@ -57,7 +59,7 @@ bool test(complexFloatHost* data, int world_size){
     return base_test(data,world_size);
 }
 
-#ifdef GPU
+#ifdef SWFFT_GPU
 bool test(complexDoubleDevice* data, int world_size){
     complexDoubleHost* h_data; swfftAlloc(&h_data,sizeof(complexDoubleHost) * world_size);
     gpuMemcpy(h_data,data,sizeof(complexDoubleHost) * world_size, gpuMemcpyDeviceToHost);
@@ -101,13 +103,13 @@ bool test_fftwrangler(){
 
 int main(){
     MPI_Init(NULL,NULL);
-    #ifdef GPU
+    #ifdef SWFFT_GPU
     gpuFree(0);
     #endif
 
     IS_TRUE(test_fftwrangler,complexDoubleHost,CPUMPI);
     IS_TRUE(test_fftwrangler,complexFloatHost,CPUMPI);
-    #ifdef GPU
+    #ifdef SWFFT_GPU
         IS_TRUE(test_fftwrangler,complexDoubleDevice,CPUMPI);
         IS_TRUE(test_fftwrangler,complexFloatDevice,CPUMPI);
 
