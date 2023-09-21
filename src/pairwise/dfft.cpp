@@ -19,6 +19,25 @@ namespace PAIR{
     }
 
     template<class MPI_T, class FFTBackend>
+    int3 Dfft<MPI_T,FFTBackend>::coords(){
+        return make_int3(double_dist.get_self_3d(0),double_dist.get_self_3d(1),double_dist.get_self_3d(2));
+    }
+
+    template<class MPI_T, class FFTBackend>
+    int3 Dfft<MPI_T,FFTBackend>::get_ks(int idx){
+        int3 local_ng_k = make_int3(double_dist.local_ng_2d_z(0),double_dist.local_ng_2d_z(1),double_dist.local_ng_2d_z(2));
+        int3 pos_k = make_int3(double_dist.get_self_2d_z(0),double_dist.get_self_2d_z(1),double_dist.get_self_2d_z(2));
+        int3 my_pos;
+        my_pos.x = idx / (local_ng_k.y * local_ng_k.z);
+        my_pos.y = (idx - (my_pos.x * local_ng_k.y * local_ng_k.z)) / local_ng_k.z;
+        my_pos.z = (idx - (my_pos.x * local_ng_k.y * local_ng_k.z)) - my_pos.y * local_ng_k.z;
+        my_pos.x += pos_k.x;
+        my_pos.y += pos_k.y;
+        my_pos.z += pos_k.z;
+        return my_pos;
+    }
+
+    template<class MPI_T, class FFTBackend>
     Dfft<MPI_T,FFTBackend>::~Dfft(){}
 
     template<class MPI_T, class FFTBackend>

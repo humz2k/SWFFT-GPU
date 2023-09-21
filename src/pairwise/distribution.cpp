@@ -1617,6 +1617,31 @@ namespace PAIR{
         return process_topology_3.self[direction];
     }
 
+    template<class T, class MPI_T>
+    int distribution_t<T,MPI_T>::local_ng_1d(int direction){
+        return process_topology_1.n[direction];
+    }
+
+    template<class T, class MPI_T>
+    int distribution_t<T,MPI_T>::local_ng_2d_x(int direction){
+        return process_topology_2_x.n[direction];
+    }
+
+    template<class T, class MPI_T>
+    int distribution_t<T,MPI_T>::local_ng_2d_y(int direction){
+        return process_topology_2_y.n[direction];
+    }
+
+    template<class T, class MPI_T>
+    int distribution_t<T,MPI_T>::local_ng_2d_z(int direction){
+        return process_topology_2_z.n[direction];
+    }
+
+    template<class T, class MPI_T>
+    int distribution_t<T,MPI_T>::local_ng_3d(int direction){
+        return process_topology_3.n[direction];
+    }
+
     template class distribution_t<complexFloatHost,CPUMPI>;
     template class distribution_t<complexDoubleHost,CPUMPI>;
 

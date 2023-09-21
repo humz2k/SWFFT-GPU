@@ -112,6 +112,12 @@ namespace PAIR{
 
             int rank_cube(int coord[]);
 
+            int local_ng_1d(int i);
+            int local_ng_2d_x(int i);
+            int local_ng_2d_y(int i);
+            int local_ng_2d_z(int i);
+            int local_ng_3d(int i);
+
     };
 
     template<class MPI_T, class FFTBackend>
@@ -122,6 +128,8 @@ namespace PAIR{
             ~Dfft();
 
             int buff_sz();
+            int3 coords();
+            int3 get_ks(int idx);
 
             #ifdef GPU
             void forward(complexDoubleDevice* data);
@@ -186,7 +194,7 @@ class Pairwise{
         ~Pairwise(){};
 
         inline int3 get_ks(int idx){
-            return make_int3(0,0,0);
+            return dfft.get_ks(idx);
         }
 
         inline bool test_distribution(){
@@ -218,7 +226,7 @@ class Pairwise{
         }
 
         inline int3 coords(){
-            return make_int3(0,0,0);
+            return dfft.coords();
         }
 
         inline int rank(){
