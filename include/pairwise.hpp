@@ -1,6 +1,6 @@
-#ifdef PAIRWISE
-#ifndef PAIRWISE_SEEN
-#define PAIRWISE_SEEN
+#ifdef SWFFT_PAIRWISE
+#ifndef SWFFT_PAIRWISE_SEEN
+#define SWFFT_PAIRWISE_SEEN
 
 #include <mpi.h>
 #include "fftwrangler.hpp"

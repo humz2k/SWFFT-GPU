@@ -1,5 +1,5 @@
-#ifndef GPUSEEN
-#define GPUSEEN
+#ifndef SWFFT_GPUSEEN
+#define SWFFT_GPUSEEN
 #ifdef GPU
 #ifdef CUDA
 #include <cuda_runtime.h>

@@ -1,4 +1,4 @@
-#ifdef ALLTOALL
+#ifdef SWFFT_ALLTOALL
 #ifdef GPU
 #include "alltoall_reorder.hpp"
 

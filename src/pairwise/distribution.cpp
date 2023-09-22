@@ -1,4 +1,4 @@
-#ifdef PAIRWISE
+#ifdef SWFFT_PAIRWISE
 
 #define PENCIL
 

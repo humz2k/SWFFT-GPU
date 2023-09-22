@@ -120,7 +120,7 @@ int main(){
     gpuFree(0);
     #endif
     
-    #ifdef PAIRWISE
+    #ifdef SWFFT_PAIRWISE
         test<swfft<Pairwise,CPUMPI,fftw>, complexDoubleHost>(false,256);
         test<swfft<Pairwise,CPUMPI,fftw>, complexFloatHost>(false,256);
         #ifdef GPU
@@ -134,7 +134,7 @@ int main(){
         #endif
     #endif
 
-    #ifdef ALLTOALL
+    #ifdef SWFFT_ALLTOALL
         #ifdef GPU
         //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>, complexDoubleDevice>(false,8);
         test<swfft<AllToAllGPU,CPUMPI,gpuFFT>, complexDoubleDevice>(false,256);

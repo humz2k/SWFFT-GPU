@@ -6,6 +6,11 @@ void base_alltoall(T* buff1, T* buff2, int n, MPI_Comm comm){
     MPI_Alltoall(buff1,n*sizeof(T),MPI_BYTE,buff2,n*sizeof(T),MPI_BYTE,comm);
 }
 
+template<class T>
+void base_irecv(T* buff, int count, int source, int tag, MPI_Comm comm, MPI_Request* req){
+    MPI_Irecv(buff,count * sizeof(T),MPI_BYTE,source,tag,comm,req);
+}
+
 #ifdef GPU
 template<class T>
 void CPUMPI::gpu_memcpy_alltoall(T* buff1, T* buff2, int n, MPI_Comm comm){

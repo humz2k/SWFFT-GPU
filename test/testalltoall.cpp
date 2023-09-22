@@ -1,5 +1,5 @@
 
-#ifndef ALLTOALL
+#ifndef SWFFT_ALLTOALL
 int main(){
     return 0;
 }

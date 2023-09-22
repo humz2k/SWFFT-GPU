@@ -1,6 +1,6 @@
-#ifdef ALLTOALL
-#ifndef ALLTOALL_SEEN
-#define ALLTOALL_SEEN
+#ifdef SWFFT_ALLTOALL
+#ifndef SWFFT_ALLTOALL_SEEN
+#define SWFFT_ALLTOALL_SEEN
 
 #include "alltoall_reorder.hpp"
 #include <mpi.h>

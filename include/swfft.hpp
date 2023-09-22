@@ -6,11 +6,11 @@
 #include "complex-type.h"
 #include "timing-stats.h"
 
-#ifdef ALLTOALL
+#ifdef SWFFT_ALLTOALL
 #include "alltoall.hpp"
 #endif
 
-#ifdef PAIRWISE
+#ifdef SWFFT_PAIRWISE
 #include "pairwise.hpp"
 #endif
 

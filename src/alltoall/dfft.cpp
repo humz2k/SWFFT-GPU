@@ -1,4 +1,4 @@
-#ifdef ALLTOALL
+#ifdef SWFFT_ALLTOALL
 #include "alltoall.hpp"
 
 namespace A2A{

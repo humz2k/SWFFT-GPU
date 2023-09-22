@@ -52,8 +52,8 @@
  * *****************************************************************************
  */
 
-#ifndef HACC_TIMINGSTATS_H
-#define HACC_TIMINGSTATS_H
+#ifndef SWFFT_TIMINGSTATS_H
+#define SWFFT_TIMINGSTATS_H
 
 #include <math.h>
 

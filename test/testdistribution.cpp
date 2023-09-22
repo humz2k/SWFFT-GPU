@@ -40,7 +40,7 @@ int main(){
     int world_rank;MPI_Comm_rank(MPI_COMM_WORLD,&world_rank);
     int world_size;MPI_Comm_size(MPI_COMM_WORLD,&world_size);
 
-    #ifdef ALLTOALL
+    #ifdef SWFFT_ALLTOALL
         if (world_size >= 8){
             if(world_rank == 0)printf("Testing with world_size = 8:\n\n");
             MPI_Comm comm;

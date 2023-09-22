@@ -1,4 +1,4 @@
-#ifdef ALLTOALL
+#ifdef SWFFT_ALLTOALL
 #include "alltoall_reorder.hpp"
 namespace A2A{
     namespace CPUREORDER{
