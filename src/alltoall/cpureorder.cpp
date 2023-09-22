@@ -17,6 +17,7 @@ namespace A2A{
 
         template<class T>
         void reorder_forwards_kernel(const T* __restrict src, T* __restrict dest, int mini_pencils_per_rank, int world_size, int mini_pencil_size, int n){
+            #pragma omp parallel for
             for (int i = 0; i < n; i++){
                 int new_idx = calc_mini_pencil_idx(i,mini_pencils_per_rank,world_size,mini_pencil_size);
                 dest[new_idx] = src[i];
@@ -26,6 +27,7 @@ namespace A2A{
 
         template<class T>
         void reorder_backwards_kernel(const T* __restrict src, T* __restrict dest, int mini_pencils_per_rank, int world_size, int mini_pencil_size, int n){
+            #pragma omp parallel for
             for (int i = 0; i < n; i++){
                 int new_idx = calc_mini_pencil_idx(i,mini_pencils_per_rank,world_size,mini_pencil_size);
                 dest[i] = src[new_idx];
@@ -35,7 +37,8 @@ namespace A2A{
 
         template<class T>
         void d_fast_z_to_x(const T* __restrict source, T* __restrict dest, int lgridx, int lgridy, int lgridz, int nlocal){
-
+            
+            #pragma omp parallel for
             for (int idx = 0; idx < nlocal; idx++){
 
                 int i = idx / (lgridx * lgridy);
@@ -54,7 +57,8 @@ namespace A2A{
 
         template<class T>
         void d_fast_x_to_z(const T* __restrict source, T* __restrict dest, int lgridx, int lgridy, int lgridz, int nlocal){
-
+            
+            #pragma omp parallel for
             for (int idx = 0; idx < nlocal; idx++){
 
                 int i = idx / (lgridx * lgridy);
@@ -74,6 +78,7 @@ namespace A2A{
         template<class T>
         void d_fast_x_to_y(const T* __restrict source, T* __restrict dest, int lgridx, int lgridy, int lgridz, int nlocal){
             
+            #pragma omp parallel for
             for (int idx = 0; idx < nlocal; idx++){
 
                 int i = idx / (lgridz * lgridy);
@@ -92,7 +97,8 @@ namespace A2A{
 
         template<class T>
         void d_fast_y_to_z(const T* __restrict source, T* __restrict dest, int lgridx, int lgridy, int lgridz, int nlocal){
-
+            
+            #pragma omp parallel for
             for (int idx = 0; idx < nlocal; idx++){
 
                 int i = idx / (lgridz * lgridy);

@@ -8,18 +8,34 @@
 #include "gpu.hpp"
 
 #ifdef SWFFT_FFTW
+
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 #include <fftw3.h>
 #include <map>
 #endif
 
 namespace SWFFT{
 
-#define gpuFFT GPUPlanManager
-#define fftw FFTWPlanManager
+//#define gpuFFT GPUPlanManager
+//#define fftw FFTWPlanManager
 
 #ifdef SWFFT_FFTW
 
 enum fftdirection {FFT_FORWARD, FFT_BACKWARD};
+
+inline int swfft_fftw_init_threads(int omt){
+    #ifdef _OPENMP
+    if(!fftw_init_threads()){
+        return 1;
+    }
+    fftw_plan_with_nthreads(omt);
+    return omt;
+    #endif
+    return 1;
+}
 
 template<class T, class plan_t>
 class FFTWPlanWrapper{
@@ -74,6 +90,8 @@ class FFTWPlanManager{
         #endif
 
 };
+
+typedef FFTWPlanManager fftw;
 #endif
 
 #ifdef SWFFT_CUFFT
@@ -109,7 +127,10 @@ class GPUPlanManager{
         void backward(complexDoubleHost* data, complexDoubleHost* scratch, int ng, int nFFTs);
         void backward(complexFloatHost* data, complexFloatHost* scratch, int ng, int nFFTs);
 };
+
+typedef GPUPlanManager gpuFFT;
 #endif
 #endif
+
 }
 #endif

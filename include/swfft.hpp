@@ -6,6 +6,10 @@
 #include "complex-type.h"
 #include "timing-stats.h"
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 #ifdef SWFFT_ALLTOALL
 #include "alltoall.hpp"
 #endif
@@ -16,6 +20,33 @@
 
 namespace SWFFT{
 
+    inline int swfft_init_threads(int nthreads = 0){
+        int rank; MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+
+        #ifdef _OPENMP
+        int omt = omp_get_max_threads();
+        #endif
+
+        #ifdef SWFFT_FFTW
+        int out = 1;
+        #ifdef _OPENMP
+        if (nthreads != 0){
+            out = swfft_fftw_init_threads(nthreads);
+        } else {
+            out = swfft_fftw_init_threads(omt);
+        }
+        
+        #endif
+        if (rank == 0){
+            printf("swfft::fftw initialized with %d threads\n",out);
+        }
+        return out;
+        #endif
+
+        return 0;
+        
+    }
+
     template<template<class,class>class DistBackend, class MPI_T, class FFTBackend>
     class swfft{
         private:
@@ -24,11 +55,11 @@ namespace SWFFT{
             int last_was;
         
         public:
-            swfft(MPI_Comm comm, int ngx, int blockSize, bool ks_as_block = true) : backend(comm,ngx,blockSize,ks_as_block), last_time(0), last_was(-1){
+            swfft(MPI_Comm comm, int ngx, int blockSize = 64, bool ks_as_block = true) : backend(comm,ngx,blockSize,ks_as_block), last_time(0), last_was(-1){
 
             }
 
-            swfft(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize, bool ks_as_block = true) : backend(comm,ngx,ngx,ngx,blockSize,ks_as_block), last_time(0), last_was(-1){
+            swfft(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize = 64, bool ks_as_block = true) : backend(comm,ngx,ngx,ngx,blockSize,ks_as_block), last_time(0), last_was(-1){
 
             }
 

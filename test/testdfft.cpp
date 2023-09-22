@@ -13,53 +13,6 @@ int n_passed = 0;
 
 #define BLOCKSIZE 64
 
-void assign_delta(complexDoubleHost* data, int NG){
-    int world_rank; MPI_Comm_rank(MPI_COMM_WORLD,&world_rank);
-    for (int i = 0; i < NG; i++){
-        data[i].x = 0;
-        data[i].y = 0;
-    }
-    if (world_rank == 0){
-        data[0].x = 1;
-        data[0].y = 0;
-    }
-}
-
-void assign_delta(complexFloatHost* data, int NG){
-    int world_rank; MPI_Comm_rank(MPI_COMM_WORLD,&world_rank);
-    for (int i = 0; i < NG; i++){
-        data[i].x = 0;
-        data[i].y = 0;
-    }
-    if (world_rank == 0){
-        data[0].x = 1;
-        data[0].y = 0;
-    }
-}
-
-#ifdef SWFFT_GPU
-void assign_delta(complexDoubleDevice* data, int NG){
-    int world_rank; MPI_Comm_rank(MPI_COMM_WORLD,&world_rank);
-    gpuMemset(data,0,sizeof(complexDoubleDevice)*NG);
-    if (world_rank == 0){
-        complexDoubleDevice start;
-        start.x = 1;
-        start.y = 0;
-        gpuMemcpy(data,&start,sizeof(complexDoubleDevice),cudaMemcpyHostToDevice);
-    }
-}
-
-void assign_delta(complexFloatDevice* data, int NG){
-    int world_rank; MPI_Comm_rank(MPI_COMM_WORLD,&world_rank);
-    gpuMemset(data,0,sizeof(complexFloatDevice)*NG);
-    if (world_rank == 0){
-        complexFloatDevice start;
-        start.x = 1;
-        start.y = 0;
-        gpuMemcpy(data,&start,sizeof(complexFloatDevice),cudaMemcpyHostToDevice);
-    }
-}
-#endif
 template<class SWFFT_T, class T>
 bool test(bool k_in_blocks, int ngx, int ngy_ = 0, int ngz_ = 0){
     int ngy = ngy_;
@@ -122,6 +75,8 @@ int main(){
     gpuFree(0);
     #endif
     
+    swfft_init_threads(2);
+
     #ifdef SWFFT_PAIRWISE
         #ifdef SWFFT_FFTW
         test<swfft<Pairwise,CPUMPI,fftw>, complexDoubleHost>(false,256);
@@ -141,7 +96,7 @@ int main(){
         #endif
         #endif
     #endif
-
+    
     #ifdef SWFFT_ALLTOALL
         #ifdef SWFFT_GPU
         //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>, complexDoubleDevice>(false,8);
@@ -188,6 +143,7 @@ int main(){
         test<swfft<AllToAllCPU,CPUMPI,fftw>, complexFloatHost>(false,256);
         #endif
     #endif
+    
 
     int world_rank;MPI_Comm_rank(MPI_COMM_WORLD,&world_rank);
     if(world_rank == 0)printf("%d/%d tests passed\n",n_passed,n_tests);

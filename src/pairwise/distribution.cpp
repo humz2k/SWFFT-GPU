@@ -1,5 +1,13 @@
 #ifdef SWFFT_PAIRWISE
 
+#ifdef _OPENMP
+#define DIST_OMP
+#endif
+
+#ifdef DIST_OMP
+#include <omp.h>
+#endif
+
 #define PENCIL
 
 #include "pairwise.hpp"
@@ -1063,7 +1071,25 @@ namespace PAIR{
             if(direction == REDISTRIBUTE_2_TO_3){	
             int64_t ch_indx=0;
             int dims_size=pencil_dims[0]*pencil_dims[1]*pencil_dims[2];
+            
+            #ifdef DIST_OMP
+            int last_i = d2_array_start[0] - 1;
+            #pragma omp parallel for schedule(static) firstprivate(ch_indx,last_i)
+            #endif
+
             for(int i0=d2_array_start[0];i0<d2_array_start[0]+local_sizes[0];i0++){
+            
+            #ifdef DIST_OMP
+            if(last_i != i0 - 1) {
+                ch_indx = 0;
+                for(int i=d2_array_start[0]; i<i0; i++)
+                for(int i1=d2_array_start[1];i1<d2_array_start[1]+local_sizes[1];i1++)
+                    for(int i2=d2_array_start[2];i2<d2_array_start[2]+local_sizes[2];i2++)
+                ch_indx++;
+            }
+            last_i = i0;
+            #endif
+            
             for(int i1=d2_array_start[1];i1<d2_array_start[1]+local_sizes[1];i1++){
             for(int i2=d2_array_start[2];i2<d2_array_start[2]+local_sizes[2];i2++){
                 int64_t local_indx=pencil_dims[2]*(pencil_dims[1]*i0+i1) + i2;
@@ -1159,9 +1185,30 @@ namespace PAIR{
             int64_t ch_indx=0;
             int dims_size=cube_sizes[0]*cube_sizes[1]*cube_sizes[2];
             if((self == me) && print_me)fprintf(stderr, "%d, %d, MAKE 3D Chunk...\n", self,d3_peer);
+            
+            #ifdef DIST_OMP
+            int last_i;
+            #endif
+            
             switch(z_dim){
             case 0:
+            #ifdef DIST_OMP
+            last_i = d3_array_start[y_dim] + 1;
+            #pragma omp parallel for schedule(static) firstprivate(ch_indx,last_i)
+            #endif
             for(int i2=d3_array_start[y_dim];i2>d3_array_start[y_dim]-subsizes[y_dim];i2--){//perhaps y_dim
+                
+                #ifdef DIST_OMP
+                if(last_i != i2 + 1) {
+                ch_indx = 0;
+                for(int i=d3_array_start[y_dim]; i>i2; i--)
+                for(int i1=d3_array_start[x_dim];i1<d3_array_start[x_dim]+subsizes[x_dim];i1++)
+                for(int i0=d3_array_start[z_dim];i0<d3_array_start[z_dim]+subsizes[z_dim];i0++)
+                    ch_indx++;
+                }
+                last_i = i2;
+                #endif
+                
                 for(int i1=d3_array_start[x_dim];i1<d3_array_start[x_dim]+subsizes[x_dim];i1++){//perhaps x_dim
                 for(int i0=d3_array_start[z_dim];i0<d3_array_start[z_dim]+subsizes[z_dim];i0++){//perhaps z_dim
                 int64_t local_indx=process_topology_3.n[2]*(process_topology_3.n[1]*i0+i1) + i2;
@@ -1174,7 +1221,25 @@ namespace PAIR{
             }
             break;
             case 1:
+            #ifdef DIST_OMP
+            last_i = d3_array_start[y_dim] - 1;
+            #pragma omp parallel for schedule(static) firstprivate(ch_indx,last_i)
+            #endif
+
             for(int i0=d3_array_start[y_dim];i0<d3_array_start[y_dim]+subsizes[y_dim];i0++){
+                
+                #ifdef DIST_OMP
+                if(last_i != i0 - 1) {
+                ch_indx = 0;
+                for(int i=d3_array_start[y_dim]; i<i0; i++)
+                for(int i2=d3_array_start[x_dim];i2>d3_array_start[x_dim]-subsizes[x_dim];i2--)
+                for(int i1=d3_array_start[z_dim];i1<d3_array_start[z_dim]+subsizes[z_dim];i1++)
+                    ch_indx++;
+                }
+                last_i = i0;
+                #endif
+
+                
                 for(int i2=d3_array_start[x_dim];i2>d3_array_start[x_dim]-subsizes[x_dim];i2--){
                 for(int i1=d3_array_start[z_dim];i1<d3_array_start[z_dim]+subsizes[z_dim];i1++){
                 int64_t local_indx=process_topology_3.n[2]*(process_topology_3.n[1]*i0+i1) + i2;
@@ -1188,7 +1253,26 @@ namespace PAIR{
             
             break;
             case 2:
+
+            #ifdef DIST_OMP
+            last_i = d3_array_start[x_dim] - 1;
+            #pragma omp parallel for schedule(static) firstprivate(ch_indx,last_i)
+            #endif
+
             for(int i0=d3_array_start[x_dim];i0<d3_array_start[x_dim]+subsizes[x_dim];i0++){
+                
+                #ifdef DIST_OMP
+                if(last_i != i0 - 1) {
+                    ch_indx = 0;
+                    for(int i=d3_array_start[x_dim]; i<i0; i++)
+                for(int i1=d3_array_start[y_dim];i1<d3_array_start[y_dim]+subsizes[y_dim];i1++)
+                    for(int i2=d3_array_start[z_dim];i2<d3_array_start[z_dim]+subsizes[z_dim];i2++)
+                    ch_indx++;
+                }
+                last_i = i0;
+                #endif
+
+                
                 for(int i1=d3_array_start[y_dim];i1<d3_array_start[y_dim]+subsizes[y_dim];i1++){
                 for(int i2=d3_array_start[z_dim];i2<d3_array_start[z_dim]+subsizes[z_dim];i2++){
                 int64_t local_indx=process_topology_3.n[2]*(process_topology_3.n[1]*i0+i1) + i2;
@@ -1284,7 +1368,26 @@ namespace PAIR{
             if(self==me && print_me)fprintf(stderr,"REAL SUBSIZES (%d,%d,%d)\n",subsizes[x_dim],subsizes[y_dim],subsizes[z_dim]);
             if(self==me && print_me)fprintf(stderr,"PENCIL DIMENSION VS. local sizes (%d,%d,%d) vs (%d,%d,%d)\n",pencil_dims[0],pencil_dims[1],pencil_dims[2],local_sizes[0],local_sizes[1],local_sizes[2]);
             if(self==me && print_me)fprintf(stderr,"DIM_2_ARRAY_START (%d,%d,%d) \n",d2_array_start[0],d2_array_start[1],d2_array_start[2]);
+            
+            #ifdef DIST_OMP
+            int last_i = d2_array_start[0] - 1;
+            #pragma omp parallel for schedule(static) firstprivate(ch_indx,last_i)
+            #endif
+
+            
             for(int i0=d2_array_start[0];i0<d2_array_start[0]+local_sizes[0];i0++){
+            
+            #ifdef DIST_OMP
+            if(last_i != i0 - 1) {
+                ch_indx = 0;
+                for(int i=d2_array_start[0]; i<i0; i++)
+                for(int i1=d2_array_start[1];i1<d2_array_start[1]+local_sizes[1];i1++)
+                    for(int i2=d2_array_start[2];i2<d2_array_start[2]+local_sizes[2];i2++)
+                ch_indx++;
+            }
+            last_i = i0;
+            #endif
+            
             for(int i1=d2_array_start[1];i1<d2_array_start[1]+local_sizes[1];i1++){
             for(int i2=d2_array_start[2];i2<d2_array_start[2]+local_sizes[2];i2++){
                 int64_t local_indx=pencil_dims[2]*(pencil_dims[1]*i0+i1) + i2;
@@ -1318,10 +1421,32 @@ namespace PAIR{
             if(!print_mess)MPI_Wait(&req2,MPI_STATUS_IGNORE);
             int64_t ch_indx=0;
             int dims_size=(process_topology_3.n[2])*(process_topology_3.n[1])*(process_topology_3.n[0]);
+            
+            #ifdef DIST_OMP
+            int last_i;
+            #endif
+            
             if(z_dim==0){
             //fill the local array with the received chunk.
+
+            #ifdef DIST_OMP
+            last_i = d3_array_start[y_dim] + 1;
+            #pragma omp parallel for schedule(static) firstprivate(ch_indx,last_i)
+            #endif
             
             for(int i2=d3_array_start[y_dim];i2>d3_array_start[y_dim]-subsizes[y_dim];i2--){
+            
+            #ifdef DIST_OMP
+            if(last_i != i2 + 1) {
+            ch_indx = 0;
+            for(int i=d3_array_start[y_dim]; i>i2; i--)
+                for(int i1=d3_array_start[x_dim];i1<d3_array_start[x_dim]+subsizes[x_dim];i1++)
+            for(int i0=d3_array_start[z_dim];i0<d3_array_start[z_dim]+subsizes[z_dim];i0++)
+                ch_indx++;
+            }
+            last_i = i2;
+            #endif
+
             for(int i1=d3_array_start[x_dim];i1<d3_array_start[x_dim]+subsizes[x_dim];i1++){
                 for(int i0=d3_array_start[z_dim];i0<d3_array_start[z_dim]+subsizes[z_dim];i0++){
                 int64_t local_indx=process_topology_3.n[2]*(process_topology_3.n[1]*i0+i1) + i2;
@@ -1336,7 +1461,25 @@ namespace PAIR{
             }
             }
             else if(z_dim==1){
+            
+            #ifdef DIST_OMP
+            last_i = d3_array_start[y_dim] - 1;
+            #pragma omp parallel for schedule(static) firstprivate(ch_indx,last_i)
+            #endif
+
             for(int i0=d3_array_start[y_dim];i0<d3_array_start[y_dim]+subsizes[y_dim];i0++){
+            
+            #ifdef DIST_OMP
+            if(last_i != i0 - 1) {
+            ch_indx = 0;
+            for(int i=d3_array_start[y_dim]; i<i0; i++)
+                for(int i2=d3_array_start[x_dim];i2>d3_array_start[x_dim]-subsizes[x_dim];i2--)
+            for(int i1=d3_array_start[z_dim];i1<d3_array_start[z_dim]+subsizes[z_dim];i1++)
+                ch_indx++;
+            }
+            last_i = i0;
+            #endif
+            
             for(int i2=d3_array_start[x_dim];i2>d3_array_start[x_dim]-subsizes[x_dim];i2--){
                 for(int i1=d3_array_start[z_dim];i1<d3_array_start[z_dim]+subsizes[z_dim];i1++){
                 int64_t local_indx=process_topology_3.n[2]*(process_topology_3.n[1]*i0+i1) + i2;
@@ -1352,7 +1495,25 @@ namespace PAIR{
             
             }
             else if(z_dim==2){
+            
+            #ifdef DIST_OMP
+            last_i = d3_array_start[x_dim] - 1;
+            #pragma omp parallel for schedule(static) firstprivate(ch_indx,last_i)
+            #endif
+
             for(int i0=d3_array_start[x_dim];i0<d3_array_start[x_dim]+subsizes[x_dim];i0++){
+            
+            #ifdef DIST_OMP
+            if(last_i != i0 - 1) {
+            ch_indx = 0;
+            for(int i=d3_array_start[x_dim]; i<i0; i++)
+                for(int i1=d3_array_start[y_dim];i1<d3_array_start[y_dim]+subsizes[y_dim];i1++)
+            for(int i2=d3_array_start[z_dim];i2<d3_array_start[z_dim]+subsizes[z_dim];i2++)
+                ch_indx++;
+            }
+            last_i = i0;
+            #endif
+
             for(int i1=d3_array_start[y_dim];i1<d3_array_start[y_dim]+subsizes[y_dim];i1++){
                 for(int i2=d3_array_start[z_dim];i2<d3_array_start[z_dim]+subsizes[z_dim];i2++){
                 int64_t local_indx=process_topology_3.n[2]*(process_topology_3.n[1]*i0+i1) + i2;
