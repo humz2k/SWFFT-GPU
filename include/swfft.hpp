@@ -18,6 +18,10 @@
 #include "pairwise.hpp"
 #endif
 
+#ifdef SWFFT_HQFFT
+#include "hqfft.hpp"
+#endif
+
 namespace SWFFT{
 
     inline int swfft_init_threads(int nthreads = 0){
@@ -55,21 +59,25 @@ namespace SWFFT{
             int last_was;
         
         public:
-            swfft(MPI_Comm comm, int ngx, int blockSize = 64, bool ks_as_block = true) : backend(comm,ngx,blockSize,ks_as_block), last_time(0), last_was(-1){
+            inline swfft(MPI_Comm comm, int ngx, int blockSize = 64, bool ks_as_block = true) : backend(comm,ngx,blockSize,ks_as_block), last_time(0), last_was(-1){
 
             }
 
-            swfft(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize = 64, bool ks_as_block = true) : backend(comm,ngx,ngy,ngz,blockSize,ks_as_block), last_time(0), last_was(-1){
+            inline swfft(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize = 64, bool ks_as_block = true) : backend(comm,ngx,ngy,ngz,blockSize,ks_as_block), last_time(0), last_was(-1){
 
             }
 
-            void printLastTime(){
+            inline timing_stats_t printLastTime(){
                 if (last_was == 0){
-                    printTimingStats(backend.comm(),"FORWARD ",last_time);
+                    return printTimingStats(backend.comm(),"FORWARD ",last_time);
                 } else {
-                    printTimingStats(backend.comm(),"BACKWARD",last_time);
+                    return printTimingStats(backend.comm(),"BACKWARD",last_time);
                 }
                 
+            }
+
+            inline timing_stats_t getLastTime(){
+                return getTimingStats(backend.comm(),last_time);
             }
 
             inline void query(){
@@ -83,7 +91,7 @@ namespace SWFFT{
                 }
             }
 
-            bool test_distribution(){
+            inline bool test_distribution(){
                 return backend.test_distribution();
             }
 
@@ -91,44 +99,44 @@ namespace SWFFT{
                 return backend.get_ks(idx);
             }
 
-            int ngx(){
+            inline int ngx(){
                 return backend.ngx();
             }
 
-            int ngy(){
+            inline int ngy(){
                 return backend.ngy();
             }
 
-            int ngz(){
+            inline int ngz(){
                 return backend.ngz();
             }
 
-            int3 ng(){
+            inline int3 ng(){
                 return backend.ng();
             }
 
-            int ng(int i){
+            inline int ng(int i){
                 return backend.ng(i);
             }
 
-            int buff_sz(){
+            inline int buff_sz(){
                 return backend.buff_sz();
             }
 
-            int3 coords(){
+            inline int3 coords(){
                 return backend.coords();
             }
 
-            int rank(){
+            inline int rank(){
                 return backend.rank();
             }
 
-            MPI_Comm comm(){
+            inline MPI_Comm comm(){
                 return backend.comm();
             }
 
             template<class T>
-            void forward(T* buff1, T* buff2){
+            inline void forward(T* buff1, T* buff2){
                 double start = MPI_Wtime();
 
                 backend.forward(buff1,buff2);
@@ -139,7 +147,7 @@ namespace SWFFT{
             }
 
             template<class T>
-            void backward(T* buff1, T* buff2){
+            inline void backward(T* buff1, T* buff2){
                 double start = MPI_Wtime();
 
                 backend.backward(buff1,buff2);
@@ -150,7 +158,7 @@ namespace SWFFT{
             }
 
             template<class T>
-            void forward(T* buff1){
+            inline void forward(T* buff1){
                 double start = MPI_Wtime();
 
                 backend.forward(buff1);
@@ -161,7 +169,7 @@ namespace SWFFT{
             }
 
             template<class T>
-            void backward(T* buff1){
+            inline void backward(T* buff1){
                 double start = MPI_Wtime();
 
                 backend.backward(buff1);

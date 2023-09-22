@@ -184,17 +184,17 @@ class Pairwise{
 
     public:
 
-        Pairwise(MPI_Comm comm_, int ngx, int blockSize, bool ks_as_block=true) : _comm(comm_), n{ngx,ngx,ngx}, dfft(comm_,ngx,ngx,ngx){
+        inline Pairwise(MPI_Comm comm_, int ngx, int blockSize, bool ks_as_block=true) : _comm(comm_), n{ngx,ngx,ngx}, dfft(comm_,ngx,ngx,ngx){
             _buff_sz = dfft.buff_sz();
             MPI_Comm_rank(comm_,&_rank);
         }
 
-        Pairwise(MPI_Comm comm_, int ngx, int ngy, int ngz, int blockSize, bool ks_as_block=true) : _comm(comm_), n{ngx,ngy,ngz}, dfft(comm_,ngx,ngy,ngz){
+        inline Pairwise(MPI_Comm comm_, int ngx, int ngy, int ngz, int blockSize, bool ks_as_block=true) : _comm(comm_), n{ngx,ngy,ngz}, dfft(comm_,ngx,ngy,ngz){
             _buff_sz = dfft.buff_sz();
             MPI_Comm_rank(comm_,&_rank);
         }
 
-        ~Pairwise(){};
+        inline ~Pairwise(){};
 
         inline int3 dims(){
             return make_int3(dfft.get_nproc_3d(0),dfft.get_nproc_3d(1),dfft.get_nproc_3d(2));

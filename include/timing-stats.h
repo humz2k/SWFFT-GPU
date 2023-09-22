@@ -62,45 +62,87 @@
 // lightweight timing statistics from MPI_Wtime() calls
 // C header only, no static variables
 // prints maximum, average/mean, minimum, and stddev
+namespace SWFFT{
+struct timing_stats_t{
+  double max;
+  double min;
+  double sum;
+  double avg;
+  double var;
+  double stdev;
+};
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
 inline
-void printTimingStats(MPI_Comm comm,        // comm for MPI_Allreduce()
+timing_stats_t printTimingStats(MPI_Comm comm,        // comm for MPI_Allreduce()
 		      const char *preamble, // text at beginning of line
 		      double dt)            // delta t in seconds
 {
   int myrank, nranks;
-  double max, min, sum, avg, var, stdev;
+  timing_stats_t stats;
+  //double max, min, sum, avg, var, stdev;
 
   MPI_Comm_rank(comm, &myrank);
   MPI_Comm_size(comm, &nranks);
 
-  MPI_Allreduce(&dt, &max, 1, MPI_DOUBLE, MPI_MAX, comm);
-  MPI_Allreduce(&dt, &min, 1, MPI_DOUBLE, MPI_MIN, comm);
-  MPI_Allreduce(&dt, &sum, 1, MPI_DOUBLE, MPI_SUM, comm);
-  avg = sum/nranks;
+  MPI_Allreduce(&dt, &stats.max, 1, MPI_DOUBLE, MPI_MAX, comm);
+  MPI_Allreduce(&dt, &stats.min, 1, MPI_DOUBLE, MPI_MIN, comm);
+  MPI_Allreduce(&dt, &stats.sum, 1, MPI_DOUBLE, MPI_SUM, comm);
+  stats.avg = stats.sum/nranks;
 
-  dt -= avg;
+  dt -= stats.avg;
   dt *= dt;
-  MPI_Allreduce(&dt, &var, 1, MPI_DOUBLE, MPI_SUM, comm);
-  var *= 1.0/nranks;
-  stdev = sqrt(var);
+  MPI_Allreduce(&dt, &stats.var, 1, MPI_DOUBLE, MPI_SUM, comm);
+  stats.var *= 1.0/nranks;
+  stats.stdev = sqrt(stats.var);
 
   if(myrank==0) {
     printf("%s  max %.3es  avg %.3es  min %.3es  dev %.3es\n",
-	   preamble, max, avg, min, stdev);
+	   preamble, stats.max, stats.avg, stats.min, stats.stdev);
   }
 
   MPI_Barrier(comm);
 
-  return;
+  return stats;
 }
 
-#ifdef __cplusplus
+inline
+timing_stats_t getTimingStats(MPI_Comm comm,        // comm for MPI_Allreduce()
+		      double dt)            // delta t in seconds
+{
+  int myrank, nranks;
+  timing_stats_t stats;
+  //double max, min, sum, avg, var, stdev;
+
+  MPI_Comm_rank(comm, &myrank);
+  MPI_Comm_size(comm, &nranks);
+
+  MPI_Allreduce(&dt, &stats.max, 1, MPI_DOUBLE, MPI_MAX, comm);
+  MPI_Allreduce(&dt, &stats.min, 1, MPI_DOUBLE, MPI_MIN, comm);
+  MPI_Allreduce(&dt, &stats.sum, 1, MPI_DOUBLE, MPI_SUM, comm);
+  stats.avg = stats.sum/nranks;
+
+  dt -= stats.avg;
+  dt *= dt;
+  MPI_Allreduce(&dt, &stats.var, 1, MPI_DOUBLE, MPI_SUM, comm);
+  stats.var *= 1.0/nranks;
+  stats.stdev = sqrt(stats.var);
+
+  /*if(myrank==0) {
+    printf("%s  max %.3es  avg %.3es  min %.3es  dev %.3es\n",
+	   preamble, stats.max, stats.avg, stats.min, stats.stdev);
+  }*/
+
+  //MPI_Barrier(comm);
+
+  return stats;
 }
-#endif
+}
+//#ifdef __cplusplus
+//}
+//#endif
 
 #endif // HACC_TIMINGSTATS_H

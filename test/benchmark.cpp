@@ -295,17 +295,18 @@ void run_benckmark(char** argv, int world_rank, int ngx, int ngy, int ngz, bool 
 
 int main(int argc, char** argv){
 
-    if (!((argc == 8) || (argc == 10))){
-        printf("USAGE: %s <distribution> <mpi_type> <fft_backend> <T> <k_in_blocks> <nreps> <ngx> [ngy ngz]\n", argv[0]);
-        return -1;
-    }
-
     MPI_Init(NULL,NULL);
     #ifdef SWFFT_GPU
     gpuFree(0);
     #endif
 
     int world_rank;MPI_Comm_rank(MPI_COMM_WORLD,&world_rank);
+
+    if (!((argc == 8) || (argc == 10))){
+        if(world_rank == 0)printf("USAGE: %s <distribution> <mpi_type> <fft_backend> <T> <k_in_blocks> <nreps> <ngx> [ngy ngz]\n", argv[0]);
+        MPI_Finalize();
+        return -1;
+    }
 
     int ngx = atoi(argv[7]);
     int ngy = ngx;
