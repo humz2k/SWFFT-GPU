@@ -158,7 +158,7 @@ namespace PAIR{
 
     }
 
-    #ifdef GPU
+    #ifdef SWFFT_GPU
     template<class MPI_T, class FFTBackend>
     void Dfft<MPI_T,FFTBackend>::forward(complexDoubleDevice* data){
         size_t sz = sizeof(complexDoubleDevice) * buff_sz();
@@ -230,9 +230,13 @@ namespace PAIR{
         return size;
     }
 
+    #ifdef SWFFT_FFTW
     template class Dfft<CPUMPI,fftw>;
-    #ifdef GPU
+    #endif
+    #ifdef SWFFT_GPU
+    #ifdef SWFFT_CUFFT
     template class Dfft<CPUMPI,gpuFFT>;
+    #endif
     #endif
 
 }

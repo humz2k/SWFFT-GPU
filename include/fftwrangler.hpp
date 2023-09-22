@@ -12,7 +12,7 @@ enum fftdirection {FFT_FORWARD, FFT_BACKWARD};
 
 #include "gpu.hpp"
 
-#ifdef FFTW
+#ifdef SWFFT_FFTW
 #include <fftw3.h>
 #include <map>
 
@@ -52,7 +52,7 @@ class FFTWPlanManager{
         void forward(complexDoubleHost* data, complexDoubleHost* scratch, int ng, int nFFTs);
         void forward(complexFloatHost* data, complexFloatHost* scratch, int ng, int nFFTs);
 
-        #ifdef GPU
+        #ifdef SWFFT_GPU
         void forward(complexDoubleDevice* data, complexDoubleDevice* scratch, int ng, int nFFTs);
         void forward(complexFloatDevice* data, complexFloatDevice* scratch, int ng, int nFFTs);
         #endif
@@ -63,7 +63,7 @@ class FFTWPlanManager{
         void backward(complexDoubleHost* data, complexDoubleHost* scratch, int ng, int nFFTs);
         void backward(complexFloatHost* data, complexFloatHost* scratch, int ng, int nFFTs);
         
-        #ifdef GPU
+        #ifdef SWFFT_GPU
         void backward(complexDoubleDevice* data, complexDoubleDevice* scratch, int ng, int nFFTs);
         void backward(complexFloatDevice* data, complexFloatDevice* scratch, int ng, int nFFTs);
         #endif
@@ -71,8 +71,8 @@ class FFTWPlanManager{
 };
 #endif
 
-#ifdef GPUFFT
-#ifdef GPU
+#ifdef SWFFT_CUFFT
+#ifdef SWFFT_GPU
 
 class GPUPlanWrapper{
     public:

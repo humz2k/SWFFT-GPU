@@ -1,11 +1,11 @@
-#ifdef FFTW
-#undef FFTW
+#ifdef SWFFT_FFTW
+#undef SWFFT_FFTW
 #endif
 #include "fftwrangler.hpp"
 
 #include <mpi.h>
-#ifdef GPUFFT
-#ifdef GPU
+#ifdef SWFFT_CUFFT
+#ifdef SWFFT_GPU
 #include <stdio.h>
 #include <stdlib.h>
 

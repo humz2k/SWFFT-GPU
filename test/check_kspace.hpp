@@ -130,7 +130,7 @@ bool check_rspace_(FFT &fft, T *a){
 
 }
 
-#ifdef GPU
+#ifdef SWFFT_GPU
 template<class FFT>
 bool check_kspace(FFT& fft, complexDoubleDevice* a_){
     double* a = (double*)malloc(sizeof(complexDoubleDevice) * fft.buff_sz());
@@ -160,7 +160,7 @@ bool check_kspace(FFT& fft, complexFloatHost* a){
     return check_kspace_(fft,(float*)a);
 }
 
-#ifdef GPU
+#ifdef SWFFT_GPU
 template<class FFT>
 bool check_rspace(FFT& fft, complexDoubleDevice* a_){
     double* a = (double*)malloc(sizeof(complexDoubleDevice) * fft.buff_sz());

@@ -11,7 +11,7 @@ void base_irecv(T* buff, int count, int source, int tag, MPI_Comm comm, MPI_Requ
     MPI_Irecv(buff,count * sizeof(T),MPI_BYTE,source,tag,comm,req);
 }
 
-#ifdef GPU
+#ifdef SWFFT_GPU
 template<class T>
 void CPUMPI::gpu_memcpy_alltoall(T* buff1, T* buff2, int n, MPI_Comm comm){
     int world_size; MPI_Comm_size(comm,&world_size);
@@ -58,7 +58,7 @@ void CPUMPI::alltoall(complexFloatHost* buff1, complexFloatHost* buff2, int n, M
     base_alltoall(buff1,buff2,n,comm);
 }
 
-#ifdef GPU
+#ifdef SWFFT_GPU
 inline void* CPUMPI::get_h_buff1(size_t sz){
     if (last_size == 0){
         _h_buff1 = malloc(sz);
@@ -106,7 +106,7 @@ void CPUMPI::alltoall(complexFloatDevice* buff1, complexFloatDevice* buff2, int 
 }
 #endif
 
-#ifdef GPU
+#ifdef SWFFT_GPU
 #ifndef nocudampi
 
 GPUMPI::GPUMPI(){

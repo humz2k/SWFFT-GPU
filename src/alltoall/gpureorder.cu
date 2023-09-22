@@ -1,5 +1,5 @@
 #ifdef SWFFT_ALLTOALL
-#ifdef GPU
+#ifdef SWFFT_GPU
 #include "alltoall_reorder.hpp"
 
 namespace A2A{

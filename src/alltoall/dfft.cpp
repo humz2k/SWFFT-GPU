@@ -97,7 +97,7 @@ namespace A2A{
         return true;
     }
 
-    #ifdef GPU
+    #ifdef SWFFT_GPU
     template<class MPI_T,class REORDER_T,class FFTBackend>
     void Dfft<MPI_T,REORDER_T,FFTBackend>::fill_test(complexDoubleDevice* data){
         complexDoubleHost* h_data; swfftAlloc(&h_data, sizeof(complexDoubleHost) * nlocal);
@@ -218,7 +218,7 @@ namespace A2A{
     bool Dfft<MPI_T,REORDER_T,FFTBackend>::test_distribution(){
         bool out = _test_distribution<complexDoubleHost>();
         out = out && _test_distribution<complexFloatHost>();
-        #ifdef GPU
+        #ifdef SWFFT_GPU
         out = out && _test_distribution<complexDoubleDevice>();
         out = out && _test_distribution<complexFloatDevice>();
         #endif
@@ -305,7 +305,7 @@ namespace A2A{
         return end - start;
     }
 
-    #ifdef GPU
+    #ifdef SWFFT_GPU
     template<class MPI_T,class REORDER_T,class FFTBackend>
     double Dfft<MPI_T,REORDER_T,FFTBackend>::forward(complexDoubleDevice* data, complexDoubleDevice* scratch){
         return fft(data,scratch,FFT_FORWARD);
@@ -347,9 +347,9 @@ namespace A2A{
         return fft(data,scratch,FFT_BACKWARD);
     }
 
-    #ifdef FFTW
+    #ifdef SWFFT_FFTW
     template class Dfft<CPUMPI,CPUReorder,FFTWPlanManager>;
-    #ifdef GPU
+    #ifdef SWFFT_GPU
     template class Dfft<CPUMPI,GPUReorder,FFTWPlanManager>;
     #ifndef nocudampi
     template class Dfft<GPUMPI,CPUReorder,FFTWPlanManager>;
@@ -358,8 +358,8 @@ namespace A2A{
     #endif
     #endif
 
-    #ifdef GPU
-    #ifdef GPUFFT
+    #ifdef SWFFT_GPU
+    #ifdef SWFFT_CUFFT
     template class Dfft<CPUMPI,CPUReorder,GPUPlanManager>;
     template class Dfft<CPUMPI,GPUReorder,GPUPlanManager>;
     #ifndef nocudampi

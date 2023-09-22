@@ -40,7 +40,7 @@ namespace A2A{
             template<class T>
             inline void getPencils_(T* Buff1, T* Buff2, int dim);
 
-            #ifdef GPU
+            #ifdef SWFFT_GPU
             void copy(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2);
             void copy(complexFloatDevice* Buff1, complexFloatDevice* Buff2);
             #endif
@@ -48,7 +48,7 @@ namespace A2A{
             void copy(complexDoubleHost* __restrict Buff1, const complexDoubleHost* __restrict Buff2);
             void copy(complexFloatHost* __restrict Buff1, const complexFloatHost* __restrict Buff2);
             
-            #ifdef GPU
+            #ifdef SWFFT_GPU
             void getPencils(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2, int dim);
             void getPencils(complexFloatDevice* Buff1, complexFloatDevice* Buff2, int dim);
             #endif
@@ -59,7 +59,7 @@ namespace A2A{
             template<class T>
             inline void returnPencils_(T* Buff1, T* Buff2, int dim);
 
-            #ifdef GPU
+            #ifdef SWFFT_GPU
             void returnPencils(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2, int dim);
             void returnPencils(complexFloatDevice* Buff1, complexFloatDevice* Buff2, int dim);
             #endif
@@ -67,7 +67,7 @@ namespace A2A{
             void returnPencils(complexDoubleHost* Buff1, complexDoubleHost* Buff2, int dim);
             void returnPencils(complexFloatHost* Buff1, complexFloatHost* Buff2, int dim);
 
-            #ifdef GPU
+            #ifdef SWFFT_GPU
             void shuffle_indices(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2, int n);
             void shuffle_indices(complexFloatDevice* Buff1, complexFloatDevice* Buff2, int n);
             #endif
@@ -75,7 +75,7 @@ namespace A2A{
             void shuffle_indices(complexDoubleHost* Buff1, complexDoubleHost* Buff2, int n);
             void shuffle_indices(complexFloatHost* Buff1, complexFloatHost* Buff2, int n);
 
-            #ifdef GPU
+            #ifdef SWFFT_GPU
             void reorder(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2, int n, int direction);
             void reorder(complexFloatDevice* Buff1, complexFloatDevice* Buff2, int n, int direction);
             #endif
@@ -92,7 +92,7 @@ namespace A2A{
             inline double fft(T* data, T* scratch, fftdirection direction);
             bool ks_as_block;
 
-            #ifdef GPU
+            #ifdef SWFFT_GPU
             void fill_test(complexDoubleDevice* data);
             void fill_test(complexFloatDevice* data);
             bool check_test(complexDoubleDevice* data);
@@ -125,7 +125,7 @@ namespace A2A{
 
             int3 get_ks(int idx);
 
-            #ifdef GPU
+            #ifdef SWFFT_GPU
             double forward(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2);
             double forward(complexFloatDevice* Buff1, complexFloatDevice* Buff2);
             #endif
@@ -133,7 +133,7 @@ namespace A2A{
             double forward(complexDoubleHost* Buff1, complexDoubleHost* Buff2);
             double forward(complexFloatHost* Buff1, complexFloatHost* Buff2);
             
-            #ifdef GPU
+            #ifdef SWFFT_GPU
             double backward(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2);
             double backward(complexFloatDevice* Buff1, complexFloatDevice* Buff2);
             #endif
@@ -144,7 +144,7 @@ namespace A2A{
     };
 
 }
-#ifdef GPU
+#ifdef SWFFT_GPU
 template<class MPI_T,class FFTBackend>
 class AllToAllGPU{
     private:
@@ -417,7 +417,7 @@ class AllToAllCPU{
             dfft.forward(data,scratch);
         }
 
-        #ifdef GPU
+        #ifdef SWFFT_GPU
         void forward(complexDoubleDevice* data, complexDoubleDevice* scratch){
             complexDoubleHost* d_data; swfftAlloc(&d_data,sizeof(complexDoubleDevice) * buff_sz());
             complexDoubleHost* d_scratch; swfftAlloc(&d_scratch,sizeof(complexDoubleDevice) * buff_sz());
@@ -447,7 +447,7 @@ class AllToAllCPU{
             dfft.backward(data,scratch);
         }
 
-        #ifdef GPU
+        #ifdef SWFFT_GPU
         void backward(complexDoubleDevice* data, complexDoubleDevice* scratch){
             complexDoubleHost* d_data; swfftAlloc(&d_data,sizeof(complexDoubleDevice) * buff_sz());
             complexDoubleHost* d_scratch; swfftAlloc(&d_scratch,sizeof(complexDoubleDevice) * buff_sz());
@@ -481,7 +481,7 @@ class AllToAllCPU{
             swfftFree(scratch);
         }
 
-        #ifdef GPU
+        #ifdef SWFFT_GPU
         void forward(complexDoubleDevice* data){
             complexDoubleHost* d_scratch; swfftAlloc(&d_scratch,sizeof(complexDoubleDevice) * buff_sz());
             complexDoubleHost* d_data; swfftAlloc(&d_data,sizeof(complexDoubleDevice) * buff_sz());
@@ -515,7 +515,7 @@ class AllToAllCPU{
             swfftFree(scratch);
         }
 
-        #ifdef GPU
+        #ifdef SWFFT_GPU
         void backward(complexDoubleDevice* data){
             complexDoubleHost* d_scratch; swfftAlloc(&d_scratch,sizeof(complexDoubleDevice) * buff_sz());
             complexDoubleHost* d_data; swfftAlloc(&d_data,sizeof(complexDoubleDevice) * buff_sz());

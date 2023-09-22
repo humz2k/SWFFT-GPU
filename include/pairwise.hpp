@@ -131,7 +131,7 @@ namespace PAIR{
             int3 coords();
             int3 get_ks(int idx);
 
-            #ifdef GPU
+            #ifdef SWFFT_GPU
             void forward(complexDoubleDevice* data);
             void forward(complexFloatDevice* data);
             void backward(complexDoubleDevice* data);
@@ -237,7 +237,7 @@ class Pairwise{
             return _comm;
         }
 
-        #ifdef GPU
+        #ifdef SWFFT_GPU
         inline void forward(complexDoubleDevice* data, complexDoubleDevice* scratch){
             return dfft.forward(data,scratch);
         }

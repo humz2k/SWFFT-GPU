@@ -47,7 +47,7 @@ void assign_delta(complexFloatHost* data, int NG){
     }
 }
 
-#ifdef GPU
+#ifdef SWFFT_GPU
 void assign_delta(complexDoubleDevice* data, int NG){
     int world_rank; MPI_Comm_rank(MPI_COMM_WORLD,&world_rank);
     gpuMemset(data,0,sizeof(complexDoubleDevice)*NG);
@@ -71,7 +71,7 @@ void assign_delta(complexFloatDevice* data, int NG){
 }
 #endif
 
-#ifdef GPU
+#ifdef SWFFT_GPU
 template<class MPI_T, class FFTBackend, class T>
 bool test(int ngx, int ngy_=0, int ngz_=0){
     int ngy = ngy_;
@@ -130,28 +130,37 @@ bool testcpu(int ngx, int ngy_=0, int ngz_=0){
 int main(){
     MPI_Init(NULL,NULL);
     
-    #ifdef GPU
+    #ifdef SWFFT_GPU
+    #ifdef SWFFT_CUFFT
     IS_TRUE(CPUMPI,gpuFFT,complexDoubleDevice,256,256,256);
     IS_TRUE(CPUMPI,gpuFFT,complexFloatDevice,256,256,256);
     IS_TRUE(CPUMPI,gpuFFT,complexDoubleHost,256,256,256);
     IS_TRUE(CPUMPI,gpuFFT,complexFloatHost,256,256,256);
+    #endif
 
+    #ifdef SWFFT_FFTW
     IS_TRUE(CPUMPI,fftw,complexDoubleDevice,256,256,256);
     IS_TRUE(CPUMPI,fftw,complexFloatDevice,256,256,256);
     IS_TRUE(CPUMPI,fftw,complexDoubleHost,256,256,256);
     IS_TRUE(CPUMPI,fftw,complexFloatHost,256,256,256);
+    #endif
 
+    #ifdef SWFFT_CUFFT
     IS_TRUECPU(CPUMPI,gpuFFT,complexDoubleDevice,256,256,256);
     IS_TRUECPU(CPUMPI,gpuFFT,complexFloatDevice,256,256,256);
     IS_TRUECPU(CPUMPI,gpuFFT,complexDoubleHost,256,256,256);
     IS_TRUECPU(CPUMPI,gpuFFT,complexFloatHost,256,256,256);
+    #endif
 
+    #ifdef SWFFT_FFTW
     IS_TRUECPU(CPUMPI,fftw,complexDoubleDevice,256,256,256);
     IS_TRUECPU(CPUMPI,fftw,complexFloatDevice,256,256,256);
     #endif
-
+    #endif
+    #ifdef SWFFT_FFTW
     IS_TRUECPU(CPUMPI,fftw,complexDoubleHost,256,256,256);
     IS_TRUECPU(CPUMPI,fftw,complexFloatHost,256,256,256);
+    #endif
 
     int world_rank; MPI_Comm_rank(MPI_COMM_WORLD,&world_rank);
     if(world_rank == 0){

@@ -1,6 +1,6 @@
 #ifndef SWFFT_GPUSEEN
 #define SWFFT_GPUSEEN
-#ifdef GPU
+#ifdef SWFFT_GPU
 #ifdef CUDA
 #include <cuda_runtime.h>
 #include <cufft.h>
@@ -132,7 +132,7 @@ inline void swfftFree(complexFloatDevice* ptr){
 }
 
 #endif
-#ifndef GPU
+#ifndef SWFFT_GPU
 typedef struct {
     int x;
     int y;

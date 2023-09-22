@@ -19,7 +19,7 @@ class CPUMPI{
         CPUMPI();
         ~CPUMPI();
 
-        #ifdef GPU
+        #ifdef SWFFT_GPU
         template<class T>
         void gpu_memcpy_alltoall(T* buff1, T* buff2, int n, MPI_Comm comm);
         
@@ -52,7 +52,7 @@ class CPUMPI{
 
 };
 
-#ifdef GPU
+#ifdef SWFFT_GPU
 #ifndef nocudampi
 class GPUMPI{
     public:

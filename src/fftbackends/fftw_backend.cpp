@@ -3,7 +3,7 @@
 #endif
 #include "fftwrangler.hpp"
 
-#ifdef FFTW
+#ifdef SWFFT_FFTW
 
 FFTWPlanManager::FFTWPlanManager() : last_size(0){
     for (int i = 0; i < N_FFT_CACHE; i++){
@@ -118,7 +118,7 @@ void FFTWPlanManager::forward(complexFloatHost* data, complexFloatHost* scratch,
     forward((fftwf_complex*)data,(fftwf_complex*)scratch,ng,nFFTs);
 }
 
-#ifdef GPU
+#ifdef SWFFT_GPU
 void FFTWPlanManager::forward(complexDoubleDevice* data, complexDoubleDevice* scratch, int ng, int nFFTs){
     //complexDoubleHost* h_data; swfftAlloc(&h_data,sizeof(complexDoubleHost) * ng * nFFTs);
     //complexDoubleHost* h_scratch; swfftAlloc(&h_scratch,sizeof(complexDoubleHost) * ng * nFFTs);
@@ -154,7 +154,7 @@ void FFTWPlanManager::backward(complexFloatHost* data, complexFloatHost* scratch
     backward((fftwf_complex*)data,(fftwf_complex*)scratch,ng,nFFTs);
 }
 
-#ifdef GPU
+#ifdef SWFFT_GPU
 void FFTWPlanManager::backward(complexDoubleDevice* data, complexDoubleDevice* scratch, int ng, int nFFTs){
     //complexDoubleHost* h_data; swfftAlloc(&h_data,sizeof(complexDoubleHost) * ng * nFFTs);
     //complexDoubleHost* h_scratch; swfftAlloc(&h_scratch,sizeof(complexDoubleHost) * ng * nFFTs);
