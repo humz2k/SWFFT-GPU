@@ -195,6 +195,10 @@ class Pairwise{
 
         ~Pairwise(){};
 
+        inline void query(){
+            printf("Using Pairwise\n");
+        }
+
         inline int3 get_ks(int idx){
             return dfft.get_ks(idx);
         }

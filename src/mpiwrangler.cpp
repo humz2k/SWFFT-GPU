@@ -1,6 +1,11 @@
 #include "mpiwrangler.hpp"
 #include <stdlib.h>
 namespace SWFFT{
+
+void CPUMPI::query(){
+    printf("Using CPUMPI\n");
+}
+
 template<class T>
 void base_alltoall(T* buff1, T* buff2, int n, MPI_Comm comm){
     MPI_Alltoall(buff1,n*sizeof(T),MPI_BYTE,buff2,n*sizeof(T),MPI_BYTE,comm);
@@ -131,6 +136,10 @@ void GPUMPI::alltoall(complexDoubleHost* buff1, complexDoubleHost* buff2, int n,
 
 void GPUMPI::alltoall(complexFloatHost* buff1, complexFloatHost* buff2, int n, MPI_Comm comm){
     cpu_memcpy_alltoall(buff1,buff2,n,comm);
+}
+
+void GPUMPI::query(){
+    printf("Using GPUMPI\n");
 }
 
 #endif

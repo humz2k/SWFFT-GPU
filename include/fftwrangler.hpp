@@ -60,6 +60,8 @@ class FFTWPlanManager{
     public:
         FFTWPlanWrapper<fftw_complex,fftw_plan> double_plans[N_FFT_CACHE];
         FFTWPlanWrapper<fftwf_complex,fftwf_plan> float_plans[N_FFT_CACHE];
+
+        void query();
         
         FFTWPlanManager();
         ~FFTWPlanManager();
@@ -112,6 +114,8 @@ class GPUPlanManager{
 
         GPUPlanManager();
         ~GPUPlanManager();
+
+        void query();
 
         gpufftHandle find_plan(int ng, int nFFTs, gpufftType t);
         

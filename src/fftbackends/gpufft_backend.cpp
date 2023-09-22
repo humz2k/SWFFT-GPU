@@ -64,6 +64,10 @@ GPUPlanManager::~GPUPlanManager(){
     }
 }
 
+void GPUPlanManager::query(){
+    printf("Using gpuFFT\n");
+}
+
 gpufftHandle GPUPlanManager::find_plan(int ng, int nFFTs, gpufftType t){
     for (int i = 0; i < N_FFT_CACHE; i++){
         if (plans[i].valid){

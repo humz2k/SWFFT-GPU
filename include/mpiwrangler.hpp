@@ -21,6 +21,8 @@ class CPUMPI{
         CPUMPI();
         ~CPUMPI();
 
+        void query();
+
         #ifdef SWFFT_GPU
         template<class T>
         void gpu_memcpy_alltoall(T* buff1, T* buff2, int n, MPI_Comm comm);
@@ -60,6 +62,8 @@ class GPUMPI{
     public:
         GPUMPI();
         ~GPUMPI();
+
+        void query();
 
         void alltoall(complexDoubleDevice* buff1, complexDoubleDevice* buff2, int n, MPI_Comm comm);
         void alltoall(complexFloatDevice* buff1, complexFloatDevice* buff2, int n, MPI_Comm comm);

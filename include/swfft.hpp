@@ -72,6 +72,17 @@ namespace SWFFT{
                 
             }
 
+            inline void query(){
+                int world_rank; MPI_Comm_rank(backend.comm(),&world_rank);
+                int world_size; MPI_Comm_size(backend.comm(),&world_size);
+                if (world_rank == 0){
+                    printf("swfft configured:\n   ");
+                    backend.query();
+                    printf("   n = [%d %d %d]\n",ngx(),ngy(),ngz());
+                    printf("   world_size = %d\n",world_size);
+                }
+            }
+
             bool test_distribution(){
                 return backend.test_distribution();
             }

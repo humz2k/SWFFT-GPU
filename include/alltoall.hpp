@@ -168,6 +168,11 @@ class AllToAllGPU{
 
         ~AllToAllGPU(){};
 
+        inline void query(){
+            printf("Using AllToAllGPU\n");
+            printf("   distribution = [%d %d %d]\n",dist.dims[0],dist.dims[1],dist.dims[2]);
+        }
+
         inline int3 get_ks(int idx){
             return dfft.get_ks(idx);
         }
@@ -202,6 +207,10 @@ class AllToAllGPU{
 
         inline int3 coords(){
             return make_int3(dist.coords[0],dist.coords[1],dist.coords[2]);
+        }
+
+        inline int3 dims(){
+            return make_int3(dist.dims[0],dist.dims[1],dist.dims[2]);
         }
 
         inline int rank(){
@@ -367,6 +376,11 @@ class AllToAllCPU{
 
         ~AllToAllCPU(){};
 
+        inline void query(){
+            printf("Using AllToAllCPU\n");
+            printf("   distribution = [%d %d %d]\n",dist.dims[0],dist.dims[1],dist.dims[2]);
+        }
+
         inline int3 get_ks(int idx){
             return dfft.get_ks(idx);
         }
@@ -401,6 +415,10 @@ class AllToAllCPU{
 
         int3 coords(){
             return make_int3(dist.coords[0],dist.coords[1],dist.coords[2]);
+        }
+
+        int3 dims(){
+            return make_int3(dist.dims[0],dist.dims[1],dist.dims[2]);
         }
 
         int rank(){

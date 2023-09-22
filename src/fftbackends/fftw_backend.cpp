@@ -27,6 +27,10 @@ FFTWPlanManager::~FFTWPlanManager(){
     }
 }
 
+void FFTWPlanManager::query(){
+    printf("Using fftw\n");
+}
+
 void FFTWPlanManager::allocate_host(size_t sz){
     if (last_size == 0){
         h_data = malloc(sz);

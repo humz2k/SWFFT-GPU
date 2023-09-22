@@ -19,6 +19,7 @@ bool test(bool k_in_blocks, int ngx, int ngy, int ngz, int nreps = 10){
     n_tests++;
     if(world_rank == 0)printf("Benchmarking %s with T = %s, k_in_blocks = %d and ng = [%d %d %d]\n   ",typeid(SWFFT_T).name(),typeid(T).name(),k_in_blocks,ngx,ngy,ngz);
     SWFFT_T my_swfft(MPI_COMM_WORLD,ngx,ngy,ngz,BLOCKSIZE,k_in_blocks);
+    my_swfft.query();
     //printf("my_swfft.buff_sz() = %d\n",my_swfft.buff_sz());
     T* data; swfftAlloc(&data,sizeof(T) * my_swfft.buff_sz());
     T* scratch; swfftAlloc(&scratch,sizeof(T) * my_swfft.buff_sz());
