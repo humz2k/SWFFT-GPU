@@ -8,7 +8,7 @@
 #ifdef SWFFT_GPU
 #include <stdio.h>
 #include <stdlib.h>
-
+namespace SWFFT{
 static const char *_cudaGetErrorEnum(cufftResult error)
 {
     switch (error)
@@ -158,6 +158,6 @@ void GPUPlanManager::backward(complexFloatHost* data, complexFloatHost* scratch,
     swfftFree(d_data);
     swfftFree(d_scratch);
 }
-
+}
 #endif
 #endif

@@ -1,6 +1,8 @@
 #ifdef SWFFT_ALLTOALL
 #include "alltoall.hpp"
 
+namespace SWFFT{
+
 namespace A2A{
     template<class MPI_T,class REORDER_T,class FFTBackend>
     Dfft<MPI_T,REORDER_T,FFTBackend>::Dfft(Distribution<MPI_T,REORDER_T>& dist_, bool ks_as_block_) : dist(dist_), ks_as_block(ks_as_block_){
@@ -347,28 +349,29 @@ namespace A2A{
         return fft(data,scratch,FFT_BACKWARD);
     }
 
+}
+}
+
     #ifdef SWFFT_FFTW
-    template class Dfft<CPUMPI,CPUReorder,FFTWPlanManager>;
+    template class SWFFT::A2A::Dfft<SWFFT::CPUMPI,SWFFT::A2A::CPUReorder,SWFFT::FFTWPlanManager>;
     #ifdef SWFFT_GPU
-    template class Dfft<CPUMPI,GPUReorder,FFTWPlanManager>;
+    template class SWFFT::A2A::Dfft<SWFFT::CPUMPI,SWFFT::A2A::GPUReorder,SWFFT::FFTWPlanManager>;
     #ifndef nocudampi
-    template class Dfft<GPUMPI,CPUReorder,FFTWPlanManager>;
-    template class Dfft<GPUMPI,GPUReorder,FFTWPlanManager>;
+    template class SWFFT::A2A::Dfft<SWFFT::GPUMPI,SWFFT::A2A::CPUReorder,SWFFT::FFTWPlanManager>;
+    template class SWFFT::A2A::Dfft<SWFFT::GPUMPI,SWFFT::A2A::GPUReorder,SWFFT::FFTWPlanManager>;
     #endif
     #endif
     #endif
 
     #ifdef SWFFT_GPU
     #ifdef SWFFT_CUFFT
-    template class Dfft<CPUMPI,CPUReorder,GPUPlanManager>;
-    template class Dfft<CPUMPI,GPUReorder,GPUPlanManager>;
+    template class SWFFT::A2A::Dfft<SWFFT::CPUMPI,SWFFT::A2A::CPUReorder,SWFFT::GPUPlanManager>;
+    template class SWFFT::A2A::Dfft<SWFFT::CPUMPI,SWFFT::A2A::GPUReorder,SWFFT::GPUPlanManager>;
     #ifndef nocudampi
-    template class Dfft<GPUMPI,CPUReorder,GPUPlanManager>;
-    template class Dfft<GPUMPI,GPUReorder,GPUPlanManager>;
+    template class SWFFT::A2A::Dfft<SWFFT::GPUMPI,SWFFT::A2A::CPUReorder,SWFFT::GPUPlanManager>;
+    template class SWFFT::A2A::Dfft<SWFFT::GPUMPI,SWFFT::A2A::GPUReorder,SWFFT::GPUPlanManager>;
     #endif
     #endif
     #endif
-
-}
 
 #endif

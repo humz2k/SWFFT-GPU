@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <iostream>
 
+using namespace SWFFT;
+
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 

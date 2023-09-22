@@ -6,6 +6,8 @@
 #include "fftwrangler.hpp"
 #include "mpiwrangler.hpp"
 
+namespace SWFFT{
+
 namespace PAIR{
 
     typedef enum {
@@ -306,4 +308,5 @@ class Pairwise{
 };
 
 #endif
+}
 #endif

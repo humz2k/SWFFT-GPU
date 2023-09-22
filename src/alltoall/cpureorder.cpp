@@ -1,5 +1,6 @@
 #ifdef SWFFT_ALLTOALL
 #include "alltoall_reorder.hpp"
+namespace SWFFT{
 namespace A2A{
     namespace CPUREORDER{
         int calc_mini_pencil_idx(int i, int mini_pencils_per_rank, int world_size, int mini_pencil_size){
@@ -211,6 +212,7 @@ namespace A2A{
     }
     #endif
 
+}
 }
 
 #endif

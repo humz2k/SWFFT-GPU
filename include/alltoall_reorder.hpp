@@ -8,6 +8,8 @@
 #include "complex-type.h"
 #include "gpu.hpp"
 
+namespace SWFFT{
+
 namespace A2A{
     #ifdef SWFFT_GPU
     class GPUReorder{
@@ -82,6 +84,8 @@ namespace A2A{
             void reorder(complexDoubleHost* Buff1, complexDoubleHost* Buff2, int n, int direction);
             void reorder(complexFloatHost* Buff1, complexFloatHost* Buff2, int n, int direction);
     };
+}
+
 }
 
 #endif

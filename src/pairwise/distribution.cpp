@@ -12,7 +12,7 @@
 #define DEBUG_CONDITION false
 
 //#define PRINT_DISTRIBUTION
-
+namespace SWFFT{
 namespace PAIR{
 
 
@@ -1645,6 +1645,7 @@ namespace PAIR{
     template class distribution_t<complexFloatHost,CPUMPI>;
     template class distribution_t<complexDoubleHost,CPUMPI>;
 
+}
 }
 
 #endif

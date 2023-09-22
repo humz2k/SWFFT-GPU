@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+using namespace SWFFT;
+
 int n_tests = 0;
 int n_passed = 0;
 

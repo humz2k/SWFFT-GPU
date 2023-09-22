@@ -2,7 +2,7 @@
 #undef GPUFFT
 #endif
 #include "fftwrangler.hpp"
-
+namespace SWFFT{
 #ifdef SWFFT_FFTW
 
 FFTWPlanManager::FFTWPlanManager() : last_size(0){
@@ -175,3 +175,4 @@ void FFTWPlanManager::backward(complexFloatDevice* data, complexFloatDevice* scr
 #endif
 
 #endif
+}

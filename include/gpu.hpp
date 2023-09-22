@@ -5,8 +5,10 @@
 #include <cuda_runtime.h>
 #include <cufft.h>
 
+namespace SWFFT{
 typedef cufftDoubleComplex complexDoubleDevice;
 typedef cufftComplex complexFloatDevice;
+}
 
 //#define complexDoubleDevice cufftDoubleComplex
 //#define complexFloatDevice cufftComplex
@@ -120,7 +122,7 @@ typedef cufftComplex complexFloatDevice;
 #endif
 
 #endif
-
+namespace SWFFT{
 inline void swfftAlloc(complexDoubleDevice** ptr, size_t sz){
     gpuMalloc(ptr,sz);
 }
@@ -132,6 +134,7 @@ inline void swfftFree(complexDoubleDevice* ptr){
 }
 inline void swfftFree(complexFloatDevice* ptr){
     gpuFree(ptr);
+}
 }
 
 #endif

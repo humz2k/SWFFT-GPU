@@ -6,6 +6,8 @@
 
 #include "complex-type.h"
 
+namespace SWFFT{
+
 class CPUMPI{
     private:
         void* _h_buff1;
@@ -67,5 +69,5 @@ class GPUMPI{
 };
 #endif
 #endif
-
+}
 #endif

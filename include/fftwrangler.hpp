@@ -3,11 +3,6 @@
 
 #define N_FFT_CACHE 100
 
-enum fftdirection {FFT_FORWARD, FFT_BACKWARD};
-
-#define gpuFFT GPUPlanManager
-#define fftw FFTWPlanManager
-
 #include "complex-type.h"
 
 #include "gpu.hpp"
@@ -15,6 +10,16 @@ enum fftdirection {FFT_FORWARD, FFT_BACKWARD};
 #ifdef SWFFT_FFTW
 #include <fftw3.h>
 #include <map>
+#endif
+
+namespace SWFFT{
+
+#define gpuFFT GPUPlanManager
+#define fftw FFTWPlanManager
+
+#ifdef SWFFT_FFTW
+
+enum fftdirection {FFT_FORWARD, FFT_BACKWARD};
 
 template<class T, class plan_t>
 class FFTWPlanWrapper{
@@ -106,5 +111,5 @@ class GPUPlanManager{
 };
 #endif
 #endif
-
+}
 #endif

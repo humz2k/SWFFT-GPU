@@ -10,6 +10,8 @@ int main(){
 #include <stdlib.h>
 #include <mpi.h>
 
+using namespace SWFFT;
+
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 
@@ -21,7 +23,6 @@ int n_passed = 0;
 #define IS_TRUE(func,T,MPI_T,ngx,ngy,ngz) { n_tests += 1; int world_rank; MPI_Comm_rank(MPI_COMM_WORLD,&world_rank); if(world_rank == 0){std::cout << "Test:\n   AllToAllGPU\n   " << TOSTRING(func) << "\n   " << TOSTRING(T) << "\n   " << TOSTRING(MPI_T) << "\n   Ngx=" << TOSTRING(ngx) << ",Ngx=" << TOSTRING(ngy) << ",Ngz=" << TOSTRING(ngz) << "\n   ";} if (!(test<func,T,MPI_T>(ngx,ngy,ngz))){ if(world_rank == 0){std::cout << "failed on line " << __LINE__ << "\n" << std::endl;}}else{if(world_rank == 0){std::cout  << "passed\n" << std::endl; n_passed += 1;}} }
 
 #define IS_TRUECPU(func,T,MPI_T,ngx,ngy,ngz) { n_tests += 1; int world_rank; MPI_Comm_rank(MPI_COMM_WORLD,&world_rank); if(world_rank == 0){std::cout << "Test:\n   AllToAllCPU\n   " << TOSTRING(func) << "\n   " << TOSTRING(T) << "\n   " << TOSTRING(MPI_T) << "\n   Ngx=" << TOSTRING(ngx) << ",Ngx=" << TOSTRING(ngy) << ",Ngz=" << TOSTRING(ngz) << "\n   ";} if (!(testcpu<func,T,MPI_T>(ngx,ngy,ngz))){ if(world_rank == 0){std::cout << "failed on line " << __LINE__ << "\n" << std::endl;}}else{if(world_rank == 0){std::cout  << "passed\n" << std::endl; n_passed += 1;}} }
-
 
 void assign_delta(complexDoubleHost* data, int NG){
     int world_rank; MPI_Comm_rank(MPI_COMM_WORLD,&world_rank);

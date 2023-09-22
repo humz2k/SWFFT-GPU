@@ -14,118 +14,122 @@
 #include "pairwise.hpp"
 #endif
 
-template<template<class,class>class DistBackend, class MPI_T, class FFTBackend>
-class swfft{
-    private:
-        DistBackend<MPI_T,FFTBackend> backend;
-        double last_time;
-        int last_was;
-    
-    public:
-        swfft(MPI_Comm comm, int ngx, int blockSize, bool ks_as_block = true) : backend(comm,ngx,blockSize,ks_as_block), last_time(0), last_was(-1){
+namespace SWFFT{
 
-        }
+    template<template<class,class>class DistBackend, class MPI_T, class FFTBackend>
+    class swfft{
+        private:
+            DistBackend<MPI_T,FFTBackend> backend;
+            double last_time;
+            int last_was;
+        
+        public:
+            swfft(MPI_Comm comm, int ngx, int blockSize, bool ks_as_block = true) : backend(comm,ngx,blockSize,ks_as_block), last_time(0), last_was(-1){
 
-        swfft(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize, bool ks_as_block = true) : backend(comm,ngx,ngx,ngx,blockSize,ks_as_block), last_time(0), last_was(-1){
-
-        }
-
-        void printLastTime(){
-            if (last_was == 0){
-                printTimingStats(backend.comm(),"FORWARD ",last_time);
-            } else {
-                printTimingStats(backend.comm(),"BACKWARD",last_time);
             }
-            
-        }
 
-        bool test_distribution(){
-            return backend.test_distribution();
-        }
+            swfft(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize, bool ks_as_block = true) : backend(comm,ngx,ngx,ngx,blockSize,ks_as_block), last_time(0), last_was(-1){
 
-        inline int3 get_ks(int idx){
-            return backend.get_ks(idx);
-        }
+            }
 
-        int ngx(){
-            return backend.ngx();
-        }
+            void printLastTime(){
+                if (last_was == 0){
+                    printTimingStats(backend.comm(),"FORWARD ",last_time);
+                } else {
+                    printTimingStats(backend.comm(),"BACKWARD",last_time);
+                }
+                
+            }
 
-        int ngy(){
-            return backend.ngy();
-        }
+            bool test_distribution(){
+                return backend.test_distribution();
+            }
 
-        int ngz(){
-            return backend.ngz();
-        }
+            inline int3 get_ks(int idx){
+                return backend.get_ks(idx);
+            }
 
-        int3 ng(){
-            return backend.ng();
-        }
+            int ngx(){
+                return backend.ngx();
+            }
 
-        int ng(int i){
-            return backend.ng(i);
-        }
+            int ngy(){
+                return backend.ngy();
+            }
 
-        int buff_sz(){
-            return backend.buff_sz();
-        }
+            int ngz(){
+                return backend.ngz();
+            }
 
-        int3 coords(){
-            return backend.coords();
-        }
+            int3 ng(){
+                return backend.ng();
+            }
 
-        int rank(){
-            return backend.rank();
-        }
+            int ng(int i){
+                return backend.ng(i);
+            }
 
-        MPI_Comm comm(){
-            return backend.comm();
-        }
+            int buff_sz(){
+                return backend.buff_sz();
+            }
 
-        template<class T>
-        void forward(T* buff1, T* buff2){
-            double start = MPI_Wtime();
+            int3 coords(){
+                return backend.coords();
+            }
 
-            backend.forward(buff1,buff2);
+            int rank(){
+                return backend.rank();
+            }
 
-            double end = MPI_Wtime();
-            last_time = end-start;
-            last_was = 0;
-        }
+            MPI_Comm comm(){
+                return backend.comm();
+            }
 
-        template<class T>
-        void backward(T* buff1, T* buff2){
-            double start = MPI_Wtime();
+            template<class T>
+            void forward(T* buff1, T* buff2){
+                double start = MPI_Wtime();
 
-            backend.backward(buff1,buff2);
+                backend.forward(buff1,buff2);
 
-            double end = MPI_Wtime();
-            last_time = end-start;
-            last_was = 1;
-        }
+                double end = MPI_Wtime();
+                last_time = end-start;
+                last_was = 0;
+            }
 
-        template<class T>
-        void forward(T* buff1){
-            double start = MPI_Wtime();
+            template<class T>
+            void backward(T* buff1, T* buff2){
+                double start = MPI_Wtime();
 
-            backend.forward(buff1);
+                backend.backward(buff1,buff2);
 
-            double end = MPI_Wtime();
-            last_time = end-start;
-            last_was = 0;
-        }
+                double end = MPI_Wtime();
+                last_time = end-start;
+                last_was = 1;
+            }
 
-        template<class T>
-        void backward(T* buff1){
-            double start = MPI_Wtime();
+            template<class T>
+            void forward(T* buff1){
+                double start = MPI_Wtime();
 
-            backend.backward(buff1);
+                backend.forward(buff1);
 
-            double end = MPI_Wtime();
-            last_time = end-start;
-            last_was = 1;
-        }
+                double end = MPI_Wtime();
+                last_time = end-start;
+                last_was = 0;
+            }
 
-};
+            template<class T>
+            void backward(T* buff1){
+                double start = MPI_Wtime();
+
+                backend.backward(buff1);
+
+                double end = MPI_Wtime();
+                last_time = end-start;
+                last_was = 1;
+            }
+
+    };
+
+}
 #endif

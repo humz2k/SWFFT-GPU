@@ -10,7 +10,7 @@
 #endif
 
 #define DEBUG_CONDITION false
-
+namespace SWFFT{
 namespace PAIR{
     
     template<class MPI_T, class FFTBackend>
@@ -239,6 +239,7 @@ namespace PAIR{
     #endif
     #endif
 
+}
 }
 
 #endif

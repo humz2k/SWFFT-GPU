@@ -7,6 +7,8 @@
 #include "fftwrangler.hpp"
 #include "mpiwrangler.hpp"
 
+namespace SWFFT{
+
 namespace A2A{
 
     template<class MPI_T, class REORDER_T>
@@ -537,6 +539,6 @@ class AllToAllCPU{
         }
         #endif
 };
-
+}
 #endif
 #endif

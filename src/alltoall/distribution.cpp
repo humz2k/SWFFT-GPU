@@ -1,6 +1,7 @@
 #ifdef SWFFT_ALLTOALL
 #include "alltoall.hpp"
 
+namespace SWFFT{
 namespace A2A{
 
     /*
@@ -244,15 +245,16 @@ namespace A2A{
     void Distribution<MPI_T,REORDER_T>::reorder(complexFloatHost* Buff1, complexFloatHost* Buff2, int n, int direction){
         reordering.reorder(Buff1,Buff2,n, direction);
     }
-
-    template class Distribution<CPUMPI,CPUReorder>;
-    #ifdef SWFFT_GPU
-    template class Distribution<CPUMPI,GPUReorder>;
-    #ifndef nocudampi
-    template class Distribution<GPUMPI,CPUReorder>;
-    template class Distribution<GPUMPI,GPUReorder>;
-    #endif
-    #endif
 }
+}
+    template class SWFFT::A2A::Distribution<SWFFT::CPUMPI,SWFFT::A2A::CPUReorder>;
+    #ifdef SWFFT_GPU
+    template class SWFFT::A2A::Distribution<SWFFT::CPUMPI,SWFFT::A2A::GPUReorder>;
+    #ifndef nocudampi
+    template class SWFFT:A2A::Distribution<SWFFT::GPUMPI,SWFFT:A2A::CPUReorder>;
+    template class SWFFT::A2A::Distribution<SWFFT::GPUMPI,SWFFT:A2A::GPUReorder>;
+    #endif
+    #endif
+
 
 #endif

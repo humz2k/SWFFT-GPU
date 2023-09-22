@@ -4,6 +4,8 @@
 #include <iostream>
 #include <math.h>
 
+using namespace SWFFT;
+
 uint64_t f2u(double d) {
   uint64_t i;
   memcpy(&i, &d, 8);
