@@ -132,6 +132,7 @@ namespace PAIR{
             int buff_sz();
             int3 coords();
             int3 get_ks(int idx);
+            int get_nproc_3d(int direction);
 
             #ifdef SWFFT_GPU
             void forward(complexDoubleDevice* data);
@@ -195,8 +196,14 @@ class Pairwise{
 
         ~Pairwise(){};
 
+        inline int3 dims(){
+            return make_int3(dfft.get_nproc_3d(0),dfft.get_nproc_3d(1),dfft.get_nproc_3d(2));
+        }
+
         inline void query(){
             printf("Using Pairwise\n");
+            int3 my_dims = dims();
+            printf("   distribution = [%d %d %d]\n",my_dims.x,my_dims.y,my_dims.z);
         }
 
         inline int3 get_ks(int idx){

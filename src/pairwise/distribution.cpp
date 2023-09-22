@@ -1093,8 +1093,10 @@ namespace PAIR{
             for(int i1=d2_array_start[1];i1<d2_array_start[1]+local_sizes[1];i1++){
             for(int i2=d2_array_start[2];i2<d2_array_start[2]+local_sizes[2];i2++){
                 int64_t local_indx=pencil_dims[2]*(pencil_dims[1]*i0+i1) + i2;
+                #ifdef DIST_DO_ASSERT
                 assert(local_indx < dims_size);
                 assert(ch_indx <chunk_size && ch_indx >= 0 && local_indx>=0 && local_indx < dims_size);
+                #endif
                 d2_chunk[ch_indx]=a[local_indx];
                 ch_indx++;
             }
@@ -1212,8 +1214,10 @@ namespace PAIR{
                 for(int i1=d3_array_start[x_dim];i1<d3_array_start[x_dim]+subsizes[x_dim];i1++){//perhaps x_dim
                 for(int i0=d3_array_start[z_dim];i0<d3_array_start[z_dim]+subsizes[z_dim];i0++){//perhaps z_dim
                 int64_t local_indx=process_topology_3.n[2]*(process_topology_3.n[1]*i0+i1) + i2;
+                #ifdef DIST_DO_ASSERT
                 assert(local_indx < dims_size);
                 assert(ch_indx <chunk_size && ch_indx >= 0 && local_indx>=0 && local_indx < dims_size);
+                #endif
                 d3_chunk[ch_indx]=a[local_indx];
                 ch_indx++;
                 }
@@ -1243,8 +1247,10 @@ namespace PAIR{
                 for(int i2=d3_array_start[x_dim];i2>d3_array_start[x_dim]-subsizes[x_dim];i2--){
                 for(int i1=d3_array_start[z_dim];i1<d3_array_start[z_dim]+subsizes[z_dim];i1++){
                 int64_t local_indx=process_topology_3.n[2]*(process_topology_3.n[1]*i0+i1) + i2;
+                #ifdef DIST_DO_ASSERT
                 assert(local_indx < dims_size);
                 assert(ch_indx <chunk_size && ch_indx >= 0 && local_indx>=0 && local_indx < dims_size);
+                #endif
                 d3_chunk[ch_indx]=a[local_indx];
                 ch_indx++;
                 }
@@ -1276,8 +1282,10 @@ namespace PAIR{
                 for(int i1=d3_array_start[y_dim];i1<d3_array_start[y_dim]+subsizes[y_dim];i1++){
                 for(int i2=d3_array_start[z_dim];i2<d3_array_start[z_dim]+subsizes[z_dim];i2++){
                 int64_t local_indx=process_topology_3.n[2]*(process_topology_3.n[1]*i0+i1) + i2;
+                #ifdef DIST_DO_ASSERT
                 assert(local_indx < dims_size);
                 assert(ch_indx <chunk_size && ch_indx >= 0 && local_indx>=0 && local_indx < dims_size);
+                #endif
                 d3_chunk[ch_indx]=a[local_indx];
                 ch_indx++;
                 }
@@ -1393,8 +1401,10 @@ namespace PAIR{
                 int64_t local_indx=pencil_dims[2]*(pencil_dims[1]*i0+i1) + i2;
                 //if(self==me)fprintf(stderr,"local_indx = %d ",local_indx);
                 //if(local_indx >= dims_size)fprintf(stderr,"WOW, in third for, dims is (%d), we are %d and my rank is %d",dims_size,local_indx,self);
+                #ifdef DIST_DO_ASSERT
                 assert(local_indx < dims_size);
                 assert(ch_indx <chunk_size && ch_indx >= 0 && local_indx>=0 && local_indx < dims_size);
+                #endif
                 b[local_indx]=d2_chunk[ch_indx];
                 //if((p==0 || p==1 || p==2 || p==3 || p==4 || p==5) && self==me)fprintf(stderr,"(%f,%f) ",real(d2_chunk[ch_indx]),imag(d2_chunk[ch_indx]));
                 ch_indx++;
@@ -1451,8 +1461,10 @@ namespace PAIR{
                 for(int i0=d3_array_start[z_dim];i0<d3_array_start[z_dim]+subsizes[z_dim];i0++){
                 int64_t local_indx=process_topology_3.n[2]*(process_topology_3.n[1]*i0+i1) + i2;
                 //if(local_indx >= dims_size)fprintf(stderr,"WOW, in fourth for, dims is (%d), we are %d and my rank is %d",dims_size,local_indx,self);
+                #ifdef DIST_DO_ASSERT
                 assert(local_indx < dims_size);
                 assert(ch_indx <chunk_size && ch_indx >= 0 && local_indx>=0 && local_indx < dims_size);
+                #endif
                 b[local_indx]=d3_chunk[ch_indx];
                 //                         if(p==3 && self==me)fprintf(stderr,"(%f,%f) ",real(d3_chunk[ch_indx]),imag(d3_chunk[ch_indx]));
                 ch_indx++;
@@ -1484,8 +1496,10 @@ namespace PAIR{
                 for(int i1=d3_array_start[z_dim];i1<d3_array_start[z_dim]+subsizes[z_dim];i1++){
                 int64_t local_indx=process_topology_3.n[2]*(process_topology_3.n[1]*i0+i1) + i2;
                 //if(local_indx >= dims_size)fprintf(stderr,"WOW, in fourth for, dims is (%d), we are %d and my rank is %d",dims_size,local_indx,self);
+                #ifdef DIST_DO_ASSERT
                 assert(local_indx < dims_size);
                 assert(ch_indx <chunk_size && ch_indx >= 0 && local_indx>=0 && local_indx < dims_size);
+                #endif
                 b[local_indx]=d3_chunk[ch_indx];
                 //                             if(p==0 && self==me)fprintf(stderr,"(%f,%f) ",real(d3_chunk[ch_indx]),imag(d3_chunk[ch_indx]));
                 ch_indx++;
@@ -1517,8 +1531,10 @@ namespace PAIR{
             for(int i1=d3_array_start[y_dim];i1<d3_array_start[y_dim]+subsizes[y_dim];i1++){
                 for(int i2=d3_array_start[z_dim];i2<d3_array_start[z_dim]+subsizes[z_dim];i2++){
                 int64_t local_indx=process_topology_3.n[2]*(process_topology_3.n[1]*i0+i1) + i2;
+                #ifdef DIST_DO_ASSERT
                 assert(local_indx < dims_size);
                 assert(ch_indx <chunk_size && ch_indx >= 0 && local_indx>=0 && local_indx < dims_size);
+                #endif
                 b[local_indx]=d3_chunk[ch_indx];
                 //                   if(p==1 && self==me)fprintf(stderr,"(%f,%f) ",real(d3_chunk[ch_indx]),imag(d3_chunk[ch_indx]));
                 ch_indx++;

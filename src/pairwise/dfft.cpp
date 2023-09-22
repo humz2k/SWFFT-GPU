@@ -222,6 +222,11 @@ namespace PAIR{
     #endif
 
     template<class MPI_T, class FFTBackend>
+    int Dfft<MPI_T,FFTBackend>::get_nproc_3d(int direction){
+        return double_dist.get_nproc_3d(direction);
+    }
+
+    template<class MPI_T, class FFTBackend>
     int Dfft<MPI_T,FFTBackend>::buff_sz(){
         int size = 1;
         for (int i = 0; i < 3; i++){

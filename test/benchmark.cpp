@@ -322,7 +322,7 @@ int main(int argc, char** argv){
 
     int nreps = atoi(argv[6]);
 
-    swfft_init_threads();
+    //swfft_init_threads();
 
     run_benckmark(argv,world_rank,ngx,ngy,ngz,k_in_blocks,nreps);
     
