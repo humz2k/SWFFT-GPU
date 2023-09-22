@@ -1,12 +1,15 @@
 #ifndef SWFFT_GPUSEEN
 #define SWFFT_GPUSEEN
 #ifdef SWFFT_GPU
-#ifdef CUDA
+#ifdef SWFFT_CUDA
 #include <cuda_runtime.h>
 #include <cufft.h>
 
-#define complexDoubleDevice cufftDoubleComplex
-#define complexFloatDevice cufftComplex
+typedef cufftDoubleComplex complexDoubleDevice;
+typedef cufftComplex complexFloatDevice;
+
+//#define complexDoubleDevice cufftDoubleComplex
+//#define complexFloatDevice cufftComplex
 //#define complexFFT_t cufftDoubleComplex
 
 #define gpufftHandle cufftHandle
@@ -67,7 +70,7 @@
 
 #else 
 
-#ifdef HIP
+#ifdef SWFFT_HIP
 
 #include <hip/hip_runtime_api.h>
 #include <hipfft.h>
