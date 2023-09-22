@@ -11,6 +11,7 @@ namespace A2A{
         ng[2] = dist.ng[2];
 
         nlocal = dist.nlocal;
+        
 
         world_size = dist.world_size;
         world_rank = dist.world_rank;
@@ -237,12 +238,14 @@ namespace A2A{
                 dist.getPencils(data,scratch,i);
                 dist.reorder(data,scratch,i,0);
 
+                int dim = (i+2)%3;
+
                 //gpuDeviceSynchronize();
-                int nFFTs = (nlocal / ng[i]);
+                int nFFTs = (nlocal / ng[dim]);
                 if (direction == FFT_FORWARD){
-                    FFTs.forward(data,scratch,ng[i],nFFTs);
+                    FFTs.forward(data,scratch,ng[dim],nFFTs);
                 } else {
-                    FFTs.backward(data,scratch,ng[i],nFFTs);
+                    FFTs.backward(data,scratch,ng[dim],nFFTs);
                 }
 
                 dist.reorder(data,scratch,i,1);
@@ -257,11 +260,14 @@ namespace A2A{
 
             if (direction == FFT_FORWARD){
                 for (int i = 0; i < 2; i++){
+                    
+                    int dim = (i+2)%3;
+
                     dist.getPencils(data,scratch,i);
                     dist.reorder(data,scratch,i,0);
                     
-                    int nFFTs = (nlocal / ng[i]);
-                    FFTs.forward(data,scratch,ng[i],nFFTs);
+                    int nFFTs = (nlocal / ng[dim]);
+                    FFTs.forward(data,scratch,ng[dim],nFFTs);
 
                     dist.reorder(data,scratch,i,1);
                     dist.returnPencils(data,scratch,i);
@@ -269,13 +275,15 @@ namespace A2A{
                 }
                 dist.getPencils(data,scratch,2);
                 dist.reorder(data,scratch,2,0);
-                int nFFTs = (nlocal / ng[2]);
-                FFTs.forward(data,scratch,ng[2],nFFTs);
+                int dim = (2+2)%3;
+                int nFFTs = (nlocal / ng[dim]);
+                FFTs.forward(data,scratch,ng[dim],nFFTs);
                 dist.copy(data,scratch);
 
             } else {
-                int nFFTs = (nlocal / ng[2]);
-                FFTs.backward(data,scratch,ng[2],nFFTs);
+                int dim = (2+2)%3;
+                int nFFTs = (nlocal / ng[dim]);
+                FFTs.backward(data,scratch,ng[dim],nFFTs);
 
                 dist.reorder(data,scratch,2,1);
                 dist.returnPencils(data,scratch,2);
@@ -284,8 +292,9 @@ namespace A2A{
                 dist.getPencils(data,scratch,0);
                 dist.reorder(data,scratch,0,0);
 
-                nFFTs = (nlocal / ng[0]);
-                FFTs.backward(data,scratch,ng[0],nFFTs);
+                dim = (0+2)%3;
+                nFFTs = (nlocal / ng[dim]);
+                FFTs.backward(data,scratch,ng[dim],nFFTs);
 
                 dist.reorder(data,scratch,0,1);
                 dist.returnPencils(data,scratch,0);
@@ -294,8 +303,9 @@ namespace A2A{
                 dist.getPencils(data,scratch,1);
                 dist.reorder(data,scratch,1,0);
 
-                nFFTs = (nlocal / ng[1]);
-                FFTs.backward(data,scratch,ng[1],nFFTs);
+                dim = (1+2)%3;
+                nFFTs = (nlocal / ng[dim]);
+                FFTs.backward(data,scratch,ng[dim],nFFTs);
 
                 dist.reorder(data,scratch,1,1);
                 dist.returnPencils(data,scratch,1);

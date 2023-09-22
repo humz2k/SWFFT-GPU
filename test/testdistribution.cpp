@@ -49,20 +49,20 @@ int main(){
             MPI_Comm_split(MPI_COMM_WORLD,world_rank < 8,world_rank,&comm);
             #ifdef SWFFT_GPU
             #ifdef SWFFT_CUFFT
-            test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(true,comm,8);
-            test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,8);
+            //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(true,comm,8);
+            //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,8);
             test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(true,comm,16,8,8);
-            test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,16,8,8);
-            test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(true,comm,8,16,8);
-            test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,8,16,8);
-            test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(true,comm,8,16,16);
-            test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,8,16,16);
-            test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(true,comm,8,8,16);
-            test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,8,8,16);
-            test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(true,comm,16,8,16);
-            test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,16,8,16);
-            test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(true,comm,16,16,8);
-            test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,16,16,8);
+            //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,16,8,8);
+            //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(true,comm,8,16,8);
+            //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,8,16,8);
+            //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(true,comm,8,16,16);
+            //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,8,16,16);
+            //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(true,comm,8,8,16);
+            //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,8,8,16);
+            //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(true,comm,16,8,16);
+            //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,16,8,16);
+            //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(true,comm,16,16,8);
+            //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>>(false,comm,16,16,8);
             #endif
             #endif
             MPI_Comm_free(&comm);

@@ -59,7 +59,7 @@ namespace SWFFT{
 
             }
 
-            swfft(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize = 64, bool ks_as_block = true) : backend(comm,ngx,ngx,ngx,blockSize,ks_as_block), last_time(0), last_was(-1){
+            swfft(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize = 64, bool ks_as_block = true) : backend(comm,ngx,ngy,ngz,blockSize,ks_as_block), last_time(0), last_was(-1){
 
             }
 

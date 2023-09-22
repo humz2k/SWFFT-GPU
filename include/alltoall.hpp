@@ -162,7 +162,7 @@ class AllToAllGPU{
 
         }
 
-        AllToAllGPU(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize, bool ks_as_block=true) : dist(comm,ngx,ngx,ngx,blockSize,ks_as_block), dfft(dist,ks_as_block){
+        AllToAllGPU(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize, bool ks_as_block=true) : dist(comm,ngx,ngy,ngz,blockSize,ks_as_block), dfft(dist,ks_as_block){
 
         }
 
@@ -361,7 +361,7 @@ class AllToAllCPU{
 
         }
 
-        AllToAllCPU(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize, bool ks_as_block = true) : dist(comm,ngx,ngx,ngx,blockSize,ks_as_block), dfft(dist,ks_as_block){
+        AllToAllCPU(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize, bool ks_as_block = true) : dist(comm,ngx,ngy,ngz,blockSize,ks_as_block), dfft(dist,ks_as_block){
 
         }
 
