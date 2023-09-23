@@ -303,6 +303,13 @@ template<template<class> class Communicator, class MPI_T, class REORDER_T>
 void Distribution<Communicator,MPI_T,REORDER_T>::return_pencils(complexFloatHost* buff1, complexFloatHost* buff2){
     return_pencils(buff1,buff2);   
 }
+#ifdef SWFFT_GPU
+template class Distribution<AllToAll,CPUMPI,GPUReshape>;
+template class Distribution<PairSends,CPUMPI,GPUReshape>;
+#endif
+
+template class Distribution<AllToAll,CPUMPI,CPUReshape>;
+template class Distribution<PairSends,CPUMPI,CPUReshape>;
 
 }
 }

@@ -293,13 +293,16 @@ namespace HQFFT{
             int buff_sz();
     };
 
-    template<template<template<class> class,class> class Dist, template<class> class CollectiveComm, class MPI_T, class FFTBackend>
+    template<template<template<class> class,class,class> class Dist, class REORDER_T, template<class> class CollectiveComm, class MPI_T, class FFTBackend>
     class Dfft{
         public:
-            Dist<CollectiveComm,MPI_T>& dist;
+            Dist<CollectiveComm,MPI_T,REORDER_T>& dist;
             FFTBackend FFTs;
-            int ng;
+            int ng[3];
             int nlocal;
+
+            Dfft(Dist<CollectiveComm,MPI_T,REORDER_T>& dist_);
+            ~Dfft();
             
             #ifdef SWFFT_GPU
             void forward(complexDoubleDevice* data, complexDoubleDevice* scratch);
