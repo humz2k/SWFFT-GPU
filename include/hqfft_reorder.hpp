@@ -47,13 +47,13 @@ namespace HQFFT{
     class CPUReshape{
         private:
             template<class T>
-            inline void _reshape(T* buff1, T* buff2, int n_recvs, int mini_pencil_size, int send_per_rank, int pencils_per_rank, int nlocal, int blockSize);
+            inline void _reshape(const T* __restrict buff1, T* __restrict buff2, int n_recvs, int mini_pencil_size, int send_per_rank, int pencils_per_rank, int nlocal, int blockSize);
 
             template<class T>
-            inline void _unreshape(T* buff1, T* buff2, int z_dim, int x_dim, int y_dim, int nlocal, int blockSize);
+            inline void _unreshape(const T* __restrict buff1, T* __restrict buff2, int z_dim, int x_dim, int y_dim, int nlocal, int blockSize);
 
             template<class T>
-            inline void _reshape_final(T* buff1, T* buff2, int ny, int nz, int local_grid_size[], int nlocal, int blockSize);
+            inline void _reshape_final(const T* __restrict buff1, T* __restrict buff2, int ny, int nz, int local_grid_size[], int nlocal, int blockSize);
 
         public:
             CPUReshape();

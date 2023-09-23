@@ -182,6 +182,9 @@ void GPUReshape::reshape_final(complexFloatHost* buff1, complexFloatHost* buff2,
     swfftFree(d_buff2);
 }
 
+GPUReshape::GPUReshape(){}
+GPUReshape::~GPUReshape(){}
+
 }
 }
 #endif
