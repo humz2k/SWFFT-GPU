@@ -18,6 +18,10 @@
 #include "pairwise.hpp"
 #endif
 
+#ifdef SWFFT_HQFFT
+#include "hqfft.hpp"
+#endif
+
 namespace SWFFT{
 
     inline int swfft_init_threads(int nthreads = 0){
@@ -63,13 +67,17 @@ namespace SWFFT{
 
             }
 
-            inline void printLastTime(){
+            inline timing_stats_t printLastTime(){
                 if (last_was == 0){
-                    printTimingStats(backend.comm(),"FORWARD ",last_time);
+                    return printTimingStats(backend.comm(),"FORWARD ",last_time);
                 } else {
-                    printTimingStats(backend.comm(),"BACKWARD",last_time);
+                    return printTimingStats(backend.comm(),"BACKWARD",last_time);
                 }
                 
+            }
+
+            inline timing_stats_t getLastTime(){
+                return getTimingStats(backend.comm(),last_time);
             }
 
             inline void query(){
