@@ -63,8 +63,21 @@ namespace HQFFT{
             void query();
     };
 
-    template<template<class> class Communicator, class MPI_T>
+    template<template<class> class Communicator, class MPI_T, class REORDER_T>
     class Distribution{
+        private:
+            template<class T>
+            void _pencils_1(T* buff1, T* buff2);
+
+            template<class T>
+            void _pencils_2(T* buff1, T* buff2);
+
+            template<class T>
+            void _pencils_3(T* buff1, T* buff2);
+
+            template<class T>
+            void _return_pencils(T* buff1, T* buff2);
+
         public:
             int ng[3];
             int nlocal;
@@ -78,23 +91,32 @@ namespace HQFFT{
             MPI_Comm distcomms[4];
 
             Communicator<MPI_T> CollectiveComm;
+            REORDER_T reorder;
 
             int blockSize;
 
             Distribution(MPI_Comm comm_, int ngx, int ngy, int ngz, int blockSize_);
             ~Distribution();
 
-            template<class T>
-            void pencils_1(T* buff1, T* buff2);
+            void pencils_1(complexDoubleHost* buff1, complexDoubleHost* buff2);
+            void pencils_1(complexFloatHost* buff1, complexFloatHost* buff2);
+            void pencils_2(complexDoubleHost* buff1, complexDoubleHost* buff2);
+            void pencils_2(complexFloatHost* buff1, complexFloatHost* buff2);
+            void pencils_3(complexDoubleHost* buff1, complexDoubleHost* buff2);
+            void pencils_3(complexFloatHost* buff1, complexFloatHost* buff2);
+            void return_pencils(complexDoubleHost* buff1, complexDoubleHost* buff2);
+            void return_pencils(complexFloatHost* buff1, complexFloatHost* buff2);
 
-            template<class T>
-            void pencils_2(T* buff1, T* buff2);
-
-            template<class T>
-            void pencils_3(T* buff1, T* buff2);
-
-            template<class T>
-            void return_pencils(T* buff1, T* buff2);
+            #ifdef SWFFT_GPU
+            void pencils_1(complexDoubleDevice* buff1, complexDoubleDevice* buff2);
+            void pencils_1(complexFloatDevice* buff1, complexFloatDevice* buff2);
+            void pencils_2(complexDoubleDevice* buff1, complexDoubleDevice* buff2);
+            void pencils_2(complexFloatDevice* buff1, complexFloatDevice* buff2);
+            void pencils_3(complexDoubleDevice* buff1, complexDoubleDevice* buff2);
+            void pencils_3(complexFloatDevice* buff1, complexFloatDevice* buff2);
+            void return_pencils(complexDoubleDevice* buff1, complexDoubleDevice* buff2);
+            void return_pencils(complexFloatDevice* buff1, complexFloatDevice* buff2);
+            #endif
 
             template<class T>
             void reshape_1(T* buff1, T* buff2);
@@ -117,8 +139,8 @@ namespace HQFFT{
             template<class T>
             void reshape_final(T* buff1, T* buff2, int ny, int nz);
 
-            template<class T>
-            void alltoall(T* src, T* dest, int n_recv, MPI_Comm comm);
+            //template<class T>
+            //void alltoall(T* src, T* dest, int n_recv, MPI_Comm comm);
 
             int buff_sz();
     };
