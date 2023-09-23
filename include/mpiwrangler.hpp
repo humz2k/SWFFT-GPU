@@ -13,10 +13,22 @@ class CPUIsend{
     private:
         void* h_in_buff;
         MPI_Request req;
+        bool initialized;
+        T* in_buff;
+        int n;
+        int dest;
+        int tag;
+        MPI_Comm comm;
+        #ifdef SWFFT_GPU
+        gpuEvent_t event;
+        #endif
     
     public:
-        CPUIsend(T* in_buff, int n, int dest, int tag, MPI_Comm comm);
+        CPUIsend();
+        CPUIsend(T* in_buff_, int n_, int dest_, int tag_, MPI_Comm comm_);
         ~CPUIsend();
+
+        void execute();
 
         void wait();
 
@@ -29,12 +41,25 @@ class CPUIrecv{
         T* out_buff;
         MPI_Request req;
         size_t sz;
+        bool initialized;
+        int n;
+        int source;
+        int tag;
+        MPI_Comm comm;
+        #ifdef SWFFT_GPU
+        gpuEvent_t event;
+        #endif
 
     public:
+        CPUIrecv();
         CPUIrecv(T* my_out_buff, int n, int source, int tag, MPI_Comm comm);
         ~CPUIrecv();
 
+        void execute();
+
         void wait();
+
+        void finalize();
 
 };
 

@@ -18,8 +18,8 @@ namespace HQFFT{
             CollectiveCommunicator();
             ~CollectiveCommunicator();
 
-            template<class T>
-            void alltoall(T* src, T* dest, int n_recv, MPI_Comm comm);
+            //template<class T>
+            //void alltoall(T* src, T* dest, int n_recv, MPI_Comm comm);
 
             void query();
 
@@ -27,19 +27,37 @@ namespace HQFFT{
     
     template<class MPI_T>
     class AllToAll : public CollectiveCommunicator<MPI_T>{
+        private:
+            template<class T>
+            inline void _alltoall(T* src, T* dest, int n_recv, MPI_Comm comm);
+
         public:
 
-            template<class T>
-            void alltoall(T* src, T* dest, int n_recv, MPI_Comm comm);
+            #ifdef SWFFT_GPU
+            void alltoall(complexDoubleDevice* src, complexDoubleDevice* dest, int n_recv, MPI_Comm comm);
+            void alltoall(complexFloatDevice* src, complexFloatDevice* dest, int n_recv, MPI_Comm comm);
+            #endif
+
+            void alltoall(complexDoubleHost* src, complexDoubleHost* dest, int n_recv, MPI_Comm comm);
+            void alltoall(complexFloatHost* src, complexFloatHost* dest, int n_recv, MPI_Comm comm);
 
             void query();
     };
 
     template<class MPI_T>
     class PairSends : public CollectiveCommunicator<MPI_T>{
-        public:
+        private:
             template<class T>
-            void alltoall(T* src, T* dest, int n_recv, MPI_Comm comm);
+            inline void _alltoall(T* src, T* dest, int n_recv, MPI_Comm comm);
+
+        public:
+            #ifdef SWFFT_GPU
+            void alltoall(complexDoubleDevice* src, complexDoubleDevice* dest, int n_recv, MPI_Comm comm);
+            void alltoall(complexFloatDevice* src, complexFloatDevice* dest, int n_recv, MPI_Comm comm);
+            #endif
+
+            void alltoall(complexDoubleHost* src, complexDoubleHost* dest, int n_recv, MPI_Comm comm);
+            void alltoall(complexFloatHost* src, complexFloatHost* dest, int n_recv, MPI_Comm comm);
 
             void query();
     };
