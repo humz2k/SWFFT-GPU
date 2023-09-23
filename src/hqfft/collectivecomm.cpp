@@ -132,27 +132,25 @@ void copyBuffers<complexFloatDevice>::wait(){
 }
 #endif
 
-template<>
+template<class MPI_T>
 template<class T>
-inline void PairSends<CPUMPI>::_alltoall(T* src_buff, T* dest_buff, int n, MPI_Comm comm){
+inline void PairSends<MPI_T>::_alltoall(T* src_buff, T* dest_buff, int n, MPI_Comm comm){
     
     int comm_rank; MPI_Comm_rank(comm,&comm_rank);
     int comm_size; MPI_Comm_size(comm,&comm_size);
 
     copyBuffers<T> cpy(&dest_buff[comm_rank * n],&src_buff[comm_rank * n],n);
     
-    CPUIsend<T> sends[comm_size];
-    CPUIrecv<T> recvs[comm_size];
+    Isend<MPI_T,T> sends[comm_size];
+    Irecv<MPI_T,T> recvs[comm_size];
 
     if (comm_size == 2){
         this->mpi.sendrecv(&src_buff[((comm_rank + 1)%comm_size) * n],n,(comm_rank + 1)%comm_size,0,&dest_buff[((comm_rank+1)%comm_size) * n],n,(comm_rank + 1)%comm_size,0,comm);
     } else {
         for (int i = 0; i < comm_size; i++){
             if (i == comm_rank)continue;
-            CPUIsend<T> this_send = this->mpi.isend(&src_buff[i * n],n,i,0,comm);
-            CPUIrecv<T> this_recv = this->mpi.irecv(&dest_buff[i * n],n,i,0,comm);
-            sends[i] = this_send;
-            recvs[i] = this_recv;
+            sends[i] = this->mpi.isend(&src_buff[i * n],n,i,0,comm);
+            recvs[i] = this->mpi.irecv(&dest_buff[i * n],n,i,0,comm);
         }
         for (int i = 0; i < comm_size; i++){
             if (i == comm_rank)continue;
@@ -176,30 +174,30 @@ inline void PairSends<CPUMPI>::_alltoall(T* src_buff, T* dest_buff, int n, MPI_C
 
 }
 
-template<>
-void PairSends<CPUMPI>::alltoall(complexDoubleHost* src, complexDoubleHost* dest, int n_recv, MPI_Comm comm){
+template<class MPI_T>
+void PairSends<MPI_T>::alltoall(complexDoubleHost* src, complexDoubleHost* dest, int n_recv, MPI_Comm comm){
     
     _alltoall(src,dest,n_recv,comm);    
 
 }
 
-template<>
-void PairSends<CPUMPI>::alltoall(complexFloatHost* src, complexFloatHost* dest, int n_recv, MPI_Comm comm){
+template<class MPI_T>
+void PairSends<MPI_T>::alltoall(complexFloatHost* src, complexFloatHost* dest, int n_recv, MPI_Comm comm){
     
     _alltoall(src,dest,n_recv,comm);    
 
 }
 
 #ifdef SWFFT_GPU
-template<>
-void PairSends<CPUMPI>::alltoall(complexDoubleDevice* src, complexDoubleDevice* dest, int n_recv, MPI_Comm comm){
+template<class MPI_T>
+void PairSends<MPI_T>::alltoall(complexDoubleDevice* src, complexDoubleDevice* dest, int n_recv, MPI_Comm comm){
     
     _alltoall(src,dest,n_recv,comm);    
 
 }
 
-template<>
-void PairSends<CPUMPI>::alltoall(complexFloatDevice* src, complexFloatDevice* dest, int n_recv, MPI_Comm comm){
+template<class MPI_T>
+void PairSends<MPI_T>::alltoall(complexFloatDevice* src, complexFloatDevice* dest, int n_recv, MPI_Comm comm){
     
     _alltoall(src,dest,n_recv,comm);    
 
@@ -207,8 +205,8 @@ void PairSends<CPUMPI>::alltoall(complexFloatDevice* src, complexFloatDevice* de
 
 #endif
 
-template<>
-void PairSends<CPUMPI>::query(){
+template<class MPI_T>
+void PairSends<MPI_T>::query(){
     
     printf("CollectiveCommunicator=PairSends\n");
 

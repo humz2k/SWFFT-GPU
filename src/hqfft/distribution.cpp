@@ -172,8 +172,8 @@ void Distribution<Communicator,MPI_T,REORDER_T>::_return_pencils(T* buff1, T* bu
 
     int n_recvs = dims[0];
 
-    CPUIsend<T> isends[n_recvs];
-    CPUIrecv<T> irecvs[n_recvs];
+    Isend<MPI_T,T> isends[n_recvs];
+    Irecv<MPI_T,T> irecvs[n_recvs];
 
     int count = 0;
     for (int x = dest_x_start; x < dest_x_end+1; x++){

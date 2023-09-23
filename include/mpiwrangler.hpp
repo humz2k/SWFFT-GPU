@@ -132,5 +132,6 @@ class GPUMPI{
 };
 #endif
 #endif
+
 }
 #endif
