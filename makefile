@@ -4,6 +4,8 @@ DFFT_LIB_DIR ?= lib
 DFFT_PAIRWISE_LIB_DIR ?= $(DFFT_LIB_DIR)/pairwise
 DFFT_ALLTOALL_LIB_DIR ?= $(DFFT_LIB_DIR)/alltoall
 DFFT_FFT_LIB_DIR ?= $(DFFT_LIB_DIR)/fftbackends
+DFFT_HQFFT_LIB_DIR ?= $(DFFT_LIB_DIR)/hqfft
+DFFT_MPI_LIB_DIR ?= $(DFFT_LIB_DIR)/mpi
 
 DFFT_PLATFORM ?= unknown
 
@@ -85,6 +87,8 @@ $(DFFT_LIB_DIR):
 	mkdir -p $(DFFT_FFT_LIB_DIR)
 	mkdir -p $(DFFT_ALLTOALL_LIB_DIR)
 	mkdir -p $(DFFT_PAIRWISE_LIB_DIR)
+	mkdir -p $(DFFT_HQFFT_LIB_DIR)
+	mkdir -p $(DFFT_MPI_LIB_DIR)
 
 $(DFFT_BUILD_DIR):
 	mkdir -p $(DFFT_BUILD_DIR)
