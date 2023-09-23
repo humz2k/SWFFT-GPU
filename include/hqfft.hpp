@@ -5,6 +5,7 @@
 #include <mpi.h>
 #include "fftwrangler.hpp"
 #include "mpiwrangler.hpp"
+#include "hqfft_reorder.hpp"
 
 namespace SWFFT{
 
@@ -76,7 +77,7 @@ namespace HQFFT{
             MPI_Comm world_comm;
             MPI_Comm distcomms[4];
 
-            Communicator<MPI> CollectiveComm;
+            Communicator<MPI_T> CollectiveComm;
 
             int blockSize;
 
@@ -122,7 +123,7 @@ namespace HQFFT{
             int buff_sz();
     };
 
-    template<template<class,class> class Dist, template<class> class CollectiveComm, class MPI_T, class FFTBackend>
+    template<template<template<class> class,class> class Dist, template<class> class CollectiveComm, class MPI_T, class FFTBackend>
     class Dfft{
         public:
             Dist<CollectiveComm,MPI_T>& dist;

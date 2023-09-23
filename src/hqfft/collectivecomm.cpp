@@ -78,7 +78,7 @@ class copyBuffers{
 };
 
 template<class T>
-copyBuffers<T>::copyBuffers(T* dest, T* src, int n) : dest(dest_), src(src_), n(n_){
+copyBuffers<T>::copyBuffers(T* dest_, T* src_, int n_) : dest(dest_), src(src_), n(n_){
     for (int i = 0; i < n; i++){
         dest[i] = src[i];
     }
@@ -139,7 +139,7 @@ inline void PairSends<CPUMPI>::_alltoall(T* src_buff, T* dest_buff, int n, MPI_C
     int comm_rank; MPI_Comm_rank(comm,&comm_rank);
     int comm_size; MPI_Comm_size(comm,&comm_size);
 
-    copyBuffers<T> cpy(dest_buff[comm_rank * n],src_buff[comm_rank * n],n);
+    copyBuffers<T> cpy(&dest_buff[comm_rank * n],&src_buff[comm_rank * n],n);
     
     CPUIsend<T> sends[comm_size];
     CPUIrecv<T> recvs[comm_size];
