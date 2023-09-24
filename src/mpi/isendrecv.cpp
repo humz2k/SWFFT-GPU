@@ -10,7 +10,7 @@ namespace SWFFT{
 
     template<class T>
     CPUIsend<T>::CPUIsend(T* in_buff_, int n_, int dest_, int tag_, MPI_Comm comm_) : initialized(true), in_buff(in_buff_), n(n_), dest(dest_), tag(tag_), comm(comm_){
-        
+        //printf("WTF\n");
     }
     
     template<class T>
@@ -20,11 +20,13 @@ namespace SWFFT{
 
     template<class T>
     void CPUIsend<T>::execute(){
+        //printf("WTF1\n");
         MPI_Isend(in_buff,n * sizeof(T),MPI_BYTE,dest,tag,comm,&req);
     }
 
     template<class T>
     void CPUIsend<T>::wait(){
+        //printf("WTF2\n");
         MPI_Wait(&req,MPI_STATUS_IGNORE);
     }
 
@@ -55,6 +57,7 @@ namespace SWFFT{
 
     template<>
     void CPUIsend<complexDoubleDevice>::execute(){
+        
         gpuEventSynchronize(event);
         MPI_Isend(h_in_buff,n * sizeof(complexDoubleDevice),MPI_BYTE,dest,tag,comm,&req);
         gpuEventDestroy(event);
@@ -94,7 +97,7 @@ namespace SWFFT{
 
     template<class T>
     CPUIrecv<T>::CPUIrecv(T* out_buff_, int n_, int source_, int tag_, MPI_Comm comm_) : initialized(true), out_buff(out_buff_), n(n_), source(source_), tag(tag_), comm(comm_){
-        
+        //printf("WTF3\n");
     }
 
     template<class T>
@@ -109,11 +112,13 @@ namespace SWFFT{
 
     template<class T>
     void CPUIrecv<T>::execute(){
+        //printf("WTF4\n");
         MPI_Irecv(out_buff,n * sizeof(T),MPI_BYTE,source,tag,comm,&req);
     }
 
     template<class T>
     void CPUIrecv<T>::wait(){
+        //printf("WTF5\n");
         MPI_Wait(&req,MPI_STATUS_IGNORE);
     }
 
