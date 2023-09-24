@@ -6,7 +6,7 @@ namespace SWFFT{
 namespace HQFFT{
 
 template<template<class> class Communicator, class MPI_T, class REORDER_T>
-Distribution<Communicator,MPI_T,REORDER_T>::Distribution(MPI_Comm comm_, int ngx, int ngy, int ngz, int blockSize_) : world_comm(comm_),ng{ngx,ngy,ngz},blockSize(blockSize_){
+Distribution<Communicator,MPI_T,REORDER_T>::Distribution(MPI_Comm comm_, int ngx, int ngy, int ngz, int blockSize_) : world_comm(comm_),ng{ngx,ngy,ngz},blockSize(blockSize_),dims{0,0,0}{
     MPI_Comm_rank(world_comm,&world_rank);
     MPI_Comm_size(world_comm,&world_size);
     
@@ -158,6 +158,10 @@ void Distribution<Communicator,MPI_T,REORDER_T>::_pencils_3(T* buff1, T* buff2){
 template<template<class> class Communicator, class MPI_T, class REORDER_T>
 template<class T>
 void Distribution<Communicator,MPI_T,REORDER_T>::_return_pencils(T* buff1, T* buff2){
+    //printf("WTF???\n");
+
+    //return;
+
     unreshape_3(buff1,buff2);
 
     int dest_x_start = 0;
@@ -201,6 +205,9 @@ void Distribution<Communicator,MPI_T,REORDER_T>::_return_pencils(T* buff1, T* bu
 
         isends[count] = CollectiveComm.mpi.isend(&buff2[count*(nlocal/n_recvs)],(nlocal/n_recvs),dest,id,world_comm);
         irecvs[count] = CollectiveComm.mpi.irecv(&buff1[count*(nlocal/n_recvs)],(nlocal/n_recvs),MPI_ANY_SOURCE,recid,world_comm);
+
+        //printf("rank %d sending rank %d with id %d\n",world_rank,dest,id);
+        //printf("rank %d revcing id %d\n",world_rank,recid);
 
         count++;
 
@@ -255,12 +262,14 @@ void Distribution<Communicator,MPI_T,REORDER_T>::pencils_3(complexFloatDevice* b
 
 template<template<class> class Communicator, class MPI_T, class REORDER_T>
 void Distribution<Communicator,MPI_T,REORDER_T>::return_pencils(complexDoubleDevice* buff1, complexDoubleDevice* buff2){
-    return_pencils(buff1,buff2);   
+    //printf("???\n");
+    _return_pencils(buff1,buff2);
 }
 
 template<template<class> class Communicator, class MPI_T, class REORDER_T>
 void Distribution<Communicator,MPI_T,REORDER_T>::return_pencils(complexFloatDevice* buff1, complexFloatDevice* buff2){
-    return_pencils(buff1,buff2);   
+    //printf("???\n");
+    _return_pencils(buff1,buff2);   
 }
 #endif
 
@@ -296,12 +305,12 @@ void Distribution<Communicator,MPI_T,REORDER_T>::pencils_3(complexFloatHost* buf
 
 template<template<class> class Communicator, class MPI_T, class REORDER_T>
 void Distribution<Communicator,MPI_T,REORDER_T>::return_pencils(complexDoubleHost* buff1, complexDoubleHost* buff2){
-    return_pencils(buff1,buff2);   
+    _return_pencils(buff1,buff2);   
 }
 
 template<template<class> class Communicator, class MPI_T, class REORDER_T>
 void Distribution<Communicator,MPI_T,REORDER_T>::return_pencils(complexFloatHost* buff1, complexFloatHost* buff2){
-    return_pencils(buff1,buff2);   
+    _return_pencils(buff1,buff2);   
 }
 #ifdef SWFFT_GPU
 template class Distribution<AllToAll,CPUMPI,GPUReshape>;

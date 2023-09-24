@@ -214,6 +214,7 @@ void PairSends<MPI_T>::query(){
 
 template class AllToAll<CPUMPI>;
 template class PairSends<CPUMPI>;
+template class CollectiveCommunicator<CPUMPI>;
 
 }
 }
