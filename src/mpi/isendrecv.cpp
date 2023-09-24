@@ -68,9 +68,10 @@ namespace SWFFT{
 
     template<>
     CPUIsend<complexFloatDevice>::CPUIsend(complexFloatDevice* in_buff_, int n_, int dest_, int tag_, MPI_Comm comm_) : initialized(true), in_buff(in_buff_), n(n_), dest(dest_), tag(tag_), comm(comm_){
-        h_in_buff = malloc(sizeof(complexFloatDevice) * n);
+        size_t sz = sizeof(complexFloatDevice) * n;
+        h_in_buff = malloc(sz);
         gpuEventCreate(&event);
-        gpuMemcpyAsync(h_in_buff,in_buff,sizeof(n) * sizeof(complexFloatDevice),gpuMemcpyDeviceToHost);
+        gpuMemcpyAsync(h_in_buff,in_buff,n * sizeof(complexFloatDevice),gpuMemcpyDeviceToHost);
         gpuEventRecord(event);
     }
 

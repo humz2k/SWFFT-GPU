@@ -77,7 +77,30 @@ int main(){
     
     //swfft_init_threads(2);
 
-    test<swfft<HQA2AGPU,CPUMPI,gpuFFT>, complexDoubleDevice>(false,256);
+    #ifdef SWFFT_HQFFT
+        #ifdef SWFFT_GPU
+            #ifdef SWFFT_CUFFT
+            test<swfft<HQA2AGPU,CPUMPI,gpuFFT>, complexDoubleDevice>(false,256);
+            test<swfft<HQA2AGPU,CPUMPI,gpuFFT>, complexDoubleDevice>(true,256);
+            test<swfft<HQA2AGPU,CPUMPI,gpuFFT>, complexFloatDevice>(false,256);
+            test<swfft<HQA2AGPU,CPUMPI,gpuFFT>, complexFloatDevice>(true,256);
+            test<swfft<HQA2AGPU,CPUMPI,gpuFFT>, complexDoubleHost>(false,256);
+            test<swfft<HQA2AGPU,CPUMPI,gpuFFT>, complexDoubleHost>(true,256);
+            test<swfft<HQA2AGPU,CPUMPI,gpuFFT>, complexFloatHost>(false,256);
+            test<swfft<HQA2AGPU,CPUMPI,gpuFFT>, complexFloatHost>(true,256);
+            #endif
+            #ifdef SWFFT_FFTW
+            test<swfft<HQA2AGPU,CPUMPI,fftw>, complexDoubleDevice>(false,256);
+            test<swfft<HQA2AGPU,CPUMPI,fftw>, complexDoubleDevice>(true,256);
+            test<swfft<HQA2AGPU,CPUMPI,fftw>, complexFloatDevice>(false,256);
+            test<swfft<HQA2AGPU,CPUMPI,fftw>, complexFloatDevice>(true,256);
+            test<swfft<HQA2AGPU,CPUMPI,fftw>, complexDoubleHost>(false,256);
+            test<swfft<HQA2AGPU,CPUMPI,fftw>, complexDoubleHost>(true,256);
+            test<swfft<HQA2AGPU,CPUMPI,fftw>, complexFloatHost>(false,256);
+            test<swfft<HQA2AGPU,CPUMPI,fftw>, complexFloatHost>(true,256);
+            #endif
+        #endif
+    #endif
 
     /*#ifdef SWFFT_PAIRWISE
         #ifdef SWFFT_FFTW

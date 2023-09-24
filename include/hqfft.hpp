@@ -290,10 +290,19 @@ namespace HQFFT{
             void _pencils_1(T* buff1, T* buff2);
 
             template<class T>
+            void _inverse_pencils_1(T* buff1, T* buff2);
+
+            template<class T>
             void _pencils_2(T* buff1, T* buff2);
 
             template<class T>
+            void _inverse_pencils_2(T* buff1, T* buff2);
+
+            template<class T>
             void _pencils_3(T* buff1, T* buff2);
+
+            template<class T>
+            void _inverse_pencils_3(T* buff1, T* buff2);
 
             template<class T>
             void _return_pencils(T* buff1, T* buff2);
@@ -324,6 +333,12 @@ namespace HQFFT{
             void pencils_2(complexFloatHost* buff1, complexFloatHost* buff2);
             void pencils_3(complexDoubleHost* buff1, complexDoubleHost* buff2);
             void pencils_3(complexFloatHost* buff1, complexFloatHost* buff2);
+            void inverse_pencils_1(complexDoubleHost* buff1, complexDoubleHost* buff2);
+            void inverse_pencils_1(complexFloatHost* buff1, complexFloatHost* buff2);
+            void inverse_pencils_2(complexDoubleHost* buff1, complexDoubleHost* buff2);
+            void inverse_pencils_2(complexFloatHost* buff1, complexFloatHost* buff2);
+            void inverse_pencils_3(complexDoubleHost* buff1, complexDoubleHost* buff2);
+            void inverse_pencils_3(complexFloatHost* buff1, complexFloatHost* buff2);
             void return_pencils(complexDoubleHost* buff1, complexDoubleHost* buff2);
             void return_pencils(complexFloatHost* buff1, complexFloatHost* buff2);
 
@@ -334,6 +349,12 @@ namespace HQFFT{
             void pencils_2(complexFloatDevice* buff1, complexFloatDevice* buff2);
             void pencils_3(complexDoubleDevice* buff1, complexDoubleDevice* buff2);
             void pencils_3(complexFloatDevice* buff1, complexFloatDevice* buff2);
+            void inverse_pencils_1(complexDoubleDevice* buff1, complexDoubleDevice* buff2);
+            void inverse_pencils_1(complexFloatDevice* buff1, complexFloatDevice* buff2);
+            void inverse_pencils_2(complexDoubleDevice* buff1, complexDoubleDevice* buff2);
+            void inverse_pencils_2(complexFloatDevice* buff1, complexFloatDevice* buff2);
+            void inverse_pencils_3(complexDoubleDevice* buff1, complexDoubleDevice* buff2);
+            void inverse_pencils_3(complexFloatDevice* buff1, complexFloatDevice* buff2);
             void return_pencils(complexDoubleDevice* buff1, complexDoubleDevice* buff2);
             void return_pencils(complexFloatDevice* buff1, complexFloatDevice* buff2);
             #endif
@@ -342,19 +363,37 @@ namespace HQFFT{
             void reshape_1(T* buff1, T* buff2);
 
             template<class T>
+            void inverse_reshape_1(T* buff1, T* buff2);
+
+            template<class T>
             void unreshape_1(T* buff1, T* buff2);
+
+            template<class T>
+            void inverse_unreshape_1(T* buff1, T* buff2);
 
             template<class T>
             void reshape_2(T* buff1, T* buff2);
 
             template<class T>
+            void inverse_reshape_2(T* buff1, T* buff2);
+
+            template<class T>
             void unreshape_2(T* buff1, T* buff2);
+
+            template<class T>
+            void inverse_unreshape_2(T* buff1, T* buff2);
 
             template<class T>
             void reshape_3(T* buff1, T* buff2);
 
             template<class T>
+            void inverse_reshape_3(T* buff1, T* buff2);
+
+            template<class T>
             void unreshape_3(T* buff1, T* buff2);
+
+            template<class T>
+            void inverse_unreshape_3(T* buff1, T* buff2);
 
             template<class T>
             void reshape_final(T* buff1, T* buff2, int ny, int nz);
@@ -423,7 +462,205 @@ class HQA2AGPU{
         inline ~HQA2AGPU(){};
 
         inline void query(){
-            printf("Using AllToAllCPU\n");
+            printf("Using HQAllToAllGPU\n");
+            printf("   distribution = [%d %d %d]\n",dist.dims[0],dist.dims[1],dist.dims[2]);
+        }
+
+        inline int3 get_ks(int idx){
+            return make_int3(0,0,0);
+        }
+
+        inline bool test_distribution(){
+            return false;
+        }
+
+        inline int ngx(){
+            return dfft.ng[0];
+        }
+
+        inline int ngy(){
+            return dfft.ng[1];
+        }
+
+        inline int ngz(){
+            return dfft.ng[2];
+        }
+
+        inline int3 ng(){
+            return make_int3(dfft.ng[0],dfft.ng[1],dfft.ng[2]);
+        }
+
+        inline int ng(int i){
+            return dfft.ng[i];
+        }
+
+        inline int buff_sz(){
+            return dist.nlocal;
+        }
+
+        inline int3 coords(){
+            return make_int3(dist.coords[0],dist.coords[1],dist.coords[2]);
+        }
+
+        inline int3 dims(){
+            return make_int3(dist.dims[0],dist.dims[1],dist.dims[2]);
+        }
+
+        inline int rank(){
+            return dist.world_rank;
+        }
+
+        inline MPI_Comm comm(){
+            return dist.world_comm;
+        }
+
+        inline void forward(complexDoubleDevice* data, complexDoubleDevice* scratch){
+            dfft.forward(data,scratch);
+        }
+
+        inline void forward(complexFloatDevice* data, complexFloatDevice* scratch){
+            dfft.forward(data,scratch);
+        }
+
+        inline void forward(complexDoubleHost* data, complexDoubleHost* scratch){
+            complexDoubleDevice* d_data; swfftAlloc(&d_data,sizeof(complexDoubleDevice) * buff_sz());
+            complexDoubleDevice* d_scratch; swfftAlloc(&d_scratch,sizeof(complexDoubleDevice) * buff_sz());
+            gpuMemcpy(d_data,data,sizeof(complexDoubleDevice) * buff_sz(),gpuMemcpyHostToDevice);
+            dfft.forward(d_data,d_scratch);
+            gpuMemcpy(data,d_data,sizeof(complexDoubleDevice) * buff_sz(),gpuMemcpyDeviceToHost);
+            swfftFree(d_data);
+            swfftFree(d_scratch);
+        }
+
+        inline void forward(complexFloatHost* data, complexFloatHost* scratch){
+            complexFloatDevice* d_data; swfftAlloc(&d_data,sizeof(complexFloatDevice) * buff_sz());
+            complexFloatDevice* d_scratch; swfftAlloc(&d_scratch,sizeof(complexFloatDevice) * buff_sz());
+            gpuMemcpy(d_data,data,sizeof(complexFloatDevice) * buff_sz(),gpuMemcpyHostToDevice);
+            dfft.forward(d_data,d_scratch);
+            gpuMemcpy(data,d_data,sizeof(complexFloatDevice) * buff_sz(),gpuMemcpyDeviceToHost);
+            swfftFree(d_data);
+            swfftFree(d_scratch);
+        }
+
+        inline void backward(complexDoubleDevice* data, complexDoubleDevice* scratch){
+            dfft.backward(data,scratch);
+        }
+
+        inline void backward(complexFloatDevice* data, complexFloatDevice* scratch){
+            dfft.backward(data,scratch);
+        }
+
+        inline void backward(complexDoubleHost* data, complexDoubleHost* scratch){
+            complexDoubleDevice* d_data; swfftAlloc(&d_data,sizeof(complexDoubleDevice) * buff_sz());
+            complexDoubleDevice* d_scratch; swfftAlloc(&d_scratch,sizeof(complexDoubleDevice) * buff_sz());
+            gpuMemcpy(d_data,data,sizeof(complexDoubleDevice) * buff_sz(),gpuMemcpyHostToDevice);
+            dfft.forward(d_data,d_scratch);
+            gpuMemcpy(data,d_data,sizeof(complexDoubleDevice) * buff_sz(),gpuMemcpyDeviceToHost);
+            swfftFree(d_data);
+            swfftFree(d_scratch);
+        }
+
+        inline void backward(complexFloatHost* data, complexFloatHost* scratch){
+            complexFloatDevice* d_data; swfftAlloc(&d_data,sizeof(complexFloatDevice) * buff_sz());
+            complexFloatDevice* d_scratch; swfftAlloc(&d_scratch,sizeof(complexFloatDevice) * buff_sz());
+            gpuMemcpy(d_data,data,sizeof(complexFloatDevice) * buff_sz(),gpuMemcpyHostToDevice);
+            dfft.backward(d_data,d_scratch);
+            gpuMemcpy(data,d_data,sizeof(complexFloatDevice) * buff_sz(),gpuMemcpyDeviceToHost);
+            swfftFree(d_data);
+            swfftFree(d_scratch);
+        }
+
+        inline void forward(complexDoubleDevice* data){
+            complexDoubleDevice* scratch; swfftAlloc(&scratch,sizeof(complexDoubleDevice) * buff_sz());
+            forward(data,scratch);
+            swfftFree(scratch);
+        }
+
+        inline void forward(complexFloatDevice* data){
+            complexFloatDevice* scratch; swfftAlloc(&scratch,sizeof(complexFloatDevice) * buff_sz());
+            forward(data,scratch);
+            swfftFree(scratch);
+        }
+
+        inline void forward(complexDoubleHost* data){
+            complexDoubleDevice* d_scratch; swfftAlloc(&d_scratch,sizeof(complexDoubleDevice) * buff_sz());
+            complexDoubleDevice* d_data; swfftAlloc(&d_data,sizeof(complexDoubleDevice) * buff_sz());
+            gpuMemcpy(d_data,data,sizeof(complexDoubleDevice) * buff_sz(),gpuMemcpyHostToDevice);
+            forward(d_data,d_scratch);
+            gpuMemcpy(data,d_data,sizeof(complexDoubleDevice) * buff_sz(),gpuMemcpyDeviceToHost);
+            swfftFree(d_scratch);
+            swfftFree(d_data);
+        }
+
+        inline void forward(complexFloatHost* data){
+            complexFloatDevice* d_scratch; swfftAlloc(&d_scratch,sizeof(complexFloatDevice) * buff_sz());
+            complexFloatDevice* d_data; swfftAlloc(&d_data,sizeof(complexFloatDevice) * buff_sz());
+            gpuMemcpy(d_data,data,sizeof(complexFloatDevice) * buff_sz(),gpuMemcpyHostToDevice);
+            forward(d_data,d_scratch);
+            gpuMemcpy(data,d_data,sizeof(complexFloatDevice) * buff_sz(),gpuMemcpyDeviceToHost);
+            swfftFree(d_scratch);
+            swfftFree(d_data);
+        }
+
+        inline void backward(complexDoubleDevice* data){
+            complexDoubleDevice* scratch; swfftAlloc(&scratch,sizeof(complexDoubleDevice) * buff_sz());
+            backward(data,scratch);
+            swfftFree(scratch);
+        }
+
+        inline void backward(complexFloatDevice* data){
+            complexFloatDevice* scratch; swfftAlloc(&scratch,sizeof(complexFloatDevice) * buff_sz());
+            backward(data,scratch);
+            swfftFree(scratch);
+        }
+
+        inline void backward(complexDoubleHost* data){
+            complexDoubleDevice* d_scratch; swfftAlloc(&d_scratch,sizeof(complexDoubleDevice) * buff_sz());
+            complexDoubleDevice* d_data; swfftAlloc(&d_data,sizeof(complexDoubleDevice) * buff_sz());
+            gpuMemcpy(d_data,data,sizeof(complexDoubleDevice) * buff_sz(),gpuMemcpyHostToDevice);
+            backward(d_data,d_scratch);
+            gpuMemcpy(data,d_data,sizeof(complexDoubleDevice) * buff_sz(),gpuMemcpyDeviceToHost);
+            swfftFree(d_scratch);
+            swfftFree(d_data);
+        }
+
+        inline void backward(complexFloatHost* data){
+            complexFloatDevice* d_scratch; swfftAlloc(&d_scratch,sizeof(complexFloatDevice) * buff_sz());
+            complexFloatDevice* d_data; swfftAlloc(&d_data,sizeof(complexFloatDevice) * buff_sz());
+            gpuMemcpy(d_data,data,sizeof(complexFloatDevice) * buff_sz(),gpuMemcpyHostToDevice);
+            backward(d_data,d_scratch);
+            gpuMemcpy(data,d_data,sizeof(complexFloatDevice) * buff_sz(),gpuMemcpyDeviceToHost);
+            swfftFree(d_scratch);
+            swfftFree(d_data);
+        }
+
+
+
+};
+
+template<class MPI_T, class FFTBackend>
+class HQPairGPU{
+    private:
+        HQFFT::Distribution<HQFFT::PairSends,MPI_T,HQFFT::GPUReshape> dist;
+        HQFFT::Dfft<HQFFT::Distribution,HQFFT::GPUReshape,HQFFT::AllToAll,MPI_T,FFTBackend> dfft;
+    
+    public:
+        inline HQPairGPU(){
+
+        }
+
+        inline HQPairGPU(MPI_Comm comm, int ngx, int blockSize, bool ks_as_block = true) : dist(comm,ngx,ngx,ngx,blockSize), dfft(dist,ks_as_block){
+
+        }
+
+        inline HQPairGPU(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize, bool ks_as_block = true) : dist(comm,ngx,ngy,ngz,blockSize), dfft(dist,ks_as_block){
+
+        }
+
+        inline ~HQPairGPU(){};
+
+        inline void query(){
+            printf("Using HQPairSendsGPU\n");
             printf("   distribution = [%d %d %d]\n",dist.dims[0],dist.dims[1],dist.dims[2]);
         }
 

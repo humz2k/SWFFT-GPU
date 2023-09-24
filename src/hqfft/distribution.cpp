@@ -78,12 +78,32 @@ void Distribution<Communicator,MPI_T,REORDER_T>::reshape_1(T* buff1, T* buff2){
 
 template<template<class> class Communicator, class MPI_T, class REORDER_T>
 template<class T>
+void Distribution<Communicator,MPI_T,REORDER_T>::inverse_reshape_1(T* buff1, T* buff2){
+    int n_recvs = dims[2];
+    int mini_pencil_size = local_grid_size[2];
+    int send_per_rank = nlocal / n_recvs;
+    int pencils_per_rank = send_per_rank / mini_pencil_size;
+    reorder.inverse_reshape(buff1,buff2,n_recvs,mini_pencil_size,send_per_rank,pencils_per_rank,nlocal,blockSize);
+}
+
+template<template<class> class Communicator, class MPI_T, class REORDER_T>
+template<class T>
 void Distribution<Communicator,MPI_T,REORDER_T>::unreshape_1(T* buff1, T* buff2){
     int z_dim = ng[2];
     int x_dim = local_grid_size[0] / dims[2];
     int y_dim = (nlocal / z_dim) / x_dim;
 
     reorder.unreshape(buff1,buff2,z_dim,x_dim,y_dim,nlocal,blockSize);
+}
+
+template<template<class> class Communicator, class MPI_T, class REORDER_T>
+template<class T>
+void Distribution<Communicator,MPI_T,REORDER_T>::inverse_unreshape_1(T* buff1, T* buff2){
+    int z_dim = ng[2];
+    int x_dim = local_grid_size[0] / dims[2];
+    int y_dim = (nlocal / z_dim) / x_dim;
+
+    reorder.inverse_unreshape(buff1,buff2,z_dim,x_dim,y_dim,nlocal,blockSize);
 }
 
 template<template<class> class Communicator, class MPI_T, class REORDER_T>
@@ -98,12 +118,32 @@ void Distribution<Communicator,MPI_T,REORDER_T>::reshape_2(T* buff1, T* buff2){
 
 template<template<class> class Communicator, class MPI_T, class REORDER_T>
 template<class T>
+void Distribution<Communicator,MPI_T,REORDER_T>::inverse_reshape_2(T* buff1, T* buff2){
+    int n_recvs = dims[1];
+    int mini_pencil_size = local_grid_size[1];
+    int send_per_rank = nlocal / n_recvs;
+    int pencils_per_rank = send_per_rank / mini_pencil_size;
+    reorder.inverse_reshape(buff1,buff2,n_recvs,mini_pencil_size,send_per_rank,pencils_per_rank,nlocal,blockSize);
+}
+
+template<template<class> class Communicator, class MPI_T, class REORDER_T>
+template<class T>
 void Distribution<Communicator,MPI_T,REORDER_T>::unreshape_2(T* buff1, T* buff2){
     int z_dim = ng[1];
     int x_dim = local_grid_size[2] / dims[1];
     int y_dim = (nlocal / z_dim) / x_dim;
 
     reorder.unreshape(buff1,buff2,z_dim,x_dim,y_dim,nlocal,blockSize);
+}
+
+template<template<class> class Communicator, class MPI_T, class REORDER_T>
+template<class T>
+void Distribution<Communicator,MPI_T,REORDER_T>::inverse_unreshape_2(T* buff1, T* buff2){
+    int z_dim = ng[1];
+    int x_dim = local_grid_size[2] / dims[1];
+    int y_dim = (nlocal / z_dim) / x_dim;
+
+    reorder.inverse_unreshape(buff1,buff2,z_dim,x_dim,y_dim,nlocal,blockSize);
 }
 
 template<template<class> class Communicator, class MPI_T, class REORDER_T>
@@ -118,12 +158,32 @@ void Distribution<Communicator,MPI_T,REORDER_T>::reshape_3(T* buff1, T* buff2){
 
 template<template<class> class Communicator, class MPI_T, class REORDER_T>
 template<class T>
+void Distribution<Communicator,MPI_T,REORDER_T>::inverse_reshape_3(T* buff1, T* buff2){
+    int n_recvs = dims[0] * dims[2];
+    int mini_pencil_size = ng[0] / n_recvs;
+    int send_per_rank = nlocal / n_recvs;
+    int pencils_per_rank = send_per_rank / mini_pencil_size;
+    reorder.inverse_reshape(buff1,buff2,n_recvs,mini_pencil_size,send_per_rank,pencils_per_rank,nlocal,blockSize);
+}
+
+template<template<class> class Communicator, class MPI_T, class REORDER_T>
+template<class T>
 void Distribution<Communicator,MPI_T,REORDER_T>::unreshape_3(T* buff1, T* buff2){
     int z_dim = ng[0];
     int x_dim = local_grid_size[1] / dims[0];
     int y_dim = (nlocal / z_dim) / x_dim;
 
     reorder.unreshape(buff1,buff2,z_dim,x_dim,y_dim,nlocal,blockSize);
+}
+
+template<template<class> class Communicator, class MPI_T, class REORDER_T>
+template<class T>
+void Distribution<Communicator,MPI_T,REORDER_T>::inverse_unreshape_3(T* buff1, T* buff2){
+    int z_dim = ng[0];
+    int x_dim = local_grid_size[1] / dims[0];
+    int y_dim = (nlocal / z_dim) / x_dim;
+
+    reorder.inverse_unreshape(buff1,buff2,z_dim,x_dim,y_dim,nlocal,blockSize);
 }
 
 template<template<class> class Communicator, class MPI_T, class REORDER_T>
@@ -136,7 +196,14 @@ template<template<class> class Communicator, class MPI_T, class REORDER_T>
 template<class T>
 void Distribution<Communicator,MPI_T,REORDER_T>::_pencils_1(T* buff1, T* buff2){
     CollectiveComm.alltoall(buff1,buff2,(nlocal / dims[2]),distcomms[0]);
-    reshape_1(buff1,buff2);
+    reshape_1(buff2,buff1);
+}
+
+template<template<class> class Communicator, class MPI_T, class REORDER_T>
+template<class T>
+void Distribution<Communicator,MPI_T,REORDER_T>::_inverse_pencils_1(T* buff1, T* buff2){
+    inverse_reshape_1(buff1,buff2);
+    CollectiveComm.alltoall(buff2,buff1,(nlocal / dims[2]),distcomms[0]);
 }
 
 template<template<class> class Communicator, class MPI_T, class REORDER_T>
@@ -149,10 +216,26 @@ void Distribution<Communicator,MPI_T,REORDER_T>::_pencils_2(T* buff1, T* buff2){
 
 template<template<class> class Communicator, class MPI_T, class REORDER_T>
 template<class T>
+void Distribution<Communicator,MPI_T,REORDER_T>::_inverse_pencils_2(T* buff1, T* buff2){
+    inverse_reshape_2(buff1,buff2);
+    CollectiveComm.alltoall(buff2,buff1,(nlocal / dims[1]),distcomms[1]);
+    inverse_unreshape_1(buff1,buff2);
+}
+
+template<template<class> class Communicator, class MPI_T, class REORDER_T>
+template<class T>
 void Distribution<Communicator,MPI_T,REORDER_T>::_pencils_3(T* buff1, T* buff2){
     unreshape_2(buff1,buff2);
     CollectiveComm.alltoall(buff2,buff1,(nlocal / (dims[2] * dims[0])),distcomms[2]);
     reshape_3(buff1,buff2);
+}
+
+template<template<class> class Communicator, class MPI_T, class REORDER_T>
+template<class T>
+void Distribution<Communicator,MPI_T,REORDER_T>::_inverse_pencils_3(T* buff1, T* buff2){
+    inverse_reshape_3(buff1,buff2);
+    CollectiveComm.alltoall(buff2,buff1,(nlocal / (dims[2] * dims[0])),distcomms[2]);
+    inverse_unreshape_2(buff1,buff2);
 }
 
 template<template<class> class Communicator, class MPI_T, class REORDER_T>
@@ -252,8 +335,18 @@ void Distribution<Communicator,MPI_T,REORDER_T>::pencils_1(complexDoubleDevice* 
 }
 
 template<template<class> class Communicator, class MPI_T, class REORDER_T>
+void Distribution<Communicator,MPI_T,REORDER_T>::inverse_pencils_1(complexDoubleDevice* buff1, complexDoubleDevice* buff2){
+    _inverse_pencils_1(buff1,buff2);   
+}
+
+template<template<class> class Communicator, class MPI_T, class REORDER_T>
 void Distribution<Communicator,MPI_T,REORDER_T>::pencils_1(complexFloatDevice* buff1, complexFloatDevice* buff2){
     _pencils_1(buff1,buff2);   
+}
+
+template<template<class> class Communicator, class MPI_T, class REORDER_T>
+void Distribution<Communicator,MPI_T,REORDER_T>::inverse_pencils_1(complexFloatDevice* buff1, complexFloatDevice* buff2){
+    _inverse_pencils_1(buff1,buff2);   
 }
 
 template<template<class> class Communicator, class MPI_T, class REORDER_T>
@@ -262,8 +355,18 @@ void Distribution<Communicator,MPI_T,REORDER_T>::pencils_2(complexDoubleDevice* 
 }
 
 template<template<class> class Communicator, class MPI_T, class REORDER_T>
+void Distribution<Communicator,MPI_T,REORDER_T>::inverse_pencils_2(complexDoubleDevice* buff1, complexDoubleDevice* buff2){
+    _inverse_pencils_2(buff1,buff2);   
+}
+
+template<template<class> class Communicator, class MPI_T, class REORDER_T>
 void Distribution<Communicator,MPI_T,REORDER_T>::pencils_2(complexFloatDevice* buff1, complexFloatDevice* buff2){
     _pencils_2(buff1,buff2);   
+}
+
+template<template<class> class Communicator, class MPI_T, class REORDER_T>
+void Distribution<Communicator,MPI_T,REORDER_T>::inverse_pencils_2(complexFloatDevice* buff1, complexFloatDevice* buff2){
+    _inverse_pencils_2(buff1,buff2);   
 }
 
 template<template<class> class Communicator, class MPI_T, class REORDER_T>
@@ -272,8 +375,18 @@ void Distribution<Communicator,MPI_T,REORDER_T>::pencils_3(complexDoubleDevice* 
 }
 
 template<template<class> class Communicator, class MPI_T, class REORDER_T>
+void Distribution<Communicator,MPI_T,REORDER_T>::inverse_pencils_3(complexDoubleDevice* buff1, complexDoubleDevice* buff2){
+    _inverse_pencils_3(buff1,buff2);   
+}
+
+template<template<class> class Communicator, class MPI_T, class REORDER_T>
 void Distribution<Communicator,MPI_T,REORDER_T>::pencils_3(complexFloatDevice* buff1, complexFloatDevice* buff2){
     _pencils_3(buff1,buff2);   
+}
+
+template<template<class> class Communicator, class MPI_T, class REORDER_T>
+void Distribution<Communicator,MPI_T,REORDER_T>::inverse_pencils_3(complexFloatDevice* buff1, complexFloatDevice* buff2){
+    _inverse_pencils_3(buff1,buff2);   
 }
 
 template<template<class> class Communicator, class MPI_T, class REORDER_T>
@@ -295,8 +408,18 @@ void Distribution<Communicator,MPI_T,REORDER_T>::pencils_1(complexDoubleHost* bu
 }
 
 template<template<class> class Communicator, class MPI_T, class REORDER_T>
+void Distribution<Communicator,MPI_T,REORDER_T>::inverse_pencils_1(complexDoubleHost* buff1, complexDoubleHost* buff2){
+    _inverse_pencils_1(buff1,buff2);   
+}
+
+template<template<class> class Communicator, class MPI_T, class REORDER_T>
 void Distribution<Communicator,MPI_T,REORDER_T>::pencils_1(complexFloatHost* buff1, complexFloatHost* buff2){
     _pencils_1(buff1,buff2);   
+}
+
+template<template<class> class Communicator, class MPI_T, class REORDER_T>
+void Distribution<Communicator,MPI_T,REORDER_T>::inverse_pencils_1(complexFloatHost* buff1, complexFloatHost* buff2){
+    _inverse_pencils_1(buff1,buff2);   
 }
 
 template<template<class> class Communicator, class MPI_T, class REORDER_T>
@@ -305,8 +428,18 @@ void Distribution<Communicator,MPI_T,REORDER_T>::pencils_2(complexDoubleHost* bu
 }
 
 template<template<class> class Communicator, class MPI_T, class REORDER_T>
+void Distribution<Communicator,MPI_T,REORDER_T>::inverse_pencils_2(complexDoubleHost* buff1, complexDoubleHost* buff2){
+    _inverse_pencils_2(buff1,buff2);   
+}
+
+template<template<class> class Communicator, class MPI_T, class REORDER_T>
 void Distribution<Communicator,MPI_T,REORDER_T>::pencils_2(complexFloatHost* buff1, complexFloatHost* buff2){
     _pencils_2(buff1,buff2);   
+}
+
+template<template<class> class Communicator, class MPI_T, class REORDER_T>
+void Distribution<Communicator,MPI_T,REORDER_T>::inverse_pencils_2(complexFloatHost* buff1, complexFloatHost* buff2){
+    _inverse_pencils_2(buff1,buff2);   
 }
 
 template<template<class> class Communicator, class MPI_T, class REORDER_T>
@@ -315,8 +448,18 @@ void Distribution<Communicator,MPI_T,REORDER_T>::pencils_3(complexDoubleHost* bu
 }
 
 template<template<class> class Communicator, class MPI_T, class REORDER_T>
+void Distribution<Communicator,MPI_T,REORDER_T>::inverse_pencils_3(complexDoubleHost* buff1, complexDoubleHost* buff2){
+    _inverse_pencils_3(buff1,buff2);   
+}
+
+template<template<class> class Communicator, class MPI_T, class REORDER_T>
 void Distribution<Communicator,MPI_T,REORDER_T>::pencils_3(complexFloatHost* buff1, complexFloatHost* buff2){
     _pencils_3(buff1,buff2);   
+}
+
+template<template<class> class Communicator, class MPI_T, class REORDER_T>
+void Distribution<Communicator,MPI_T,REORDER_T>::inverse_pencils_3(complexFloatHost* buff1, complexFloatHost* buff2){
+    _inverse_pencils_3(buff1,buff2);   
 }
 
 template<template<class> class Communicator, class MPI_T, class REORDER_T>

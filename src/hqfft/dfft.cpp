@@ -65,6 +65,19 @@ namespace HQFFT{
             
             FFTs.backward(buff1,buff2,ng[0],nlocal/ng[0]);
 
+            dist.inverse_pencils_3(buff2, buff1);
+
+            FFTs.backward(buff1,buff2,ng[1],nlocal/ng[1]);
+
+            dist.inverse_pencils_2(buff2,buff1);
+
+            FFTs.backward(buff1,buff2,ng[2],nlocal/ng[2]);
+
+            dist.inverse_pencils_1(buff2,buff1);
+
+            //copyBuffers<T> cpy(buff1,buff2,nlocal);
+            //cpy.wait();
+
         }
     }
     
