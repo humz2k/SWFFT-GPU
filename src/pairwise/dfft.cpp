@@ -25,15 +25,29 @@ namespace PAIR{
 
     template<class MPI_T, class FFTBackend>
     int3 Dfft<MPI_T,FFTBackend>::get_ks(int idx){
-        int3 local_ng_k = make_int3(double_dist.local_ng_2d_z(0),double_dist.local_ng_2d_z(1),double_dist.local_ng_2d_z(2));
+        int3 local_ng_k = make_int3(double_dist.process_topology_2_z.n[0],double_dist.process_topology_2_z.n[1],double_dist.process_topology_2_z.n[2]);
         int3 pos_k = make_int3(double_dist.get_self_2d_z(0),double_dist.get_self_2d_z(1),double_dist.get_self_2d_z(2));
         int3 my_pos;
         my_pos.x = idx / (local_ng_k.y * local_ng_k.z);
         my_pos.y = (idx - (my_pos.x * local_ng_k.y * local_ng_k.z)) / local_ng_k.z;
         my_pos.z = (idx - (my_pos.x * local_ng_k.y * local_ng_k.z)) - my_pos.y * local_ng_k.z;
-        my_pos.x += pos_k.x;
-        my_pos.y += pos_k.y;
-        my_pos.z += pos_k.z;
+        my_pos.x += pos_k.x * local_ng_k.x;
+        my_pos.y += pos_k.y * local_ng_k.y;
+        my_pos.z += pos_k.z * local_ng_k.z;
+        return my_pos;
+    }
+
+    template<class MPI_T, class FFTBackend>
+    int3 Dfft<MPI_T,FFTBackend>::get_rs(int idx){
+        int3 local_ng_k = make_int3(double_dist.local_ng_3d(0),double_dist.local_ng_3d(1),double_dist.local_ng_3d(2));
+        int3 pos_r = make_int3(double_dist.get_self_3d(0),double_dist.get_self_3d(1),double_dist.get_self_3d(2));
+        int3 my_pos;
+        my_pos.x = idx / (local_ng_k.y * local_ng_k.z);
+        my_pos.y = (idx - (my_pos.x * local_ng_k.y * local_ng_k.z)) / local_ng_k.z;
+        my_pos.z = (idx - (my_pos.x * local_ng_k.y * local_ng_k.z)) - my_pos.y * local_ng_k.z;
+        my_pos.x += pos_r.x * local_ng_k.x;
+        my_pos.y += pos_r.y * local_ng_k.y;
+        my_pos.z += pos_r.z * local_ng_k.z;
         return my_pos;
     }
 
@@ -125,13 +139,13 @@ namespace PAIR{
 
         double_dist.dist_3_to_2(data,scratch,1);
 
-        FFTs.forward(scratch,data,double_dist.process_topology_2_y.n[1],double_dist.process_topology_2_y.n[0] * double_dist.process_topology_2_y.n[2]);
+        FFTs.backward(scratch,data,double_dist.process_topology_2_y.n[1],double_dist.process_topology_2_y.n[0] * double_dist.process_topology_2_y.n[2]);
 
         double_dist.dist_2_to_3(data,scratch,1);
 
         double_dist.dist_3_to_2(scratch,data,0);
 
-        FFTs.forward(data,scratch,double_dist.process_topology_2_x.n[0],double_dist.process_topology_2_x.n[1] * double_dist.process_topology_2_x.n[2]);
+        FFTs.backward(data,scratch,double_dist.process_topology_2_x.n[0],double_dist.process_topology_2_x.n[1] * double_dist.process_topology_2_x.n[2]);
 
         double_dist.dist_2_to_3(scratch,data,0);
 
@@ -146,13 +160,13 @@ namespace PAIR{
 
         float_dist.dist_3_to_2(data,scratch,1);
 
-        FFTs.forward(scratch,data,float_dist.process_topology_2_y.n[1],float_dist.process_topology_2_y.n[0] * float_dist.process_topology_2_y.n[2]);
+        FFTs.backward(scratch,data,float_dist.process_topology_2_y.n[1],float_dist.process_topology_2_y.n[0] * float_dist.process_topology_2_y.n[2]);
 
         float_dist.dist_2_to_3(data,scratch,1);
 
         float_dist.dist_3_to_2(scratch,data,0);
 
-        FFTs.forward(data,scratch,float_dist.process_topology_2_x.n[0],float_dist.process_topology_2_x.n[1] * float_dist.process_topology_2_x.n[2]);
+        FFTs.backward(data,scratch,float_dist.process_topology_2_x.n[0],float_dist.process_topology_2_x.n[1] * float_dist.process_topology_2_x.n[2]);
 
         float_dist.dist_2_to_3(scratch,data,0);
 
@@ -235,6 +249,7 @@ namespace PAIR{
         return size;
     }
 
+    template class Dfft<CPUMPI,TestFFT>;
     #ifdef SWFFT_FFTW
     template class Dfft<CPUMPI,fftw>;
     #endif
