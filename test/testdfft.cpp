@@ -91,6 +91,8 @@ int main(int argc, char** argv){
         ngz = atoi(argv[3]);
     }
 
+    //test<swfft<HQA2AGPU,CPUMPI,gpuFFT>, complexDoubleDevice>(true,ngx,ngy,ngz);
+
     //swfft_init_threads(2);
 
     #ifdef SWFFT_HQFFT

@@ -132,6 +132,7 @@ namespace PAIR{
             int buff_sz();
             int3 coords();
             int3 get_ks(int idx);
+            int3 get_rs(int idx);
             int get_nproc_3d(int direction);
 
             #ifdef SWFFT_GPU
@@ -208,6 +209,10 @@ class Pairwise{
 
         inline int3 get_ks(int idx){
             return dfft.get_ks(idx);
+        }
+
+        inline int3 get_rs(int idx){
+            return dfft.get_rs(idx);
         }
 
         inline bool test_distribution(){

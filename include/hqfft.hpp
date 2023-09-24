@@ -422,6 +422,9 @@ namespace HQFFT{
 
             Dfft(Dist<CollectiveComm,MPI_T,REORDER_T>& dist_, bool k_in_blocks_);
             ~Dfft();
+
+            int3 get_ks(int idx);
+            int3 get_rs(int idx);
             
             #ifdef SWFFT_GPU
             void forward(complexDoubleDevice* data, complexDoubleDevice* scratch);
@@ -467,7 +470,11 @@ class HQA2AGPU{
         }
 
         inline int3 get_ks(int idx){
-            return make_int3(0,0,0);
+            return dfft.get_ks(idx);
+        }
+
+        inline int3 get_rs(int idx){
+            return dfft.get_rs(idx);
         }
 
         inline bool test_distribution(){
@@ -554,7 +561,7 @@ class HQA2AGPU{
             complexDoubleDevice* d_data; swfftAlloc(&d_data,sizeof(complexDoubleDevice) * buff_sz());
             complexDoubleDevice* d_scratch; swfftAlloc(&d_scratch,sizeof(complexDoubleDevice) * buff_sz());
             gpuMemcpy(d_data,data,sizeof(complexDoubleDevice) * buff_sz(),gpuMemcpyHostToDevice);
-            dfft.forward(d_data,d_scratch);
+            dfft.backward(d_data,d_scratch);
             gpuMemcpy(data,d_data,sizeof(complexDoubleDevice) * buff_sz(),gpuMemcpyDeviceToHost);
             swfftFree(d_data);
             swfftFree(d_scratch);
@@ -665,7 +672,11 @@ class HQPairGPU{
         }
 
         inline int3 get_ks(int idx){
-            return make_int3(0,0,0);
+            return dfft.get_ks(idx);
+        }
+
+        inline int3 get_rs(int idx){
+            return dfft.get_rs(idx);
         }
 
         inline bool test_distribution(){
@@ -752,7 +763,7 @@ class HQPairGPU{
             complexDoubleDevice* d_data; swfftAlloc(&d_data,sizeof(complexDoubleDevice) * buff_sz());
             complexDoubleDevice* d_scratch; swfftAlloc(&d_scratch,sizeof(complexDoubleDevice) * buff_sz());
             gpuMemcpy(d_data,data,sizeof(complexDoubleDevice) * buff_sz(),gpuMemcpyHostToDevice);
-            dfft.forward(d_data,d_scratch);
+            dfft.backward(d_data,d_scratch);
             gpuMemcpy(data,d_data,sizeof(complexDoubleDevice) * buff_sz(),gpuMemcpyDeviceToHost);
             swfftFree(d_data);
             swfftFree(d_scratch);

@@ -126,6 +126,7 @@ namespace A2A{
             bool test_distribution();
 
             int3 get_ks(int idx);
+            int3 get_rs(int idx);
 
             #ifdef SWFFT_GPU
             double forward(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2);
@@ -175,6 +176,10 @@ class AllToAllGPU{
 
         inline int3 get_ks(int idx){
             return dfft.get_ks(idx);
+        }
+
+        inline int3 get_rs(int idx){
+            return dfft.get_rs(idx);
         }
 
         inline bool test_distribution(){
@@ -263,7 +268,7 @@ class AllToAllGPU{
             complexDoubleDevice* d_data; swfftAlloc(&d_data,sizeof(complexDoubleDevice) * buff_sz());
             complexDoubleDevice* d_scratch; swfftAlloc(&d_scratch,sizeof(complexDoubleDevice) * buff_sz());
             gpuMemcpy(d_data,data,sizeof(complexDoubleDevice) * buff_sz(),gpuMemcpyHostToDevice);
-            double t = dfft.forward(d_data,d_scratch);
+            double t = dfft.backward(d_data,d_scratch);
             gpuMemcpy(data,d_data,sizeof(complexDoubleDevice) * buff_sz(),gpuMemcpyDeviceToHost);
             swfftFree(d_data);
             swfftFree(d_scratch);
@@ -383,6 +388,10 @@ class AllToAllCPU{
 
         inline int3 get_ks(int idx){
             return dfft.get_ks(idx);
+        }
+
+        inline int3 get_rs(int idx){
+            return dfft.get_rs(idx);
         }
 
         inline bool test_distribution(){
