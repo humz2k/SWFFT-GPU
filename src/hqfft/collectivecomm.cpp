@@ -73,6 +73,10 @@ inline void PairSends<MPI_T>::_alltoall(T* src_buff, T* dest_buff, int n, MPI_Co
     Isend<MPI_T,T> sends[comm_size];
     Irecv<MPI_T,T> recvs[comm_size];
 
+    if (comm_size == 1){
+        cpy.wait();
+        return;
+    }
     if (comm_size == 2){
         this->mpi.sendrecv(&src_buff[((comm_rank + 1)%comm_size) * n],n,(comm_rank + 1)%comm_size,0,&dest_buff[((comm_rank+1)%comm_size) * n],n,(comm_rank + 1)%comm_size,0,comm);
     } else {

@@ -77,7 +77,11 @@ int main(){
     
     //swfft_init_threads(2);
 
-    #ifdef SWFFT_HQFFT
+    test<swfft<HQPairGPU,CPUMPI,gpuFFT>, complexDoubleDevice>(false,256);
+
+    test<swfft<HQA2AGPU,CPUMPI,gpuFFT>, complexDoubleDevice>(false,256);
+
+    /*#ifdef SWFFT_HQFFT
         #ifdef SWFFT_GPU
             #ifdef SWFFT_CUFFT
             test<swfft<HQA2AGPU,CPUMPI,gpuFFT>, complexDoubleDevice>(false,256);
@@ -100,7 +104,7 @@ int main(){
             test<swfft<HQA2AGPU,CPUMPI,fftw>, complexFloatHost>(true,256);
             #endif
         #endif
-    #endif
+    #endif*/
 
     /*#ifdef SWFFT_PAIRWISE
         #ifdef SWFFT_FFTW

@@ -642,7 +642,7 @@ template<class MPI_T, class FFTBackend>
 class HQPairGPU{
     private:
         HQFFT::Distribution<HQFFT::PairSends,MPI_T,HQFFT::GPUReshape> dist;
-        HQFFT::Dfft<HQFFT::Distribution,HQFFT::GPUReshape,HQFFT::AllToAll,MPI_T,FFTBackend> dfft;
+        HQFFT::Dfft<HQFFT::Distribution,HQFFT::GPUReshape,HQFFT::PairSends,MPI_T,FFTBackend> dfft;
     
     public:
         inline HQPairGPU(){
