@@ -6,7 +6,7 @@ namespace SWFFT{
 namespace HQFFT{
 
     template<template<template<class> class,class,class> class Dist, class REORDER_T, template<class> class CollectiveComm, class MPI_T, class FFTBackend>
-    Dfft<Dist,REORDER_T,CollectiveComm,MPI_T,FFTBackend>::Dfft(Dist<CollectiveComm,MPI_T,REORDER_T>& dist_) : dist(dist_), ng{dist.ng[0],dist.ng[1],dist.ng[2]}, nlocal(dist.nlocal){
+    Dfft<Dist,REORDER_T,CollectiveComm,MPI_T,FFTBackend>::Dfft(Dist<CollectiveComm,MPI_T,REORDER_T>& dist_, bool k_in_blocks_) : dist(dist_), ng{dist.ng[0],dist.ng[1],dist.ng[2]}, nlocal(dist.nlocal), k_in_blocks(k_in_blocks_){
 
     }
 
@@ -31,26 +31,41 @@ namespace HQFFT{
 
         FFTs.forward(buff1,buff2,ng[0],nlocal/ng[0]);
 
-        dist.return_pencils(buff1,buff2);
+        if (k_in_blocks){
+
+            dist.return_pencils(buff1,buff2);
+
+        } else {
+
+            copyBuffers<T> cpy(buff1,buff2,nlocal);
+            cpy.wait();
+
+        }
 
     }
 
     template<template<template<class> class,class,class> class Dist, class REORDER_T, template<class> class CollectiveComm, class MPI_T, class FFTBackend>
     template<class T>
     inline void Dfft<Dist,REORDER_T,CollectiveComm,MPI_T,FFTBackend>::_backward(T* buff1, T* buff2){
-        dist.pencils_1(buff1,buff2);
+        if(k_in_blocks){
+            dist.pencils_1(buff1,buff2);
 
-        FFTs.backward(buff1,buff2,ng[2],nlocal/ng[2]);
+            FFTs.backward(buff1,buff2,ng[2],nlocal/ng[2]);
 
-        dist.pencils_2(buff2,buff1);
+            dist.pencils_2(buff2,buff1);
 
-        FFTs.backward(buff1,buff2,ng[1],nlocal/ng[1]);
+            FFTs.backward(buff1,buff2,ng[1],nlocal/ng[1]);
 
-        dist.pencils_3(buff2,buff1);
+            dist.pencils_3(buff2,buff1);
 
-        FFTs.backward(buff1,buff2,ng[0],nlocal/ng[0]);
+            FFTs.backward(buff1,buff2,ng[0],nlocal/ng[0]);
 
-        dist.return_pencils(buff1,buff2);
+            dist.return_pencils(buff1,buff2);
+        } else {
+            
+            FFTs.backward(buff1,buff2,ng[0],nlocal/ng[0]);
+
+        }
     }
     
     #ifdef SWFFT_GPU

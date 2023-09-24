@@ -11,6 +11,78 @@ namespace SWFFT{
 
 namespace HQFFT{
 
+    template<class T>
+    class copyBuffers{
+        private:
+            T* dest;
+            T* src;
+            int n;
+            #ifdef SWFFT_GPU
+            gpuEvent_t event;
+            #endif
+            
+        public:
+            inline copyBuffers(T* dest_, T* src_, int n_);
+            inline ~copyBuffers();
+            inline void wait();
+    };
+
+    template<class T>
+    inline copyBuffers<T>::copyBuffers(T* dest_, T* src_, int n_) : dest(dest_), src(src_), n(n_){
+        for (int i = 0; i < n; i++){
+            dest[i] = src[i];
+        }
+    }
+
+    template<class T>
+    inline copyBuffers<T>::~copyBuffers(){
+
+    }
+
+    template<class T>
+    inline void copyBuffers<T>::wait(){
+
+    }
+    #ifdef SWFFT_GPU
+
+    template<>
+    inline copyBuffers<complexDoubleDevice>::~copyBuffers(){
+
+    }
+
+    template<>
+    inline copyBuffers<complexFloatDevice>::~copyBuffers(){
+
+    }
+
+    template<>
+    inline copyBuffers<complexDoubleDevice>::copyBuffers(complexDoubleDevice* dest_, complexDoubleDevice* src_, int n_) : dest(dest_), src(src_), n(n_){
+        gpuEventCreate(&event);
+        gpuMemcpyAsync(dest,src,n * sizeof(complexDoubleDevice),gpuMemcpyDeviceToDevice);
+        gpuEventRecord(event);
+    }
+
+    template<>
+    inline void copyBuffers<complexDoubleDevice>::wait(){
+        gpuEventSynchronize(event);
+        gpuEventDestroy(event);
+    }
+
+    template<>
+    inline copyBuffers<complexFloatDevice>::copyBuffers(complexFloatDevice* dest_, complexFloatDevice* src_, int n_) : dest(dest_), src(src_), n(n_){
+        gpuEventCreate(&event);
+        gpuMemcpyAsync(dest,src,n * sizeof(complexFloatDevice),gpuMemcpyDeviceToDevice);
+        gpuEventRecord(event);
+    }
+
+    template<>
+    inline void copyBuffers<complexFloatDevice>::wait(){
+        gpuEventSynchronize(event);
+        gpuEventDestroy(event);
+    }
+    #endif
+
+
     template<class MPI_T, class T>
     class Isend{
 
@@ -307,8 +379,9 @@ namespace HQFFT{
             FFTBackend FFTs;
             int ng[3];
             int nlocal;
+            bool k_in_blocks;
 
-            Dfft(Dist<CollectiveComm,MPI_T,REORDER_T>& dist_);
+            Dfft(Dist<CollectiveComm,MPI_T,REORDER_T>& dist_, bool k_in_blocks_);
             ~Dfft();
             
             #ifdef SWFFT_GPU
@@ -339,11 +412,11 @@ class HQA2AGPU{
 
         }
 
-        inline HQA2AGPU(MPI_Comm comm, int ngx, int blockSize, bool ks_as_block = true) : dist(comm,ngx,ngx,ngx,blockSize), dfft(dist){
+        inline HQA2AGPU(MPI_Comm comm, int ngx, int blockSize, bool ks_as_block = true) : dist(comm,ngx,ngx,ngx,blockSize), dfft(dist,ks_as_block){
 
         }
 
-        inline HQA2AGPU(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize, bool ks_as_block = true) : dist(comm,ngx,ngy,ngz,blockSize), dfft(dist){
+        inline HQA2AGPU(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize, bool ks_as_block = true) : dist(comm,ngx,ngy,ngz,blockSize), dfft(dist,ks_as_block){
 
         }
 

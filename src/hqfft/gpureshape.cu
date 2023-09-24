@@ -26,17 +26,51 @@ __global__ void reshape_kernel(const T* __restrict buff1, T* __restrict buff2, i
 }
 
 template<class T>
+__global__ void inverse_reshape_kernel(const T* __restrict buff1, T* __restrict buff2, int n_recvs, int mini_pencil_size, int send_per_rank, int pencils_per_rank, int nlocal){
+    int i = threadIdx.x+blockDim.x*blockIdx.x;
+    if (i >= nlocal)return;
+
+    int mini_pencil_id = i / mini_pencil_size;
+
+    int rank = i / send_per_rank;
+
+    int rank_offset = rank * mini_pencil_size;
+
+    int pencil_offset = (mini_pencil_id % pencils_per_rank) * mini_pencil_size * n_recvs;
+
+    int local_offset = i % mini_pencil_size;
+
+    int new_idx = rank_offset + pencil_offset + local_offset;
+
+    buff2[i] = __ldg(&buff1[new_idx]);
+}
+
+template<class T>
 inline void GPUReshape::_reshape(T* buff1, T* buff2, int n_recvs, int mini_pencil_size, int send_per_rank, int pencils_per_rank, int nlocal, int blockSize){
     int numBlocks = (nlocal + (blockSize - 1))/blockSize;
     gpuLaunch(reshape_kernel,numBlocks,blockSize,buff1,buff2,n_recvs,mini_pencil_size,send_per_rank,pencils_per_rank,nlocal);
+}
+
+template<class T>
+inline void GPUReshape::_inverse_reshape(T* buff1, T* buff2, int n_recvs, int mini_pencil_size, int send_per_rank, int pencils_per_rank, int nlocal, int blockSize){
+    int numBlocks = (nlocal + (blockSize - 1))/blockSize;
+    gpuLaunch(inverse_reshape_kernel,numBlocks,blockSize,buff1,buff2,n_recvs,mini_pencil_size,send_per_rank,pencils_per_rank,nlocal);
 }
 
 void GPUReshape::reshape(complexDoubleDevice* buff1, complexDoubleDevice* buff2, int n_recvs, int mini_pencil_size, int send_per_rank, int pencils_per_rank, int nlocal, int blockSize){
     _reshape(buff1,buff2,n_recvs,mini_pencil_size,send_per_rank,pencils_per_rank,nlocal,blockSize);
 }
 
+void GPUReshape::inverse_reshape(complexDoubleDevice* buff1, complexDoubleDevice* buff2, int n_recvs, int mini_pencil_size, int send_per_rank, int pencils_per_rank, int nlocal, int blockSize){
+    _inverse_reshape(buff1,buff2,n_recvs,mini_pencil_size,send_per_rank,pencils_per_rank,nlocal,blockSize);
+}
+
 void GPUReshape::reshape(complexFloatDevice* buff1, complexFloatDevice* buff2, int n_recvs, int mini_pencil_size, int send_per_rank, int pencils_per_rank, int nlocal, int blockSize){
     _reshape(buff1,buff2,n_recvs,mini_pencil_size,send_per_rank,pencils_per_rank,nlocal,blockSize);
+}
+
+void GPUReshape::inverse_reshape(complexFloatDevice* buff1, complexFloatDevice* buff2, int n_recvs, int mini_pencil_size, int send_per_rank, int pencils_per_rank, int nlocal, int blockSize){
+    _inverse_reshape(buff1,buff2,n_recvs,mini_pencil_size,send_per_rank,pencils_per_rank,nlocal,blockSize);
 }
 
 void GPUReshape::reshape(complexDoubleHost* buff1, complexDoubleHost* buff2, int n_recvs, int mini_pencil_size, int send_per_rank, int pencils_per_rank, int nlocal, int blockSize){
@@ -50,12 +84,34 @@ void GPUReshape::reshape(complexDoubleHost* buff1, complexDoubleHost* buff2, int
     swfftFree(d_buff2);
 }
 
+void GPUReshape::inverse_reshape(complexDoubleHost* buff1, complexDoubleHost* buff2, int n_recvs, int mini_pencil_size, int send_per_rank, int pencils_per_rank, int nlocal, int blockSize){
+    size_t sz = sizeof(complexDoubleDevice) * nlocal;
+    complexDoubleDevice* d_buff1; swfftAlloc(&d_buff1,sz);
+    complexDoubleDevice* d_buff2; swfftAlloc(&d_buff2,sz);
+    gpuMemcpy(d_buff1,buff1,sz,gpuMemcpyHostToDevice);
+    _inverse_reshape(d_buff1,d_buff2,n_recvs,mini_pencil_size,send_per_rank,pencils_per_rank,nlocal,blockSize);
+    gpuMemcpy(buff2,d_buff2,sz,gpuMemcpyDeviceToHost);
+    swfftFree(d_buff1);
+    swfftFree(d_buff2);
+}
+
 void GPUReshape::reshape(complexFloatHost* buff1, complexFloatHost* buff2, int n_recvs, int mini_pencil_size, int send_per_rank, int pencils_per_rank, int nlocal, int blockSize){
     size_t sz = sizeof(complexFloatDevice) * nlocal;
     complexFloatDevice* d_buff1; swfftAlloc(&d_buff1,sz);
     complexFloatDevice* d_buff2; swfftAlloc(&d_buff2,sz);
     gpuMemcpy(d_buff1,buff1,sz,gpuMemcpyHostToDevice);
     _reshape(d_buff1,d_buff2,n_recvs,mini_pencil_size,send_per_rank,pencils_per_rank,nlocal,blockSize);
+    gpuMemcpy(buff2,d_buff2,sz,gpuMemcpyDeviceToHost);
+    swfftFree(d_buff1);
+    swfftFree(d_buff2);
+}
+
+void GPUReshape::inverse_reshape(complexFloatHost* buff1, complexFloatHost* buff2, int n_recvs, int mini_pencil_size, int send_per_rank, int pencils_per_rank, int nlocal, int blockSize){
+    size_t sz = sizeof(complexFloatDevice) * nlocal;
+    complexFloatDevice* d_buff1; swfftAlloc(&d_buff1,sz);
+    complexFloatDevice* d_buff2; swfftAlloc(&d_buff2,sz);
+    gpuMemcpy(d_buff1,buff1,sz,gpuMemcpyHostToDevice);
+    _inverse_reshape(d_buff1,d_buff2,n_recvs,mini_pencil_size,send_per_rank,pencils_per_rank,nlocal,blockSize);
     gpuMemcpy(buff2,d_buff2,sz,gpuMemcpyDeviceToHost);
     swfftFree(d_buff1);
     swfftFree(d_buff2);
@@ -75,17 +131,44 @@ __global__ void unreshape_kernel(const T* __restrict buff1, T* __restrict buff2,
 }
 
 template<class T>
+__global__ void inverse_unreshape_kernel(const T* __restrict buff1, T* __restrict buff2, int z_dim, int x_dim, int y_dim, int nlocal){
+    int i = threadIdx.x+blockDim.x*blockIdx.x;
+    if (i >= nlocal)return;
+
+    int x = i / (y_dim * z_dim);
+    int y = (i - (x * y_dim * z_dim)) / z_dim;
+    int z = (i - (x * y_dim * z_dim)) - y * z_dim;
+    int new_idx = z * x_dim * y_dim + x * y_dim + y;
+
+    buff2[i] = __ldg(&buff1[new_idx]);
+}
+
+template<class T>
 inline void GPUReshape::_unreshape(T* buff1, T* buff2, int z_dim, int x_dim, int y_dim, int nlocal, int blockSize){
     int numBlocks = (nlocal + (blockSize - 1))/blockSize;
     gpuLaunch(unreshape_kernel,numBlocks,blockSize,buff1,buff2,z_dim,x_dim,y_dim,nlocal);
+}
+
+template<class T>
+inline void GPUReshape::_inverse_unreshape(T* buff1, T* buff2, int z_dim, int x_dim, int y_dim, int nlocal, int blockSize){
+    int numBlocks = (nlocal + (blockSize - 1))/blockSize;
+    gpuLaunch(inverse_unreshape_kernel,numBlocks,blockSize,buff1,buff2,z_dim,x_dim,y_dim,nlocal);
 }
 
 void GPUReshape::unreshape(complexDoubleDevice* buff1, complexDoubleDevice* buff2, int z_dim, int x_dim, int y_dim, int nlocal, int blockSize){
     _unreshape(buff1,buff2,z_dim,x_dim,y_dim,nlocal,blockSize);
 }
 
+void GPUReshape::inverse_unreshape(complexDoubleDevice* buff1, complexDoubleDevice* buff2, int z_dim, int x_dim, int y_dim, int nlocal, int blockSize){
+    _inverse_unreshape(buff1,buff2,z_dim,x_dim,y_dim,nlocal,blockSize);
+}
+
 void GPUReshape::unreshape(complexFloatDevice* buff1, complexFloatDevice* buff2, int z_dim, int x_dim, int y_dim, int nlocal, int blockSize){
     _unreshape(buff1,buff2,z_dim,x_dim,y_dim,nlocal,blockSize);
+}
+
+void GPUReshape::inverse_unreshape(complexFloatDevice* buff1, complexFloatDevice* buff2, int z_dim, int x_dim, int y_dim, int nlocal, int blockSize){
+    _inverse_unreshape(buff1,buff2,z_dim,x_dim,y_dim,nlocal,blockSize);
 }
 
 void GPUReshape::unreshape(complexDoubleHost* buff1, complexDoubleHost* buff2, int z_dim, int x_dim, int y_dim, int nlocal, int blockSize){
@@ -99,12 +182,34 @@ void GPUReshape::unreshape(complexDoubleHost* buff1, complexDoubleHost* buff2, i
     swfftFree(d_buff2);
 }
 
+void GPUReshape::inverse_unreshape(complexDoubleHost* buff1, complexDoubleHost* buff2, int z_dim, int x_dim, int y_dim, int nlocal, int blockSize){
+    size_t sz = sizeof(complexDoubleDevice) * nlocal;
+    complexDoubleDevice* d_buff1; swfftAlloc(&d_buff1,sz);
+    complexDoubleDevice* d_buff2; swfftAlloc(&d_buff2,sz);
+    gpuMemcpy(d_buff1,buff1,sz,gpuMemcpyHostToDevice);
+    _inverse_unreshape(d_buff1,d_buff2,z_dim,x_dim,y_dim,nlocal,blockSize);
+    gpuMemcpy(buff2,d_buff2,sz,gpuMemcpyDeviceToHost);
+    swfftFree(d_buff1);
+    swfftFree(d_buff2);
+}
+
 void GPUReshape::unreshape(complexFloatHost* buff1, complexFloatHost* buff2, int z_dim, int x_dim, int y_dim, int nlocal, int blockSize){
     size_t sz = sizeof(complexFloatDevice) * nlocal;
     complexFloatDevice* d_buff1; swfftAlloc(&d_buff1,sz);
     complexFloatDevice* d_buff2; swfftAlloc(&d_buff2,sz);
     gpuMemcpy(d_buff1,buff1,sz,gpuMemcpyHostToDevice);
     _unreshape(d_buff1,d_buff2,z_dim,x_dim,y_dim,nlocal,blockSize);
+    gpuMemcpy(buff2,d_buff2,sz,gpuMemcpyDeviceToHost);
+    swfftFree(d_buff1);
+    swfftFree(d_buff2);
+}
+
+void GPUReshape::inverse_unreshape(complexFloatHost* buff1, complexFloatHost* buff2, int z_dim, int x_dim, int y_dim, int nlocal, int blockSize){
+    size_t sz = sizeof(complexFloatDevice) * nlocal;
+    complexFloatDevice* d_buff1; swfftAlloc(&d_buff1,sz);
+    complexFloatDevice* d_buff2; swfftAlloc(&d_buff2,sz);
+    gpuMemcpy(d_buff1,buff1,sz,gpuMemcpyHostToDevice);
+    _inverse_unreshape(d_buff1,d_buff2,z_dim,x_dim,y_dim,nlocal,blockSize);
     gpuMemcpy(buff2,d_buff2,sz,gpuMemcpyDeviceToHost);
     swfftFree(d_buff1);
     swfftFree(d_buff2);

@@ -27,12 +27,40 @@ inline void CPUReshape::_reshape(const T* __restrict buff1, T* __restrict buff2,
     }
 }
 
+template<class T>
+inline void CPUReshape::_inverse_reshape(const T* __restrict buff1, T* __restrict buff2, int n_recvs, int mini_pencil_size, int send_per_rank, int pencils_per_rank, int nlocal, int blockSize){
+    #pragma omp parallel for
+    for (int i = 0; i < nlocal; i++){
+        int mini_pencil_id = i / mini_pencil_size;
+
+        int rank = i / send_per_rank;
+
+        int rank_offset = rank * mini_pencil_size;
+
+        int pencil_offset = (mini_pencil_id % pencils_per_rank) * mini_pencil_size * n_recvs;
+
+        int local_offset = i % mini_pencil_size;
+
+        int new_idx = rank_offset + pencil_offset + local_offset;
+
+        buff2[i] = buff1[new_idx];
+    }
+}
+
 void CPUReshape::reshape(complexDoubleHost* buff1, complexDoubleHost* buff2, int n_recvs, int mini_pencil_size, int send_per_rank, int pencils_per_rank, int nlocal, int blockSize){
     _reshape(buff1,buff2,n_recvs,mini_pencil_size,send_per_rank,pencils_per_rank,nlocal,blockSize);
 }
 
+void CPUReshape::inverse_reshape(complexDoubleHost* buff1, complexDoubleHost* buff2, int n_recvs, int mini_pencil_size, int send_per_rank, int pencils_per_rank, int nlocal, int blockSize){
+    _inverse_reshape(buff1,buff2,n_recvs,mini_pencil_size,send_per_rank,pencils_per_rank,nlocal,blockSize);
+}
+
 void CPUReshape::reshape(complexFloatHost* buff1, complexFloatHost* buff2, int n_recvs, int mini_pencil_size, int send_per_rank, int pencils_per_rank, int nlocal, int blockSize){
     _reshape(buff1,buff2,n_recvs,mini_pencil_size,send_per_rank,pencils_per_rank,nlocal,blockSize);
+}
+
+void CPUReshape::inverse_reshape(complexFloatHost* buff1, complexFloatHost* buff2, int n_recvs, int mini_pencil_size, int send_per_rank, int pencils_per_rank, int nlocal, int blockSize){
+    _inverse_reshape(buff1,buff2,n_recvs,mini_pencil_size,send_per_rank,pencils_per_rank,nlocal,blockSize);
 }
 
 #ifdef SWFFT_GPU
@@ -47,12 +75,34 @@ void CPUReshape::reshape(complexDoubleDevice* buff1, complexDoubleDevice* buff2,
     swfftFree(h_buff2);
 }
 
+void CPUReshape::inverse_reshape(complexDoubleDevice* buff1, complexDoubleDevice* buff2, int n_recvs, int mini_pencil_size, int send_per_rank, int pencils_per_rank, int nlocal, int blockSize){
+    size_t sz = sizeof(complexDoubleDevice) * nlocal;
+    complexDoubleHost* h_buff1; swfftAlloc(&h_buff1,sz);
+    complexDoubleHost* h_buff2; swfftAlloc(&h_buff2,sz);
+    gpuMemcpy(h_buff1,buff1,sz,gpuMemcpyDeviceToHost);
+    _inverse_reshape(h_buff1,h_buff2,n_recvs,mini_pencil_size,send_per_rank,pencils_per_rank,nlocal,blockSize);
+    gpuMemcpy(buff2,h_buff2,sz,gpuMemcpyHostToDevice);
+    swfftFree(h_buff1);
+    swfftFree(h_buff2);
+}
+
 void CPUReshape::reshape(complexFloatDevice* buff1, complexFloatDevice* buff2, int n_recvs, int mini_pencil_size, int send_per_rank, int pencils_per_rank, int nlocal, int blockSize){
     size_t sz = sizeof(complexFloatDevice) * nlocal;
     complexFloatHost* h_buff1; swfftAlloc(&h_buff1,sz);
     complexFloatHost* h_buff2; swfftAlloc(&h_buff2,sz);
     gpuMemcpy(h_buff1,buff1,sz,gpuMemcpyDeviceToHost);
     _reshape(h_buff1,h_buff2,n_recvs,mini_pencil_size,send_per_rank,pencils_per_rank,nlocal,blockSize);
+    gpuMemcpy(buff2,h_buff2,sz,gpuMemcpyHostToDevice);
+    swfftFree(h_buff1);
+    swfftFree(h_buff2);
+}
+
+void CPUReshape::inverse_reshape(complexFloatDevice* buff1, complexFloatDevice* buff2, int n_recvs, int mini_pencil_size, int send_per_rank, int pencils_per_rank, int nlocal, int blockSize){
+    size_t sz = sizeof(complexFloatDevice) * nlocal;
+    complexFloatHost* h_buff1; swfftAlloc(&h_buff1,sz);
+    complexFloatHost* h_buff2; swfftAlloc(&h_buff2,sz);
+    gpuMemcpy(h_buff1,buff1,sz,gpuMemcpyDeviceToHost);
+    _inverse_reshape(h_buff1,h_buff2,n_recvs,mini_pencil_size,send_per_rank,pencils_per_rank,nlocal,blockSize);
     gpuMemcpy(buff2,h_buff2,sz,gpuMemcpyHostToDevice);
     swfftFree(h_buff1);
     swfftFree(h_buff2);
@@ -72,12 +122,33 @@ inline void CPUReshape::_unreshape(const T* __restrict buff1, T* __restrict buff
     }
 }
 
+template<class T>
+inline void CPUReshape::_inverse_unreshape(const T* __restrict buff1, T* __restrict buff2, int z_dim, int x_dim, int y_dim, int nlocal, int blockSize){
+    #pragma omp parallel for
+    for (int i = 0; i < nlocal; i++){
+        int x = i / (y_dim * z_dim);
+        int y = (i - (x * y_dim * z_dim)) / z_dim;
+        int z = (i - (x * y_dim * z_dim)) - y * z_dim;
+        int new_idx = z * x_dim * y_dim + x * y_dim + y;
+
+        buff2[i] = buff1[new_idx];
+    }
+}
+
 void CPUReshape::unreshape(complexDoubleHost* buff1, complexDoubleHost* buff2, int z_dim, int x_dim, int y_dim, int nlocal, int blockSize){
     _unreshape(buff1,buff2,z_dim,x_dim,y_dim,nlocal,blockSize);
 }
 
+void CPUReshape::inverse_unreshape(complexDoubleHost* buff1, complexDoubleHost* buff2, int z_dim, int x_dim, int y_dim, int nlocal, int blockSize){
+    _inverse_unreshape(buff1,buff2,z_dim,x_dim,y_dim,nlocal,blockSize);
+}
+
 void CPUReshape::unreshape(complexFloatHost* buff1, complexFloatHost* buff2, int z_dim, int x_dim, int y_dim, int nlocal, int blockSize){
     _unreshape(buff1,buff2,z_dim,x_dim,y_dim,nlocal,blockSize);
+}
+
+void CPUReshape::inverse_unreshape(complexFloatHost* buff1, complexFloatHost* buff2, int z_dim, int x_dim, int y_dim, int nlocal, int blockSize){
+    _inverse_unreshape(buff1,buff2,z_dim,x_dim,y_dim,nlocal,blockSize);
 }
 
 #ifdef SWFFT_GPU
@@ -92,12 +163,34 @@ void CPUReshape::unreshape(complexDoubleDevice* buff1, complexDoubleDevice* buff
     swfftFree(h_buff2);
 }
 
+void CPUReshape::inverse_unreshape(complexDoubleDevice* buff1, complexDoubleDevice* buff2, int z_dim, int x_dim, int y_dim, int nlocal, int blockSize){
+    size_t sz = sizeof(complexDoubleDevice) * nlocal;
+    complexDoubleHost* h_buff1; swfftAlloc(&h_buff1,sz);
+    complexDoubleHost* h_buff2; swfftAlloc(&h_buff2,sz);
+    gpuMemcpy(h_buff1,buff1,sz,gpuMemcpyDeviceToHost);
+    _inverse_unreshape(h_buff1,h_buff2,z_dim,x_dim,y_dim,nlocal,blockSize);
+    gpuMemcpy(buff2,h_buff2,sz,gpuMemcpyHostToDevice);
+    swfftFree(h_buff1);
+    swfftFree(h_buff2);
+}
+
 void CPUReshape::unreshape(complexFloatDevice* buff1, complexFloatDevice* buff2, int z_dim, int x_dim, int y_dim, int nlocal, int blockSize){
     size_t sz = sizeof(complexFloatDevice) * nlocal;
     complexFloatHost* h_buff1; swfftAlloc(&h_buff1,sz);
     complexFloatHost* h_buff2; swfftAlloc(&h_buff2,sz);
     gpuMemcpy(h_buff1,buff1,sz,gpuMemcpyDeviceToHost);
     _unreshape(h_buff1,h_buff2,z_dim,x_dim,y_dim,nlocal,blockSize);
+    gpuMemcpy(buff2,h_buff2,sz,gpuMemcpyHostToDevice);
+    swfftFree(h_buff1);
+    swfftFree(h_buff2);
+}
+
+void CPUReshape::inverse_unreshape(complexFloatDevice* buff1, complexFloatDevice* buff2, int z_dim, int x_dim, int y_dim, int nlocal, int blockSize){
+    size_t sz = sizeof(complexFloatDevice) * nlocal;
+    complexFloatHost* h_buff1; swfftAlloc(&h_buff1,sz);
+    complexFloatHost* h_buff2; swfftAlloc(&h_buff2,sz);
+    gpuMemcpy(h_buff1,buff1,sz,gpuMemcpyDeviceToHost);
+    _inverse_unreshape(h_buff1,h_buff2,z_dim,x_dim,y_dim,nlocal,blockSize);
     gpuMemcpy(buff2,h_buff2,sz,gpuMemcpyHostToDevice);
     swfftFree(h_buff1);
     swfftFree(h_buff2);

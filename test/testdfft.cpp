@@ -77,7 +77,7 @@ int main(){
     
     //swfft_init_threads(2);
 
-    test<swfft<HQA2AGPU,CPUMPI,gpuFFT>, complexDoubleDevice>(false,8);
+    test<swfft<HQA2AGPU,CPUMPI,gpuFFT>, complexDoubleDevice>(false,256);
 
     /*#ifdef SWFFT_PAIRWISE
         #ifdef SWFFT_FFTW
