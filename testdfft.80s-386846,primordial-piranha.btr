@@ -1,0 +1,18 @@
+
+testdfft:386846 terminated with signal 11 at PC=7f1f5cf67f16 SP=7ffdc1abc338.  Backtrace:
+/lib/x86_64-linux-gnu/libc.so.6(+0x1a7f16)[0x7f1f5cf67f16]
+/lib/x86_64-linux-gnu/libmpich.so.12(+0x217c7b)[0x7f1f5d413c7b]
+/lib/x86_64-linux-gnu/libmpich.so.12(+0x22ffd5)[0x7f1f5d42bfd5]
+/lib/x86_64-linux-gnu/libmpich.so.12(+0x25465e)[0x7f1f5d45065e]
+/lib/x86_64-linux-gnu/libmpich.so.12(+0x212897c)[0x7f1f5f32497c]
+/lib/x86_64-linux-gnu/libmpich.so.12(+0x23fb85)[0x7f1f5d43bb85]
+/lib/x86_64-linux-gnu/libmpich.so.12(+0x23fc7f)[0x7f1f5d43bc7f]
+/lib/x86_64-linux-gnu/libmpich.so.12(+0x215a7e6)[0x7f1f5f3567e6]
+/lib/x86_64-linux-gnu/libmpich.so.12(+0x252861)[0x7f1f5d44e861]
+/lib/x86_64-linux-gnu/libmpich.so.12(PMPI_Wait+0x17e)[0x7f1f5d326a2e]
+build/testdfft(+0xc8e4)[0x55854963c8e4]
+build/testdfft(+0x4f4b)[0x558549634f4b]
+build/testdfft(+0x29f6)[0x5585496329f6]
+/lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7f1f5cde9d90]
+/lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7f1f5cde9e40]
+build/testdfft(+0x2d45)[0x558549632d45]

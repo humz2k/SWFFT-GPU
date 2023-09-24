@@ -95,6 +95,15 @@ int main(int argc, char** argv){
 
     //swfft_init_threads(2);
 
+    /*test<swfft<HQA2ACPU,CPUMPI,fftw>, complexDoubleDevice>(false,ngx,ngy,ngz);
+    test<swfft<HQA2ACPU,CPUMPI,fftw>, complexDoubleDevice>(true,ngx,ngy,ngz);
+    test<swfft<HQA2ACPU,CPUMPI,fftw>, complexFloatDevice>(false,ngx,ngy,ngz);
+    test<swfft<HQA2ACPU,CPUMPI,fftw>, complexFloatDevice>(true,ngx,ngy,ngz);
+    test<swfft<HQA2ACPU,CPUMPI,fftw>, complexDoubleHost>(false,ngx,ngy,ngz);
+    test<swfft<HQA2ACPU,CPUMPI,fftw>, complexDoubleHost>(true,ngx,ngy,ngz);
+    test<swfft<HQA2ACPU,CPUMPI,fftw>, complexFloatHost>(false,ngx,ngy,ngz);
+    test<swfft<HQA2ACPU,CPUMPI,fftw>, complexFloatHost>(true,ngx,ngy,ngz);*/
+
     #ifdef SWFFT_HQFFT
         #ifdef SWFFT_GPU
             #ifdef SWFFT_CUFFT
