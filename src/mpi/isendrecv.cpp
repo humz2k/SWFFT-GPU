@@ -31,9 +31,10 @@ namespace SWFFT{
     #ifdef SWFFT_GPU
     template<>
     CPUIsend<complexDoubleDevice>::CPUIsend(complexDoubleDevice* in_buff_, int n_, int dest_, int tag_, MPI_Comm comm_) : initialized(true), in_buff(in_buff_), n(n_), dest(dest_), tag(tag_), comm(comm_){
-        h_in_buff = malloc(sizeof(complexDoubleDevice) * n);
+        size_t sz = sizeof(complexDoubleDevice) * n;        
+        h_in_buff = malloc(sz);
         gpuEventCreate(&event);
-        gpuMemcpyAsync(h_in_buff,in_buff,sizeof(n) * sizeof(complexDoubleDevice),gpuMemcpyDeviceToHost);
+        gpuMemcpyAsync(h_in_buff,in_buff,sz,gpuMemcpyDeviceToHost);
         gpuEventRecord(event);
     }
 
@@ -48,7 +49,9 @@ namespace SWFFT{
     }
 
     template<>
-    CPUIsend<complexDoubleDevice>::~CPUIsend(){}
+    CPUIsend<complexDoubleDevice>::~CPUIsend(){
+        
+    }
 
     template<>
     void CPUIsend<complexDoubleDevice>::execute(){
@@ -136,15 +139,19 @@ namespace SWFFT{
     }
 
     template<>
-    CPUIrecv<complexDoubleDevice>::~CPUIrecv(){}
+    CPUIrecv<complexDoubleDevice>::~CPUIrecv(){
+        //printf("Irecv::delete!\n");
+    }
 
     template<>
     void CPUIrecv<complexDoubleDevice>::execute(){
+        //printf("Irecv::execute!\n");
         MPI_Irecv(h_out_buff,sz,MPI_BYTE,source,tag,comm,&req);
     }
 
     template<>
     void CPUIrecv<complexDoubleDevice>::wait(){
+        //printf("Irecv::wait!\n");
         MPI_Wait(&req,MPI_STATUS_IGNORE);
         gpuEventCreate(&event);
         gpuMemcpyAsync(out_buff,h_out_buff,sz,gpuMemcpyHostToDevice);
@@ -154,6 +161,7 @@ namespace SWFFT{
 
     template<>
     void CPUIrecv<complexDoubleDevice>::finalize(){
+        //printf("Irecv::finalize!\n");
         gpuEventSynchronize(event);
         free(h_out_buff);
         gpuEventDestroy(event);

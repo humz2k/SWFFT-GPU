@@ -51,44 +51,46 @@ void CPUMPI::sendrecv(complexFloatDevice* send_buff, int sendcount, int dest, in
 }
 #endif
 
-CPUIsend<complexDoubleHost> CPUMPI::isend(complexDoubleHost* buff, int n, int dest, int tag, MPI_Comm comm){
-    CPUIsend<complexDoubleHost> out(buff,n,dest,tag,comm);
+CPUIsend<complexDoubleHost>* CPUMPI::isend(complexDoubleHost* buff, int n, int dest, int tag, MPI_Comm comm){
+    CPUIsend<complexDoubleHost>* out = new CPUIsend<complexDoubleHost>(buff,n,dest,tag,comm);
     return out;
 }
 
-CPUIsend<complexFloatHost> CPUMPI::isend(complexFloatHost* buff, int n, int dest, int tag, MPI_Comm comm){
-    CPUIsend<complexFloatHost> out(buff,n,dest,tag,comm);
+CPUIsend<complexFloatHost>* CPUMPI::isend(complexFloatHost* buff, int n, int dest, int tag, MPI_Comm comm){
+    CPUIsend<complexFloatHost>* out = new CPUIsend<complexFloatHost>(buff,n,dest,tag,comm);
     return out;
 }
 
-CPUIrecv<complexDoubleHost> CPUMPI::irecv(complexDoubleHost* buff, int n, int source, int tag, MPI_Comm comm){
-    CPUIrecv<complexDoubleHost> out(buff,n,source,tag,comm);
+CPUIrecv<complexDoubleHost>* CPUMPI::irecv(complexDoubleHost* buff, int n, int source, int tag, MPI_Comm comm){
+    CPUIrecv<complexDoubleHost>* out = new CPUIrecv<complexDoubleHost>(buff,n,source,tag,comm);
     return out;
 }
 
-CPUIrecv<complexFloatHost> CPUMPI::irecv(complexFloatHost* buff, int n, int source, int tag, MPI_Comm comm){
-    CPUIrecv<complexFloatHost> out(buff,n,source,tag,comm);
+CPUIrecv<complexFloatHost>* CPUMPI::irecv(complexFloatHost* buff, int n, int source, int tag, MPI_Comm comm){
+    CPUIrecv<complexFloatHost>* out = new CPUIrecv<complexFloatHost>(buff,n,source,tag,comm);
     return out;
 }
 
 #ifdef SWFFT_GPU
-CPUIsend<complexDoubleDevice> CPUMPI::isend(complexDoubleDevice* buff, int n, int dest, int tag, MPI_Comm comm){
-    CPUIsend<complexDoubleDevice> out(buff,n,dest,tag,comm);
+CPUIsend<complexDoubleDevice>* CPUMPI::isend(complexDoubleDevice* buff, int n, int dest, int tag, MPI_Comm comm){
+    //printf("make isend!\n");
+    CPUIsend<complexDoubleDevice>* out = new CPUIsend<complexDoubleDevice>(buff,n,dest,tag,comm);
     return out;
 }
 
-CPUIsend<complexFloatDevice> CPUMPI::isend(complexFloatDevice* buff, int n, int dest, int tag, MPI_Comm comm){
-    CPUIsend<complexFloatDevice> out(buff,n,dest,tag,comm);
+CPUIsend<complexFloatDevice>* CPUMPI::isend(complexFloatDevice* buff, int n, int dest, int tag, MPI_Comm comm){
+    CPUIsend<complexFloatDevice>* out = new CPUIsend<complexFloatDevice>(buff,n,dest,tag,comm);
     return out;
 }
 
-CPUIrecv<complexDoubleDevice> CPUMPI::irecv(complexDoubleDevice* buff, int n, int source, int tag, MPI_Comm comm){
-    CPUIrecv<complexDoubleDevice> out(buff,n,source,tag,comm);
+CPUIrecv<complexDoubleDevice>* CPUMPI::irecv(complexDoubleDevice* buff, int n, int source, int tag, MPI_Comm comm){
+    //printf("make irecv\n");
+    CPUIrecv<complexDoubleDevice>* out = new CPUIrecv<complexDoubleDevice>(buff,n,source,tag,comm);//(buff,n,source,tag,comm);
     return out;
 }
 
-CPUIrecv<complexFloatDevice> CPUMPI::irecv(complexFloatDevice* buff, int n, int source, int tag, MPI_Comm comm){
-    CPUIrecv<complexFloatDevice> out(buff,n,source,tag,comm);
+CPUIrecv<complexFloatDevice>* CPUMPI::irecv(complexFloatDevice* buff, int n, int source, int tag, MPI_Comm comm){
+    CPUIrecv<complexFloatDevice>* out = new CPUIrecv<complexFloatDevice>(buff,n,source,tag,comm);
     return out;
 }
 #endif

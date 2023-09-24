@@ -26,7 +26,7 @@ Distribution<Communicator,MPI_T,REORDER_T>::Distribution(MPI_Comm comm_, int ngx
     local_coords_start[1] = local_grid_size[1] * coords[1];
     local_coords_start[2] = local_grid_size[2] * coords[2];
 
-    if (world_rank == 0){
+    /*if (world_rank == 0){
         printf("Distribution:\n");
         printf("   ng              = [%d %d %d]\n",ng[0],ng[1],ng[2]);
         printf("   dims            = [%d %d %d]\n",dims[0],dims[1],dims[2]);
@@ -40,7 +40,7 @@ Distribution<Communicator,MPI_T,REORDER_T>::Distribution(MPI_Comm comm_, int ngx
         printf("   not using cuda mpi (!!)\n");
         #endif
         
-    }
+    }*/
     
     int z_col_idx = coords[0] * dims[1] + coords[1];
     int z_col_rank = coords[2];
@@ -162,7 +162,7 @@ void Distribution<Communicator,MPI_T,REORDER_T>::_return_pencils(T* buff1, T* bu
 
     //return;
 
-    unreshape_3(buff1,buff2);
+    unreshape_3(buff2,buff1);
 
     int dest_x_start = 0;
     int dest_x_end = dims[0] - 1;
@@ -178,6 +178,15 @@ void Distribution<Communicator,MPI_T,REORDER_T>::_return_pencils(T* buff1, T* bu
 
     Isend<MPI_T,T> isends[n_recvs];
     Irecv<MPI_T,T> irecvs[n_recvs];
+
+    /*complexDoubleHost* tmp; swfftAlloc(&tmp,sizeof(complexDoubleHost) * nlocal/2);
+    gpuMemcpy(tmp,&buff2[nlocal/2],sizeof(complexDoubleDevice) * nlocal/2,gpuMemcpyDeviceToHost);
+    if (world_rank == 0){
+        for (int i = 0; i < nlocal/2; i++){
+            printf("%g %g\n",tmp[i].x,tmp[i].y);
+        }
+    }
+    swfftFree(tmp);*/
 
     int count = 0;
     for (int x = dest_x_start; x < dest_x_end+1; x++){
@@ -203,11 +212,14 @@ void Distribution<Communicator,MPI_T,REORDER_T>::_return_pencils(T* buff1, T* bu
         int zrec = local_grid_size[2] * coords[2] + zoff;
         int recid = xrec * local_grid_size[1] * local_grid_size[2] + yrec * local_grid_size[2] + zrec;
 
-        isends[count] = CollectiveComm.mpi.isend(&buff2[count*(nlocal/n_recvs)],(nlocal/n_recvs),dest,id,world_comm);
-        irecvs[count] = CollectiveComm.mpi.irecv(&buff1[count*(nlocal/n_recvs)],(nlocal/n_recvs),MPI_ANY_SOURCE,recid,world_comm);
+        isends[count] = CollectiveComm.mpi.isend(&buff1[count*(nlocal/n_recvs)],(nlocal/n_recvs),dest,id,world_comm);
+        irecvs[count] = CollectiveComm.mpi.irecv(&buff2[count*(nlocal/n_recvs)],(nlocal/n_recvs),MPI_ANY_SOURCE,recid,world_comm);
 
-        //printf("rank %d sending rank %d with id %d\n",world_rank,dest,id);
-        //printf("rank %d revcing id %d\n",world_rank,recid);
+        //isends[count] = CollectiveComm.mpi.isend(&buff2[count*(nlocal/n_recvs)],(nlocal/n_recvs),dest,id,world_comm);
+        //irecvs[count] = CollectiveComm.mpi.irecv(&buff1[count*(nlocal/n_recvs)],(nlocal/n_recvs),MPI_ANY_SOURCE,recid,world_comm);
+
+        //printf("rank %d sending rank %d with id %d (start = %d, count = %d)\n",world_rank,dest,id,count*(nlocal/n_recvs),(nlocal/n_recvs));
+        //printf("rank %d recving id %d (start = %d, count = %d)\n",world_rank,recid,count*(nlocal/n_recvs),(nlocal/n_recvs));
 
         count++;
 
@@ -219,15 +231,19 @@ void Distribution<Communicator,MPI_T,REORDER_T>::_return_pencils(T* buff1, T* bu
     }
 
     for (int i = 0; i < n_recvs; i++){
-        isends[i].wait();
+        
         irecvs[i].wait();
+    }
+
+    for (int i = 0; i < n_recvs; i++){
+        isends[i].wait();
     }
 
     for (int i = 0; i < n_recvs; i++){
         irecvs[i].finalize();
     }
 
-    reshape_final(buff1,buff2,y_send,n_recvs / y_send);
+    reshape_final(buff2,buff1,y_send,n_recvs / y_send);
 }
 #ifdef SWFFT_GPU
 template<template<class> class Communicator, class MPI_T, class REORDER_T>

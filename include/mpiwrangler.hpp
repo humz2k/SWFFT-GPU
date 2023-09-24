@@ -90,20 +90,20 @@ class CPUMPI{
         void alltoall(complexFloatHost* buff1, complexFloatHost* buff2, int n, MPI_Comm comm);
 
         #ifdef SWFFT_GPU
-        CPUIsend<complexDoubleDevice> isend(complexDoubleDevice* buff, int n, int dest, int tag, MPI_Comm comm);
-        CPUIsend<complexFloatDevice> isend(complexFloatDevice* buff, int n, int dest, int tag, MPI_Comm comm);
+        CPUIsend<complexDoubleDevice>* isend(complexDoubleDevice* buff, int n, int dest, int tag, MPI_Comm comm);
+        CPUIsend<complexFloatDevice>* isend(complexFloatDevice* buff, int n, int dest, int tag, MPI_Comm comm);
         #endif
 
-        CPUIsend<complexDoubleHost> isend(complexDoubleHost* buff, int n, int dest, int tag, MPI_Comm comm);
-        CPUIsend<complexFloatHost> isend(complexFloatHost* buff, int n, int dest, int tag, MPI_Comm comm);
+        CPUIsend<complexDoubleHost>* isend(complexDoubleHost* buff, int n, int dest, int tag, MPI_Comm comm);
+        CPUIsend<complexFloatHost>* isend(complexFloatHost* buff, int n, int dest, int tag, MPI_Comm comm);
 
         #ifdef SWFFT_GPU
-        CPUIrecv<complexDoubleDevice> irecv(complexDoubleDevice* buff, int n, int dest, int tag, MPI_Comm comm);
-        CPUIrecv<complexFloatDevice> irecv(complexFloatDevice* buff, int n, int dest, int tag, MPI_Comm comm);
+        CPUIrecv<complexDoubleDevice>* irecv(complexDoubleDevice* buff, int n, int dest, int tag, MPI_Comm comm);
+        CPUIrecv<complexFloatDevice>* irecv(complexFloatDevice* buff, int n, int dest, int tag, MPI_Comm comm);
         #endif
 
-        CPUIrecv<complexDoubleHost> irecv(complexDoubleHost* buff, int n, int dest, int tag, MPI_Comm comm);
-        CPUIrecv<complexFloatHost> irecv(complexFloatHost* buff, int n, int dest, int tag, MPI_Comm comm);
+        CPUIrecv<complexDoubleHost>* irecv(complexDoubleHost* buff, int n, int dest, int tag, MPI_Comm comm);
+        CPUIrecv<complexFloatHost>* irecv(complexFloatHost* buff, int n, int dest, int tag, MPI_Comm comm);
 
         #ifdef SWFFT_GPU
         void sendrecv(complexDoubleDevice* send_buff, int sendcount, int dest, int sendtag, complexDoubleDevice* recv_buff, int recvcount, int source, int recvtag, MPI_Comm comm);
