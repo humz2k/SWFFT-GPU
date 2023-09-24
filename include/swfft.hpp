@@ -67,6 +67,8 @@ namespace SWFFT{
 
             }
 
+            inline ~swfft(){}
+
             inline timing_stats_t printLastTime(){
                 if (last_was == 0){
                     return printTimingStats(backend.comm(),"FORWARD ",last_time);
@@ -115,6 +117,10 @@ namespace SWFFT{
                 return backend.ngz();
             }
 
+            inline int global_size(){
+                return ngx() * ngy() * ngz();
+            }
+
             inline int3 ng(){
                 return backend.ng();
             }
@@ -125,6 +131,10 @@ namespace SWFFT{
 
             inline int buff_sz(){
                 return backend.buff_sz();
+            }
+
+            inline int local_size(){
+                return buff_sz();
             }
 
             inline int3 coords(){
