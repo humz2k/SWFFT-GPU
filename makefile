@@ -35,7 +35,7 @@ endif
 FFT_BACKEND ?= CUFFT FFTW
 DIST_BACKEND ?= ALLTOALL PAIRWISE HQFFT
 
-USE_OMP ?= TRUE
+USE_OMP ?= FALSE
 
 DFFT_FFTW_HOME ?= $(shell dirname $(shell dirname $(shell which fftw-wisdom)))
 DFFT_FFTW_CPPFLAGS ?= -I$(DFFT_FFTW_HOME)/include
