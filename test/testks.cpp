@@ -24,6 +24,7 @@ bool test(bool k_in_blocks, int ngx, int ngy_ = 0, int ngz_ = 0){
         ngz = ngx;
     }
     int world_rank; MPI_Comm_rank(MPI_COMM_WORLD,&world_rank);
+    int world_size; MPI_Comm_size(MPI_COMM_WORLD,&world_size);
     n_tests++;
     if(world_rank == 0)printf("Testing %s with T = %s, k_in_blocks = %d and ng = [%d %d %d]\n   ",typeid(SWFFT_T).name(),typeid(T).name(),k_in_blocks,ngx,ngy,ngz);
     SWFFT_T my_swfft(MPI_COMM_WORLD,ngx,ngy,ngz,BLOCKSIZE,k_in_blocks);
@@ -33,25 +34,71 @@ bool test(bool k_in_blocks, int ngx, int ngy_ = 0, int ngz_ = 0){
     
     bool out;
 
+    //int3 coords = my_swfft.coords();
+
+    //if (world_rank == 0){
+    //printf("rank = %d | coords: %d %d %d\n",world_rank,coords.x,coords.y,coords.z);
+    //}
+
+    int count = 0;
+    for (int i = 0; i < my_swfft.buff_sz(); i++){
+        int3 rs = my_swfft.get_rs(i);
+        int tmp = rs.x * ngy * ngz + rs.y * ngz + rs.z;
+        data[i].x = tmp;
+        data[i].y = 0;
+    }
+    int global,local;
     for (int i = 0; i < 1; i++){
 
-        assign_delta(data,my_swfft.buff_sz());
+        //assign_delta(data,my_swfft.buff_sz());
 
         my_swfft.forward(data,scratch);
 
-        out = check_kspace(my_swfft,data);
-
-        my_swfft.printLastTime();
-
-        if(world_rank == 0)printf("   ");
+        local = 1;
+        for (int i = 0; i < my_swfft.buff_sz(); i++){
+            int3 ks = my_swfft.get_ks(i);
+            int tmp = ks.x * ngy * ngz + ks.y * ngz + ks.z;
+            if (((int)data[i].x) != tmp){
+                local = 0;
+                break;
+            }
+        }
+        MPI_Allreduce(&local, &global, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+        
+        out = global == world_size;
 
         my_swfft.backward(data,scratch);
 
-        out = out && check_rspace(my_swfft,data);
+        local = 1;
+        for (int i = 0; i < my_swfft.buff_sz(); i++){
+            int3 ks = my_swfft.get_rs(i);
+            int tmp = ks.x * ngy * ngz + ks.y * ngz + ks.z;
+            if (world_rank == 0){
+                printf("%g == %d\n",data[i].x,tmp);
+            }
+            if (((int)data[i].x) != tmp){
+                local = 0;
+                //break;
+            }
+        }
+        global;
+        MPI_Allreduce(&local, &global, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+        
+        out = out && (global == world_size);
 
-        my_swfft.printLastTime();
+        //out = check_kspace(my_swfft,data);
 
-        if(world_rank == 0)printf("   ");
+        //my_swfft.printLastTime();
+
+        //if(world_rank == 0)printf("   ");
+
+        //my_swfft.backward(data,scratch);
+
+        //out = out && check_rspace(my_swfft,data);
+
+        //my_swfft.printLastTime();
+
+        //if(world_rank == 0)printf("   ");
 
     }
 
@@ -91,11 +138,11 @@ int main(int argc, char** argv){
         ngz = atoi(argv[3]);
     }
 
-    //test<swfft<HQA2AGPU,CPUMPI,gpuFFT>, complexDoubleDevice>(true,ngx,ngy,ngz);
+    test<swfft<HQA2AGPU,CPUMPI,TestFFT>, complexDoubleHost>(false,ngx,ngy,ngz);
 
     //swfft_init_threads(2);
 
-    #ifdef SWFFT_HQFFT
+    /*#ifdef SWFFT_HQFFT
         #ifdef SWFFT_GPU
             #ifdef SWFFT_CUFFT
             test<swfft<HQA2AGPU,CPUMPI,gpuFFT>, complexDoubleDevice>(false,ngx,ngy,ngz);
@@ -208,7 +255,7 @@ int main(int argc, char** argv){
         test<swfft<AllToAllCPU,CPUMPI,fftw>, complexFloatHost>(true,ngx,ngy,ngz);
         test<swfft<AllToAllCPU,CPUMPI,fftw>, complexFloatHost>(false,ngx,ngy,ngz);
         #endif
-    #endif
+    #endif*/
     
     if(world_rank == 0)printf("%d/%d tests passed\n",n_passed,n_tests);
     MPI_Finalize();

@@ -210,6 +210,10 @@ class Pairwise{
             return dfft.get_ks(idx);
         }
 
+        inline int3 get_rs(int idx){
+            return make_int3(0,0,0);
+        }
+
         inline bool test_distribution(){
             return false;
         }

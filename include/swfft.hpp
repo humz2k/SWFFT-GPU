@@ -99,6 +99,10 @@ namespace SWFFT{
                 return backend.get_ks(idx);
             }
 
+            inline int3 get_rs(int idx){
+                return backend.get_rs(idx);
+            }
+
             inline int ngx(){
                 return backend.ngx();
             }

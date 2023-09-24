@@ -37,6 +37,60 @@ inline int swfft_fftw_init_threads(int omt){
     return 1;
 }
 
+class TestFFT{
+    private:
+        template<class T>
+        inline void _cpu(T* buff1, T* buff2, int ng, int nFFTs){
+            for (int i = 0; i < ng*nFFTs; i++){
+                buff2[i] = buff1[i];
+            }
+        }
+        #ifdef SWFFT_GPU
+        template<class T>
+        inline void _gpu(T* buff1, T* buff2, int ng, int nFFTs){
+            gpuMemcpy(buff2,buff1,sizeof(T) * ng * nFFTs,gpuMemcpyDeviceToDevice);
+        }
+        #endif
+
+    public:
+        inline TestFFT(){};
+        inline ~TestFFT(){};
+
+        #ifdef SWFFT_GPU
+        inline void forward(complexDoubleDevice* buff1, complexDoubleDevice* buff2, int ng, int nFFTs){
+            _gpu(buff1,buff2,ng,nFFTs);
+        }
+
+        inline void backward(complexDoubleDevice* buff1, complexDoubleDevice* buff2, int ng, int nFFTs){
+            _gpu(buff1,buff2,ng,nFFTs);
+        }
+
+        inline void forward(complexFloatDevice* buff1, complexFloatDevice* buff2, int ng, int nFFTs){
+            _gpu(buff1,buff2,ng,nFFTs);
+        }
+
+        inline void backward(complexFloatDevice* buff1, complexFloatDevice* buff2, int ng, int nFFTs){
+            _gpu(buff1,buff2,ng,nFFTs);
+        }
+        #endif
+
+        inline void forward(complexDoubleHost* buff1, complexDoubleHost* buff2, int ng, int nFFTs){
+            _cpu(buff1,buff2,ng,nFFTs);
+        }
+
+        inline void backward(complexDoubleHost* buff1, complexDoubleHost* buff2, int ng, int nFFTs){
+            _cpu(buff1,buff2,ng,nFFTs);
+        }
+
+        inline void forward(complexFloatHost* buff1, complexFloatHost* buff2, int ng, int nFFTs){
+            _cpu(buff1,buff2,ng,nFFTs);
+        }
+
+        inline void backward(complexFloatHost* buff1, complexFloatHost* buff2, int ng, int nFFTs){
+            _cpu(buff1,buff2,ng,nFFTs);
+        }
+};
+
 template<class T, class plan_t>
 class FFTWPlanWrapper{
     public:

@@ -282,7 +282,8 @@ void Distribution<Communicator,MPI_T,REORDER_T>::_return_pencils(T* buff1, T* bu
         int xsrc = x * local_grid_size[0];
         int ysrc = ((coords[0] * dims[2] + coords[2]) * (ng[1] / (dims[0] * dims[2])));
         int zsrc = (coords[1] * (ng[2] / dims[1]));
-        int id = xsrc * local_grid_size[1] * local_grid_size[2] + ysrc * local_grid_size[2] + zsrc;
+        //int id = xsrc * local_grid_size[1] * local_grid_size[2] + ysrc * local_grid_size[2] + zsrc;
+        int id = (ysrc - y*local_grid_size[1]) * local_grid_size[2] + (zsrc - z*local_grid_size[2]);
 
         int tmp1 = count / y_send;
 
@@ -293,16 +294,18 @@ void Distribution<Communicator,MPI_T,REORDER_T>::_return_pencils(T* buff1, T* bu
         int xrec = local_grid_size[0] * coords[0] + xoff;
         int yrec = local_grid_size[1] * coords[1] + yoff;
         int zrec = local_grid_size[2] * coords[2] + zoff;
-        int recid = xrec * local_grid_size[1] * local_grid_size[2] + yrec * local_grid_size[2] + zrec;
+        //int recid = xrec * local_grid_size[1] * local_grid_size[2] + yrec * local_grid_size[2] + zrec;
+        int recid = (yrec - coords[1] * local_grid_size[1]) * local_grid_size[2] + (zrec - coords[2] * local_grid_size[2]);
+
+        //printf("rank %2d send %2d (%2d)\n",world_rank,dest,id);
+        int coords1 = zrec / (ng[2] / dims[1]);
+        int coords0 = (yrec / (ng[1] / (dims[0] * dims[2]))) / dims[2];
+        int coords2 = (yrec / (ng[1] / (dims[0] * dims[2]))) - (coords0 * dims[2]);
+        int recv_from = coords0 * dims[1] * dims[2] + coords1 * dims[2] + coords2;
+        //printf("rank %2d recv %2d (%2d)\n",world_rank,recv_from,recid);
 
         isends[count] = CollectiveComm.mpi.isend(&buff1[count*(nlocal/n_recvs)],(nlocal/n_recvs),dest,id,world_comm);
-        irecvs[count] = CollectiveComm.mpi.irecv(&buff2[count*(nlocal/n_recvs)],(nlocal/n_recvs),MPI_ANY_SOURCE,recid,world_comm);
-
-        //isends[count] = CollectiveComm.mpi.isend(&buff2[count*(nlocal/n_recvs)],(nlocal/n_recvs),dest,id,world_comm);
-        //irecvs[count] = CollectiveComm.mpi.irecv(&buff1[count*(nlocal/n_recvs)],(nlocal/n_recvs),MPI_ANY_SOURCE,recid,world_comm);
-
-        //printf("rank %d sending rank %d with id %d (start = %d, count = %d)\n",world_rank,dest,id,count*(nlocal/n_recvs),(nlocal/n_recvs));
-        //printf("rank %d recving id %d (start = %d, count = %d)\n",world_rank,recid,count*(nlocal/n_recvs),(nlocal/n_recvs));
+        irecvs[count] = CollectiveComm.mpi.irecv(&buff2[count*(nlocal/n_recvs)],(nlocal/n_recvs),recv_from,recid,world_comm);
 
         count++;
 
