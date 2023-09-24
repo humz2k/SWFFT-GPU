@@ -35,6 +35,7 @@ namespace A2A{
 
         int n_lines = dist.local_grid_size[0] * dist.local_grid_size[2];
         int i;
+        
         //this is really really dumb please fix
         for (i = 0; i < nlocal; i++){
             if ((A2A::CPUREORDER::calc_mini_pencil_idx(i,(nlocal / world_size) / dist.local_grid_size[1],world_size,dist.local_grid_size[1])) == idx)break;
@@ -45,19 +46,41 @@ namespace A2A{
         int rank_x = (rank_of_origin - rank_z * dist.dims[0] * dist.dims[1]) / dist.dims[1];
         int rank_y = (rank_of_origin - rank_z * dist.dims[0] * dist.dims[1]) - rank_x * dist.dims[1];
 
-        int local_rank_idx = (i % (nlocal / world_size)) + (nlocal / world_size) * world_rank;
+        int my_rank; MPI_Comm_rank(dist.fftcomms[1],&my_rank);
 
-        int local_rank_idx_x = local_rank_idx / (dist.local_grid_size[1] * dist.local_grid_size[2]);
-        int local_rank_idx_z = (local_rank_idx - (local_rank_idx_x * dist.local_grid_size[1] * dist.local_grid_size[2])) / dist.local_grid_size[1];
-        int local_rank_idx_y = (local_rank_idx - (local_rank_idx_x * dist.local_grid_size[1] * dist.local_grid_size[2])) - local_rank_idx_z * dist.local_grid_size[1];
+        int local_rank_idx = (i % (nlocal / world_size)) + (nlocal / world_size) * my_rank;
 
-        int local_rank_idx_fixed = 0;
+        int lgridz = dist.local_grid_size[2];
+        int lgridy = dist.local_grid_size[1];
+        int lgridx = dist.local_grid_size[0];
+
+        int _i = local_rank_idx / (lgridz * lgridy);
+        int _k = (local_rank_idx - _i * (lgridz * lgridy)) / lgridy;
+        int _j = (local_rank_idx - _i * (lgridz * lgridy)) - _k * lgridy;
+        int dest_index = _i*lgridz*lgridy + _j*lgridz + _k;
+
+        int3 local_idx;
+        local_idx.x = dest_index / (dist.local_grid_size[1] * dist.local_grid_size[2]);
+        local_idx.y = (dest_index - local_idx.x * (dist.local_grid_size[1] * dist.local_grid_size[2])) / dist.local_grid_size[2];
+        local_idx.z = (dest_index - local_idx.x * (dist.local_grid_size[1] * dist.local_grid_size[2])) - (local_idx.y * dist.local_grid_size[2]);
 
         int3 global_idx;
-        global_idx.x = local_rank_idx_x + rank_x * dist.local_grid_size[0];
-        global_idx.y = local_rank_idx_y + rank_y * dist.local_grid_size[1];
-        global_idx.z = local_rank_idx_z + rank_z * dist.local_grid_size[2];
+        global_idx.x = rank_x * dist.local_grid_size[0] + local_idx.x;//local_rank_idx_x + rank_x * dist.local_grid_size[0];
+        global_idx.y = rank_y * dist.local_grid_size[1] + local_idx.y;//local_rank_idx_y + rank_y * dist.local_grid_size[1];
+        global_idx.z = rank_z * dist.local_grid_size[2] + local_idx.z;//local_rank_idx_z + rank_z * dist.local_grid_size[2];
         
+        return global_idx;
+
+    }
+
+    template<class MPI_T,class REORDER_T,class FFTBackend>
+    int3 Dfft<MPI_T,REORDER_T,FFTBackend>::get_rs(int idx){
+
+        int3 local_idx;
+        local_idx.x = idx / (dist.local_grid_size[1] * dist.local_grid_size[2]);
+        local_idx.y = (idx - local_idx.x * (dist.local_grid_size[1] * dist.local_grid_size[2])) / dist.local_grid_size[2];
+        local_idx.z = (idx - local_idx.x * (dist.local_grid_size[1] * dist.local_grid_size[2])) - (local_idx.y * dist.local_grid_size[2]);
+        int3 global_idx = make_int3(dist.local_coordinates_start[0] + local_idx.x, dist.local_coordinates_start[1] + local_idx.y, dist.local_coordinates_start[2] + local_idx.z);
         return global_idx;
 
     }
@@ -373,7 +396,9 @@ namespace A2A{
     #endif
     #endif
 
+    template class SWFFT::A2A::Dfft<SWFFT::CPUMPI,SWFFT::A2A::CPUReorder,SWFFT::TestFFT>;
     #ifdef SWFFT_GPU
+    template class SWFFT::A2A::Dfft<SWFFT::CPUMPI,SWFFT::A2A::GPUReorder,SWFFT::TestFFT>;
     #ifdef SWFFT_CUFFT
     template class SWFFT::A2A::Dfft<SWFFT::CPUMPI,SWFFT::A2A::CPUReorder,SWFFT::GPUPlanManager>;
     template class SWFFT::A2A::Dfft<SWFFT::CPUMPI,SWFFT::A2A::GPUReorder,SWFFT::GPUPlanManager>;

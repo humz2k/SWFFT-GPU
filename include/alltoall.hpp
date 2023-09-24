@@ -126,6 +126,7 @@ namespace A2A{
             bool test_distribution();
 
             int3 get_ks(int idx);
+            int3 get_rs(int idx);
 
             #ifdef SWFFT_GPU
             double forward(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2);
@@ -178,7 +179,7 @@ class AllToAllGPU{
         }
 
         inline int3 get_rs(int idx){
-            return make_int3(0,0,0);
+            return dfft.get_rs(idx);
         }
 
         inline bool test_distribution(){
@@ -390,7 +391,7 @@ class AllToAllCPU{
         }
 
         inline int3 get_rs(int idx){
-            return make_int3(0,0,0);
+            return dfft.get_rs(idx);
         }
 
         inline bool test_distribution(){
