@@ -45,13 +45,13 @@ bool test(bool k_in_blocks, int ngx, int ngy_ = 0, int ngz_ = 0){
 
         if(world_rank == 0)printf("   ");
 
-        //my_swfft.backward(data,scratch);
+        my_swfft.backward(data,scratch);
 
-        //out = out && check_rspace(my_swfft,data);
+        out = out && check_rspace(my_swfft,data);
 
-        //my_swfft.printLastTime();
+        my_swfft.printLastTime();
 
-        //if(world_rank == 0)printf("   ");
+        if(world_rank == 0)printf("   ");
 
     }
 
@@ -77,9 +77,9 @@ int main(){
     
     //swfft_init_threads(2);
 
-    test<swfft<HQA2AGPU,CPUMPI,gpuFFT>, complexDoubleDevice>(false,8);
+    //test<swfft<HQA2AGPU,CPUMPI,gpuFFT>, complexDoubleDevice>(false,8);
 
-    /*#ifdef SWFFT_PAIRWISE
+    #ifdef SWFFT_PAIRWISE
         #ifdef SWFFT_FFTW
         test<swfft<Pairwise,CPUMPI,fftw>, complexDoubleHost>(false,256);
         test<swfft<Pairwise,CPUMPI,fftw>, complexFloatHost>(false,256);
@@ -144,7 +144,7 @@ int main(){
         test<swfft<AllToAllCPU,CPUMPI,fftw>, complexFloatHost>(true,256);
         test<swfft<AllToAllCPU,CPUMPI,fftw>, complexFloatHost>(false,256);
         #endif
-    #endif*/
+    #endif
     
 
     int world_rank;MPI_Comm_rank(MPI_COMM_WORLD,&world_rank);
