@@ -80,6 +80,19 @@ Running `build/testdfft <ngx> [ngy ngz]` will test all possible configurations o
 
 # Interface
 
+### Macros
+```
+SWFFT_GPU
+
+SWFFT_ALLTOALL
+SWFFT_PAIRWISE
+SWFFT_HQFFT
+SWFFT_GPUDELEGATE
+
+SWFFT_FFTW
+SWFFT_CUFFT
+```
+
 ### Backend Options
 ```
 DistBackend = SWFFT::AllToAllCPU | SWFFT::AllToAllGPU | SWFFT::Pairwise | SWFFT::HQPairGPU | SWFFT::HQA2AGPU | SWFFT::HQPairCPU | SWFFT::HQA2ACPU | SWFFT::GPUDelegate
