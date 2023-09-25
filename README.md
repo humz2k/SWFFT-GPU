@@ -1,5 +1,46 @@
 # SWFFT-GPU (WIP)
 
+## Building
+
+### System Requirements
+
+#### Required
+
+* MPI (gpu-aware MPI optional)
+
+#### Optional
+
+* fftw (double and single precision)
+* cuFFT/hipFFT
+
+### Makefiles
+
+Use the `makefile` to build the library and tests. 
+
+```
+make
+```
+
+will build a MPI and GPU version of the code.
+
+```
+make USE_OMP=TRUE
+```
+
+will build a MPI/OpenMP and GPU version of the code.
+
+```
+make USE_GPU=FALSE USE_OMP=TRUE
+```
+
+will build a MPI/OpenMP version of the code.
+
+You can specify which backends to use like this
+
+```
+make 
+```
+
 ## Minimal example
 
 ```
