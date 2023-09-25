@@ -80,7 +80,90 @@ Running `build/testdfft <ngx> [ngy ngz]` will test all possible configurations o
 
 # Interface
 
+## Backend Options
+```
+DistBackend = SWFFT::AllToAllCPU | SWFFT::AllToAllGPU | SWFFT::Pairwise | SWFFT::HQPairGPU | SWFFT::HQA2AGPU | SWFFT::HQPairCPU | SWFFT::HQA2ACPU | SWFFT::GPUDelegate
 
+MPI_T = SWFFT::CPUMPI | SWFFT::GPUMPI //GPUMPI is WIP
+
+FFTBackend = SWFFT::gpuFFT | SWFFT::fftw
+```
+
+## Constructors
+```
+swfft<DistBackend,MPI_T,FFTBackend> my_swfft(MPI_Comm comm, int ngx, int blockSize = 64, bool ks_as_block = true);
+
+OR
+
+swfft<DistBackend,MPI_T,FFTBackend> my_swfft(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize = 64, bool ks_as_block = true);
+```
+
+## Accessors
+```
+my_swfft.get_ks(int idx) -> int3
+
+my_swfft.get_rs(int idx) -> int3
+
+my_swfft.ngx() -> int
+
+my_swfft.ngy() -> int
+
+my_swfft.ngz() -> int
+
+my_swfft.ng() -> int3
+
+my_swfft.ng(int direction) -> int
+
+my_swfft.local_ngx() -> int
+
+my_swfft.local_ngy() -> int
+
+my_swfft.local_ngz() -> int
+
+my_swfft.local_ng() -> int3
+
+my_swfft.local_ng(int direction) -> int
+
+my_swfft.coords() -> int3
+
+my_swfft.dims() -> int3
+
+my_swfft.comm() -> MPI_Comm
+
+my_swfft.rank() OR my_swfft.world_rank() -> int
+
+my_swfft.world_size() -> int
+
+my_swfft.global_size() -> int
+
+my_swfft.local_size() -> int
+
+my_swfft.buff_sz() -> int
+
+my_swfft.query() -> void (prints useful information)
+```
+
+## Configure
+```
+(only for GPUDelegate backend)
+
+my_swfft.set_nsends(int nsends) -> void
+
+my_swfft.set_delegate(int rank) -> void
+```
+
+## FFT
+```
+datatype = SWFFT::complexDoubleDevice | SWFFT::complexFloatDevice | SWFFT::complexDoubleHost | SWFFT::complexFloatHost
+
+my_swfft.forward(datatype* data, datatype* scratch) -> void
+
+my_swfft.backward(datatype* data, datatype* scratch) -> void
+
+my_swfft.forward(datatype* data) -> void
+
+my_swfft.backward(datatype* data) -> void
+```
 
 # Minimal example
 
