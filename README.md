@@ -17,11 +17,14 @@
 
 Use the `makefile` to build the library and tests. 
 
+#### Examples
+
 ```
 make
 ```
 
 will build a MPI and GPU version of the code.
+
 
 ```
 make USE_OMP=TRUE
@@ -29,17 +32,19 @@ make USE_OMP=TRUE
 
 will build a MPI/OpenMP and GPU version of the code.
 
+
 ```
 make USE_GPU=FALSE USE_OMP=TRUE
 ```
 
 will build a MPI/OpenMP version of the code.
 
-You can specify which backends to use like this
 
 ```
-make 
+make FFT_BACKEND="FFTW" DIST_BACKEND="ALLTOALL PAIRWISE" USE_GPU=FALSE
 ```
+
+will build with only `fftw` for the FFT backend, and `AllToAllCPU`/`Pairwise` for the distribution backend.
 
 ## Minimal example
 
