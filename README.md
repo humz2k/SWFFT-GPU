@@ -92,6 +92,7 @@ Running `build/testdfft <ngx> [ngy ngz]` will test all possible configurations o
 
 int test(){
     swfft<AllToAllGPU,CPUMPI,gpuFFT> my_swfft(MPI_COMM_WORLD,256,256,256,64);
+    my_swfft.query();
 
     complexDoubleDevice* data; swfftAlloc(&data,sizeof(complexDoubleDevice) * my_swfft.buff_sz());
     complexDoubleDevice* scratch; swfftAlloc(&scratch,sizeof(complexDoubleDevice) * my_swfft.buff_sz());
@@ -100,7 +101,9 @@ int test(){
     printf("index 0 is at (%d %d %d) in kspace\n",this_position_in_kspace.x,this_position_in_kspace.y,this_position_in_kspace.z);
 
     my_swfft.forward(data,scratch);
+    my_swfft.synchronize(); //only important if using the GPUDelegate backend!
     my_swfft.backward(data,scratch);
+    my_swfft.synchronize();
 
     swfftFree(data);
     swfftFree(scratch);
