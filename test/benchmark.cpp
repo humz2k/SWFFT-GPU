@@ -33,6 +33,7 @@ bool test(bool k_in_blocks, int ngx, int ngy, int ngz, int nreps = 10){
         assign_delta(data,my_swfft.buff_sz());
 
         my_swfft.forward(data,scratch);
+        my_swfft.synchronize();
 
         out = check_kspace(my_swfft,data);
 
@@ -41,6 +42,7 @@ bool test(bool k_in_blocks, int ngx, int ngy, int ngz, int nreps = 10){
         if(world_rank == 0)printf("   ");
 
         my_swfft.backward(data,scratch);
+        my_swfft.synchronize();
 
         out = out && check_rspace(my_swfft,data);
 

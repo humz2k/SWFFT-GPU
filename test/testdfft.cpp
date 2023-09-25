@@ -25,8 +25,10 @@ bool test(bool k_in_blocks, int ngx, int ngy_ = 0, int ngz_ = 0){
     }
     int world_rank; MPI_Comm_rank(MPI_COMM_WORLD,&world_rank);
     n_tests++;
-    if(world_rank == 0)printf("Testing %s with T = %s, k_in_blocks = %d and ng = [%d %d %d]\n   ",typeid(SWFFT_T).name(),typeid(T).name(),k_in_blocks,ngx,ngy,ngz);
+    if(world_rank == 0)printf("Testing %s with T = %s, k_in_blocks = %d and ng = [%d %d %d]\n",typeid(SWFFT_T).name(),typeid(T).name(),k_in_blocks,ngx,ngy,ngz);
     SWFFT_T my_swfft(MPI_COMM_WORLD,ngx,ngy,ngz,BLOCKSIZE,k_in_blocks);
+    my_swfft.query();
+    if(world_rank == 0)printf("   ");
     //printf("my_swfft.buff_sz() = %d\n",my_swfft.buff_sz());
     T* data; swfftAlloc(&data,sizeof(T) * my_swfft.buff_sz());
     T* scratch; swfftAlloc(&scratch,sizeof(T) * my_swfft.buff_sz());
@@ -38,6 +40,7 @@ bool test(bool k_in_blocks, int ngx, int ngy_ = 0, int ngz_ = 0){
         assign_delta(data,my_swfft.buff_sz());
 
         my_swfft.forward(data,scratch);
+        my_swfft.synchronize();
 
         out = check_kspace(my_swfft,data);
 
@@ -46,6 +49,7 @@ bool test(bool k_in_blocks, int ngx, int ngy_ = 0, int ngz_ = 0){
         if(world_rank == 0)printf("   ");
 
         my_swfft.backward(data,scratch);
+        my_swfft.synchronize();
 
         out = out && check_rspace(my_swfft,data);
 
@@ -251,6 +255,17 @@ int main(int argc, char** argv){
         test<swfft<AllToAllCPU,CPUMPI,fftw>, complexFloatHost>(true,ngx,ngy,ngz);
         test<swfft<AllToAllCPU,CPUMPI,fftw>, complexFloatHost>(false,ngx,ngy,ngz);
         #endif
+    #endif
+
+    #ifdef SWFFT_GPU
+    #ifdef SWFFT_CUFFT
+    #ifdef SWFFT_GPUDELEGATE
+    test<swfft<GPUDelegate,CPUMPI,gpuFFT>, complexDoubleDevice>(true,ngx,ngy,ngz);
+    test<swfft<GPUDelegate,CPUMPI,gpuFFT>, complexFloatDevice>(true,ngx,ngy,ngz);
+    test<swfft<GPUDelegate,CPUMPI,gpuFFT>, complexDoubleHost>(true,ngx,ngy,ngz);
+    test<swfft<GPUDelegate,CPUMPI,gpuFFT>, complexFloatHost>(true,ngx,ngy,ngz);
+    #endif
+    #endif
     #endif
     
     if(world_rank == 0)printf("%d/%d tests passed\n",n_passed,n_tests);

@@ -52,6 +52,12 @@ namespace PAIR{
     }
 
     template<class MPI_T, class FFTBackend>
+    int Dfft<MPI_T,FFTBackend>::get_local_ng_3d(int direction){
+        return double_dist.local_ng_3d(direction);
+    }
+
+
+    template<class MPI_T, class FFTBackend>
     Dfft<MPI_T,FFTBackend>::~Dfft(){}
 
     template<class MPI_T, class FFTBackend>

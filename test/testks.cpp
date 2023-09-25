@@ -54,6 +54,7 @@ bool test(bool k_in_blocks, int ngx, int ngy_ = 0, int ngz_ = 0){
     for (int i = 0; i < 1; i++){
 
         my_swfft.forward(data,scratch);
+        my_swfft.synchronize();
 
         local = 1;
         for (int i = 0; i < my_swfft.buff_sz(); i++){
@@ -77,6 +78,7 @@ bool test(bool k_in_blocks, int ngx, int ngy_ = 0, int ngz_ = 0){
         out = global == world_size;
 
         my_swfft.backward(data,scratch);
+        my_swfft.synchronize();
 
         local = 1;
         for (int i = 0; i < my_swfft.buff_sz(); i++){
