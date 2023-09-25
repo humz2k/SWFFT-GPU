@@ -15,7 +15,7 @@
 
 ### Makefiles
 
-Use the `makefile` to build the library and tests. 
+Use the `makefile` to build the library and tests. This will create two directories, `lib` and `build`. Tests/benchmarks are placed in `build`, and `libswfft.a` is placed in `lib`.
 
 #### Examples
 
@@ -45,6 +45,34 @@ make FFT_BACKEND="FFTW" DIST_BACKEND="ALLTOALL PAIRWISE" USE_GPU=FALSE
 ```
 
 will build with only `fftw` for the FFT backend, and `AllToAllCPU`/`Pairwise` for the distribution backend.
+
+#### All options
+
+All the options are as follows
+
+```
+make FFT_BACKEND="FFTW CUFFT" DIST_BACKEND="ALLTOALL PAIRWISE HQFFT GPUDELEGATE" USE_GPU=TRUE|FALSE USE_OMP=TRUE|FALSE
+```
+
+### Environment Variables
+
+The environment variables used by the build system and their defaults are as follows:
+
+```
+DFFT_CUDA_LIB ?= /usr/local/cuda/lib64
+
+DFFT_CUDA_INC ?= /usr/local/cuda/include
+
+DFFT_CUDA_ARCH ?= -gencode=arch=compute_60,code=sm_60
+
+DFFT_FFTW_HOME ?= $(shell dirname $(shell dirname $(shell which fftw-wisdom)))
+
+DFFT_MPI_CC ?= mpicc -O3
+
+DFFT_MPI_CXX ?= mpicxx -O3
+
+DFFT_CUDA_CC ?= nvcc -O3
+```
 
 ## Minimal example
 
