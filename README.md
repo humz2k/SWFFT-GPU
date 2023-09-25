@@ -80,7 +80,7 @@ Running `build/testdfft <ngx> [ngy ngz]` will test all possible configurations o
 
 # Interface
 
-## Backend Options
+### Backend Options
 ```
 DistBackend = SWFFT::AllToAllCPU | SWFFT::AllToAllGPU | SWFFT::Pairwise | SWFFT::HQPairGPU | SWFFT::HQA2AGPU | SWFFT::HQPairCPU | SWFFT::HQA2ACPU | SWFFT::GPUDelegate
 
@@ -89,7 +89,7 @@ MPI_T = SWFFT::CPUMPI | SWFFT::GPUMPI //GPUMPI is WIP
 FFTBackend = SWFFT::gpuFFT | SWFFT::fftw
 ```
 
-## Constructors
+### Constructors
 ```
 swfft<DistBackend,MPI_T,FFTBackend> my_swfft(MPI_Comm comm, int ngx, int blockSize = 64, bool ks_as_block = true);
 
@@ -98,7 +98,7 @@ OR
 swfft<DistBackend,MPI_T,FFTBackend> my_swfft(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize = 64, bool ks_as_block = true);
 ```
 
-## Accessors
+### Accessors
 ```
 my_swfft.get_ks(int idx) -> int3
 
@@ -143,7 +143,7 @@ my_swfft.buff_sz() -> int
 my_swfft.query() -> void (prints useful information)
 ```
 
-## Configure
+### Configure
 ```
 (only for GPUDelegate backend)
 
@@ -152,7 +152,7 @@ my_swfft.set_nsends(int nsends) -> void
 my_swfft.set_delegate(int rank) -> void
 ```
 
-## FFT
+### FFT
 ```
 datatype = SWFFT::complexDoubleDevice | SWFFT::complexFloatDevice | SWFFT::complexDoubleHost | SWFFT::complexFloatHost
 
@@ -165,6 +165,22 @@ my_swfft.forward(datatype* data) -> void
 my_swfft.backward(datatype* data) -> void
 
 my_swfft.synchronize() -> void (only for GPUDelegate backend)
+```
+
+### Timings
+```
+struct timing_stats_t{
+    double max;
+    double min;
+    double sum;
+    double avg;
+    double var;
+    double stdev;
+}
+
+my_swfft.printLastTime() -> timing_stats_t (prints the time for the last FFT)
+
+my_swfft.getLastTime() -> timing_stats_t
 ```
 
 # Minimal example
