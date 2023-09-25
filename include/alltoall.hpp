@@ -174,6 +174,18 @@ class AllToAllGPU{
             printf("   distribution = [%d %d %d]\n",dist.dims[0],dist.dims[1],dist.dims[2]);
         }
 
+        inline void set_nsends(int x){
+            
+        }
+
+        inline void set_delegate(int r){
+            
+        }
+
+        inline void synchronize(){
+
+        }
+
         inline int3 get_ks(int idx){
             return dfft.get_ks(idx);
         }
@@ -384,6 +396,18 @@ class AllToAllCPU{
         inline void query(){
             printf("Using AllToAllCPU\n");
             printf("   distribution = [%d %d %d]\n",dist.dims[0],dist.dims[1],dist.dims[2]);
+        }
+
+        inline void set_nsends(int x){
+            
+        }
+
+        inline void set_delegate(int r){
+            
+        }
+
+        inline void synchronize(){
+            
         }
 
         inline int3 get_ks(int idx){

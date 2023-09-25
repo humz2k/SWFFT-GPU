@@ -469,6 +469,18 @@ class HQA2AGPU{
             printf("   distribution = [%d %d %d]\n",dist.dims[0],dist.dims[1],dist.dims[2]);
         }
 
+        inline void set_nsends(int x){
+            
+        }
+
+        inline void set_delegate(int r){
+            
+        }
+
+        inline void synchronize(){
+            
+        }
+
         inline int3 get_ks(int idx){
             return dfft.get_ks(idx);
         }
@@ -669,6 +681,18 @@ class HQPairGPU{
         inline void query(){
             printf("Using HQPairSendsGPU\n");
             printf("   distribution = [%d %d %d]\n",dist.dims[0],dist.dims[1],dist.dims[2]);
+        }
+
+        inline void set_nsends(int x){
+            
+        }
+
+        inline void set_delegate(int r){
+            
+        }
+
+        inline void synchronize(){
+            
         }
 
         inline int3 get_ks(int idx){
@@ -872,6 +896,18 @@ class HQA2ACPU{
         inline void query(){
             printf("Using HQAllToAllCPU\n");
             printf("   distribution = [%d %d %d]\n",dist.dims[0],dist.dims[1],dist.dims[2]);
+        }
+
+        inline void set_nsends(int x){
+            
+        }
+
+        inline void set_delegate(int r){
+            
+        }
+
+        inline void synchronize(){
+            
         }
 
         inline int3 get_ks(int idx){
@@ -1081,6 +1117,18 @@ class HQPairCPU{
         inline void query(){
             printf("Using HQPairCPU\n");
             printf("   distribution = [%d %d %d]\n",dist.dims[0],dist.dims[1],dist.dims[2]);
+        }
+
+        inline void set_nsends(int x){
+            
+        }
+
+        inline void set_delegate(int r){
+            
+        }
+
+        inline void synchronize(){
+            
         }
 
         inline int3 get_ks(int idx){

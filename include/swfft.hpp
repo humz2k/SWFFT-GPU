@@ -22,6 +22,10 @@
 #include "hqfft.hpp"
 #endif
 
+#ifdef SWFFT_GPUDELEGATE
+#include "gpudelegate.hpp"
+#endif
+
 namespace SWFFT{
 
     inline int swfft_init_threads(int nthreads = 0){
@@ -91,6 +95,18 @@ namespace SWFFT{
                     printf("   n = [%d %d %d]\n",ngx(),ngy(),ngz());
                     printf("   world_size = %d\n",world_size);
                 }
+            }
+
+            inline void set_nsends(int x){
+                backend.set_nsends(x);
+            }
+
+            inline void set_delegate(int r){
+                backend.set_delegate(r);
+            }
+
+            inline void synchronize(){
+                backend.synchronize();
             }
 
             inline bool test_distribution(){

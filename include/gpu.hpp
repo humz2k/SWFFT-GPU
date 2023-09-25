@@ -18,6 +18,8 @@ typedef cufftComplex complexFloatDevice;
 
 #define gpufftPlan1d cufftPlan1d
 
+#define gpufftPlan3d cufftPlan3d
+
 #define gpufftDestroy cufftDestroy
 
 #define gpufftType cufftType
@@ -94,6 +96,8 @@ typedef cufftComplex complexFloatDevice;
 #define gpufftHandle hipfftHandle
 
 #define gpufftPlan1d hipfftPlan1d
+
+#define gpufftPlan3d hipfftPlan3d
 
 #define gpufftDestroy hipfftDestroy
 

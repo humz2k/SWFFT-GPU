@@ -201,6 +201,18 @@ class Pairwise{
             return make_int3(dfft.get_nproc_3d(0),dfft.get_nproc_3d(1),dfft.get_nproc_3d(2));
         }
 
+        inline void set_nsends(int x){
+            
+        }
+
+        inline void set_delegate(int r){
+            
+        }
+
+        inline void synchronize(){
+            
+        }
+
         inline void query(){
             printf("Using Pairwise\n");
             int3 my_dims = dims();
