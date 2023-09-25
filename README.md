@@ -163,6 +163,8 @@ my_swfft.backward(datatype* data, datatype* scratch) -> void
 my_swfft.forward(datatype* data) -> void
 
 my_swfft.backward(datatype* data) -> void
+
+my_swfft.synchronize() -> void (only for GPUDelegate backend)
 ```
 
 # Minimal example
