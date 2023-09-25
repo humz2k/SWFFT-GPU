@@ -233,19 +233,19 @@ namespace SWFFT{
 
             inline void query(){
                 if (!rank()){
-                    printf("\n#######################\n");
-                    printf("swfft Parameters\n");
-                    printf("   DistBackend = %s\n",queryName<DistBackend>());
-                    printf("    FFTBackend = %s\n",queryName<FFTBackend>());
-                    printf("         MPI_T = %s\n",queryName<MPI_T>());
-                    printf("    world_size = %d\n",world_size());
-                    printf("          dims = [%d %d %d]\n",dims().x,dims().y,dims().z);
-                    printf("            ng = [%d %d %d]\n",ngx(),ngy(),ngz());
-                    printf("      local_ng = [%d %d %d]\n",local_ngx(),local_ngy(),local_ngz());
-                    printf("   global_size = %d\n",global_size());
-                    printf("    local_size = %d\n",local_size());
-                    printf("       buff_sz = %d\n",buff_sz());
-                    printf("#######################\n\n");
+                    printf("\n################\n");
+                    printf("SWFFT PARAMETERS\n");
+                    printf("   - DistBackend = %s\n",queryName<DistBackend>());
+                    printf("   - FFTBackend  = %s\n",queryName<FFTBackend>());
+                    printf("   - MPI_T       = %s\n",queryName<MPI_T>());
+                    printf("   - world_size  = %d\n",world_size());
+                    printf("   - dims        = [%d %d %d]\n",dims().x,dims().y,dims().z);
+                    printf("   - ng          = [%d %d %d]\n",ngx(),ngy(),ngz());
+                    printf("   - local_ng    = [%d %d %d]\n",local_ngx(),local_ngy(),local_ngz());
+                    printf("   - global_size = %d\n",global_size());
+                    printf("   - local_size  = %d\n",local_size());
+                    printf("   - buff_sz     = %d\n",buff_sz());
+                    printf("################\n\n");
                 }
             }
 

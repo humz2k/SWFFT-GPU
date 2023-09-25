@@ -1,7 +1,11 @@
-#include "swfft.hpp"
 #include <stdio.h>
 #include <stdlib.h>
 
+#define SWFFT_PAIRWISE
+#define SWFFT_FFTW
+#define nocudampi
+
+#include "swfft.hpp"
 using namespace SWFFT; //for convenience
 
 ///
@@ -73,9 +77,12 @@ void fill_random(swfft<Pairwise,CPUMPI,fftw>& fft, complexDoubleHost* data){
 // Run a test
 ///
 void run_test(){
+    int world_rank; MPI_Comm_rank(MPI_COMM_WORLD,&world_rank);
+    if (!world_rank)printf("Running Test\n");
+
     //Initialize swfft
     swfft<Pairwise,CPUMPI,fftw> fft(MPI_COMM_WORLD,256);
-    
+    fft.query();
     //Allocate fft buffers
     complexDoubleHost* data; swfftAlloc(&data,sizeof(complexDoubleHost) * fft.buff_sz());
     complexDoubleHost* scratch; swfftAlloc(&scratch,sizeof(complexDoubleHost) * fft.buff_sz());
@@ -84,21 +91,28 @@ void run_test(){
     double* greens_function = (double*)malloc(sizeof(double) * fft.buff_sz());
 
     //cache greens function
+    if (!world_rank)printf("Caching greens function\n\n");
     cache_greens(fft,greens_function);
 
     //fill with dummy data
+    if (!world_rank)printf("Filling with random data\n\n");
     fill_random(fft,data);
 
     //do a forward fft on the data
     fft.forward(data,scratch);
     fft.synchronize();
+    fft.printLastTime();
+    if (!world_rank)printf("\n");
 
     //solve for phi
+    if (!world_rank)printf("Solving for Phi\n\n");
     kspace_solve(fft,greens_function,data);
 
     //do a backward fft
     fft.backward(data,scratch);
     fft.synchronize();
+    fft.printLastTime();
+    if (!world_rank)printf("\n");
 
 }
 
