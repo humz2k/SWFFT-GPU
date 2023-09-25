@@ -4,11 +4,11 @@
 
 ### System Requirements
 
-#### Required
+**Required**
 
 * MPI (gpu-aware MPI optional)
 
-#### Optional
+**Optional**
 
 * fftw (double and single precision)
 * cuFFT/hipFFT
@@ -74,7 +74,15 @@ DFFT_MPI_CXX ?= mpicxx -O3
 DFFT_CUDA_CC ?= nvcc -O3
 ```
 
-## Minimal example
+# Tests/Benchmarks
+
+Running `build/testdfft <ngx> [ngy ngz]` will test all possible configurations of swfft that were compiled.
+
+# Interface
+
+
+
+# Minimal example
 
 ```
 #include <stdio.h>
