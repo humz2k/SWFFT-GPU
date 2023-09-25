@@ -22,21 +22,6 @@ namespace SWFFT{
 //#define gpuFFT GPUPlanManager
 //#define fftw FFTWPlanManager
 
-#ifdef SWFFT_FFTW
-
-enum fftdirection {FFT_FORWARD, FFT_BACKWARD};
-
-inline int swfft_fftw_init_threads(int omt){
-    #ifdef _OPENMP
-    if(!fftw_init_threads()){
-        return 1;
-    }
-    fftw_plan_with_nthreads(omt);
-    return omt;
-    #endif
-    return 1;
-}
-
 class TestFFT{
     private:
         template<class T>
@@ -90,6 +75,21 @@ class TestFFT{
             _cpu(buff1,buff2,ng,nFFTs);
         }
 };
+
+#ifdef SWFFT_FFTW
+
+enum fftdirection {FFT_FORWARD, FFT_BACKWARD};
+
+inline int swfft_fftw_init_threads(int omt){
+    #ifdef _OPENMP
+    if(!fftw_init_threads()){
+        return 1;
+    }
+    fftw_plan_with_nthreads(omt);
+    return omt;
+    #endif
+    return 1;
+}
 
 template<class T, class plan_t>
 class FFTWPlanWrapper{

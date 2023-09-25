@@ -8,6 +8,7 @@
 #include "complex-type.h"
 #include "fftwrangler.hpp"
 #include "mpiwrangler.hpp"
+#include "query.hpp"
 
 #include "gpudelegate_reorder.hpp"
 
@@ -333,12 +334,44 @@ class GPUDelegate{
             dfft.synchronize();
         }
 
+        inline int3 local_ng(){
+            return make_int3(dfft.local_grid_size[0],dfft.local_grid_size[1],dfft.local_grid_size[2]);
+        }
+
+        inline int local_ng(int i){
+            return dfft.local_grid_size[i];
+        }
+
         inline int3 get_ks(int idx){
-            return make_int3(0,0,0);
+            int3 start;
+            start.x = dfft.local_coords_start[0];
+            start.y = dfft.local_coords_start[1];
+            start.z = dfft.local_coords_start[2];
+            int3 this_idx;
+            this_idx.x = idx / (dfft.local_grid_size[1] * dfft.local_grid_size[2]);
+            this_idx.y = (idx - (this_idx.x * dfft.local_grid_size[1] * dfft.local_grid_size[2])) / dfft.local_grid_size[2];
+            this_idx.z = (idx - (this_idx.x * dfft.local_grid_size[1] * dfft.local_grid_size[2])) - this_idx.y * dfft.local_grid_size[2];
+            int3 out;
+            out.x = start.x + this_idx.x;
+            out.y = start.y + this_idx.y;
+            out.z = start.z + this_idx.z;
+            return out;
         }
 
         inline int3 get_rs(int idx){
-            return make_int3(0,0,0);
+            int3 start;
+            start.x = dfft.local_coords_start[0];
+            start.y = dfft.local_coords_start[1];
+            start.z = dfft.local_coords_start[2];
+            int3 this_idx;
+            this_idx.x = idx / (dfft.local_grid_size[1] * dfft.local_grid_size[2]);
+            this_idx.y = (idx - (this_idx.x * dfft.local_grid_size[1] * dfft.local_grid_size[2])) / dfft.local_grid_size[2];
+            this_idx.z = (idx - (this_idx.x * dfft.local_grid_size[1] * dfft.local_grid_size[2])) - this_idx.y * dfft.local_grid_size[2];
+            int3 out;
+            out.x = start.x + this_idx.x;
+            out.y = start.y + this_idx.y;
+            out.z = start.z + this_idx.z;
+            return out;
         }
 
         inline bool test_distribution(){
@@ -471,6 +504,11 @@ class GPUDelegate{
 
 
 };
+
+template<> 
+inline const char* queryName<GPUDelegate>(){
+    return "GPUDelegate";
+}
 
 }
 

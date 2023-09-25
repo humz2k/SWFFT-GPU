@@ -10,6 +10,8 @@
 #include <omp.h>
 #endif
 
+#include "query.hpp"
+
 #ifdef SWFFT_ALLTOALL
 #include "alltoall.hpp"
 #endif
@@ -55,6 +57,37 @@ namespace SWFFT{
         
     }
 
+    #ifdef SWFFT_FFTW
+    template<>
+    inline const char* queryName<fftw>(){
+        return "fftw";
+    }
+    #endif
+    
+    template<>
+    inline const char* queryName<TestFFT>(){
+        return "TestFFT";
+    }
+    #ifdef SWFFT_GPU
+    #ifdef SWFFT_CUFFT
+    template<>
+    inline const char* queryName<gpuFFT>(){
+        return "gpuFFT";
+    }
+    #endif
+    #endif
+
+    template<>
+    inline const char* queryName<CPUMPI>(){
+        return "CPUMPI";
+    }
+
+    #ifndef nocudampi
+    inline const char* queryName<GPUMPI>(){
+        return "GPUMPI";
+    }
+    #endif
+
     template<template<class,class>class DistBackend, class MPI_T, class FFTBackend>
     class swfft{
         private:
@@ -86,7 +119,7 @@ namespace SWFFT{
                 return getTimingStats(backend.comm(),last_time);
             }
 
-            inline void query(){
+            /*inline void query(){
                 int world_rank; MPI_Comm_rank(backend.comm(),&world_rank);
                 int world_size; MPI_Comm_size(backend.comm(),&world_size);
                 if (world_rank == 0){
@@ -95,7 +128,7 @@ namespace SWFFT{
                     printf("   n = [%d %d %d]\n",ngx(),ngy(),ngz());
                     printf("   world_size = %d\n",world_size);
                 }
-            }
+            }*/
 
             inline void set_nsends(int x){
                 backend.set_nsends(x);
@@ -145,6 +178,26 @@ namespace SWFFT{
                 return backend.ng(i);
             }
 
+            inline int3 local_ng(){
+                return backend.local_ng();
+            }
+
+            inline int local_ng(int i){
+                return backend.local_ng(i);
+            }
+
+            inline int local_ngx(){
+                return backend.local_ng(0);
+            }
+
+            inline int local_ngy(){
+                return backend.local_ng(1);
+            }
+
+            inline int local_ngz(){
+                return backend.local_ng(2);
+            }
+
             inline int buff_sz(){
                 return backend.buff_sz();
             }
@@ -157,12 +210,43 @@ namespace SWFFT{
                 return backend.coords();
             }
 
+            inline int3 dims(){
+                return backend.dims();
+            }
+
             inline int rank(){
                 return backend.rank();
             }
 
             inline MPI_Comm comm(){
                 return backend.comm();
+            }
+
+            inline int world_size(){
+                int size; MPI_Comm_size(comm(),&size);
+                return size;
+            }
+
+            inline int world_rank(){
+                return rank();
+            }
+
+            inline void query(){
+                if (!rank()){
+                    printf("\n#######################\n");
+                    printf("swfft Parameters\n");
+                    printf("   DistBackend = %s\n",queryName<DistBackend>());
+                    printf("    FFTBackend = %s\n",queryName<FFTBackend>());
+                    printf("         MPI_T = %s\n",queryName<MPI_T>());
+                    printf("    world_size = %d\n",world_size());
+                    printf("          dims = [%d %d %d]\n",dims().x,dims().y,dims().z);
+                    printf("            ng = [%d %d %d]\n",ngx(),ngy(),ngz());
+                    printf("      local_ng = [%d %d %d]\n",local_ngx(),local_ngy(),local_ngz());
+                    printf("   global_size = %d\n",global_size());
+                    printf("    local_size = %d\n",local_size());
+                    printf("       buff_sz = %d\n",buff_sz());
+                    printf("#######################\n\n");
+                }
             }
 
             template<class T>

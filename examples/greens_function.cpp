@@ -91,12 +91,14 @@ void run_test(){
 
     //do a forward fft on the data
     fft.forward(data,scratch);
+    fft.synchronize();
 
     //solve for phi
     kspace_solve(fft,greens_function,data);
 
     //do a backward fft
     fft.backward(data,scratch);
+    fft.synchronize();
 
 }
 

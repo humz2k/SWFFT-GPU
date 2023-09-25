@@ -6,6 +6,7 @@
 #include <mpi.h>
 #include "fftwrangler.hpp"
 #include "mpiwrangler.hpp"
+#include "query.hpp"
 
 namespace SWFFT{
 
@@ -184,6 +185,14 @@ class AllToAllGPU{
 
         inline void synchronize(){
 
+        }
+
+        inline int3 local_ng(){
+            return make_int3(dist.local_grid_size[0],dist.local_grid_size[1],dist.local_grid_size[2]);
+        }
+
+        inline int local_ng(int i){
+            return dist.local_grid_size[i];
         }
 
         inline int3 get_ks(int idx){
@@ -370,6 +379,11 @@ class AllToAllGPU{
             return t;
         }
 };
+
+template<> 
+inline const char* queryName<AllToAllGPU>(){
+    return "AllToAllGPU";
+}
 #endif
 
 template<class MPI_T,class FFTBackend>
@@ -408,6 +422,14 @@ class AllToAllCPU{
 
         inline void synchronize(){
             
+        }
+
+        inline int3 local_ng(){
+            return make_int3(dist.local_grid_size[0],dist.local_grid_size[1],dist.local_grid_size[2]);
+        }
+
+        inline int local_ng(int i){
+            return dist.local_grid_size[i];
         }
 
         inline int3 get_ks(int idx){
@@ -590,6 +612,12 @@ class AllToAllCPU{
         }
         #endif
 };
+
+template<> 
+inline const char* queryName<AllToAllCPU>(){
+    return "AllToAllCPU";
+}
+
 }
 #endif
 #endif

@@ -234,6 +234,17 @@ namespace HQFFT{
     int Dfft<Dist,REORDER_T,CollectiveComm,MPI_T,FFTBackend>::buff_sz(){
         return nlocal;
     }
+
+    template<template<template<class> class,class,class> class Dist, class REORDER_T, template<class> class CollectiveComm, class MPI_T, class FFTBackend>
+    int3 Dfft<Dist,REORDER_T,CollectiveComm,MPI_T,FFTBackend>::local_ng(){
+        return make_int3(dist.local_grid_size[0],dist.local_grid_size[1],dist.local_grid_size[2]);
+    }
+
+    template<template<template<class> class,class,class> class Dist, class REORDER_T, template<class> class CollectiveComm, class MPI_T, class FFTBackend>
+    int Dfft<Dist,REORDER_T,CollectiveComm,MPI_T,FFTBackend>::local_ng(int i){
+        return dist.local_grid_size[i];
+    }
+    
     #ifdef SWFFT_GPU
     #ifdef SWFFT_CUFFT
     template class Dfft<Distribution,GPUReshape,AllToAll,CPUMPI,gpuFFT>;

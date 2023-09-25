@@ -5,6 +5,7 @@
 #include <mpi.h>
 #include "fftwrangler.hpp"
 #include "mpiwrangler.hpp"
+#include "query.hpp"
 
 namespace SWFFT{
 
@@ -134,6 +135,7 @@ namespace PAIR{
             int3 get_ks(int idx);
             int3 get_rs(int idx);
             int get_nproc_3d(int direction);
+            int get_local_ng_3d(int direction);
 
             #ifdef SWFFT_GPU
             void forward(complexDoubleDevice* data);
@@ -211,6 +213,14 @@ class Pairwise{
 
         inline void synchronize(){
             
+        }
+
+        inline int3 local_ng(){
+            return make_int3(dfft.get_local_ng_3d(0),dfft.get_local_ng_3d(1),dfft.get_local_ng_3d(2));
+        }
+
+        inline int local_ng(int i){
+            return dfft.get_local_ng_3d(i);
         }
 
         inline void query(){
@@ -334,6 +344,11 @@ class Pairwise{
             return dfft.backward(data);
         }
 };
+
+template<> 
+inline const char* queryName<Pairwise>(){
+    return "Pairwise";
+}
 
 #endif
 }

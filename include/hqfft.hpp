@@ -6,6 +6,7 @@
 #include "fftwrangler.hpp"
 #include "mpiwrangler.hpp"
 #include "hqfft_reorder.hpp"
+#include "query.hpp"
 
 namespace SWFFT{
 
@@ -439,6 +440,9 @@ namespace HQFFT{
             void backward(complexFloatHost* data, complexFloatHost* scratch);
 
             int buff_sz();
+
+            int3 local_ng();
+            int local_ng(int i);
     };
 
 }
@@ -481,6 +485,14 @@ class HQA2AGPU{
             
         }
 
+        inline int3 local_ng(){
+            return dfft.local_ng();
+        }
+
+        inline int local_ng(int i){
+            return dfft.local_ng(i);
+        }
+
         inline int3 get_ks(int idx){
             return dfft.get_ks(idx);
         }
@@ -656,6 +668,11 @@ class HQA2AGPU{
 
 
 };
+
+template<> 
+inline const char* queryName<HQA2AGPU>(){
+    return "HQA2AGPU";
+}
 
 template<class MPI_T, class FFTBackend>
 class HQPairGPU{
@@ -695,6 +712,14 @@ class HQPairGPU{
             
         }
 
+        inline int3 local_ng(){
+            return dfft.local_ng();
+        }
+
+        inline int local_ng(int i){
+            return dfft.local_ng(i);
+        }
+
         inline int3 get_ks(int idx){
             return dfft.get_ks(idx);
         }
@@ -870,6 +895,11 @@ class HQPairGPU{
 
 
 };
+
+template<> 
+inline const char* queryName<HQPairGPU>(){
+    return "HQPairGPU";
+}
 #endif
 
 template<class MPI_T, class FFTBackend>
@@ -910,6 +940,14 @@ class HQA2ACPU{
             
         }
 
+        inline int3 local_ng(){
+            return dfft.local_ng();
+        }
+
+        inline int local_ng(int i){
+            return dfft.local_ng(i);
+        }
+
         inline int3 get_ks(int idx){
             return dfft.get_ks(idx);
         }
@@ -1092,6 +1130,10 @@ class HQA2ACPU{
 
     };
 
+template<> 
+inline const char* queryName<HQA2ACPU>(){
+    return "HQA2ACPU";
+}
 
 template<class MPI_T, class FFTBackend>
 class HQPairCPU{
@@ -1131,6 +1173,14 @@ class HQPairCPU{
             
         }
 
+        inline int3 local_ng(){
+            return dfft.local_ng();
+        }
+
+        inline int local_ng(int i){
+            return dfft.local_ng(i);
+        }
+
         inline int3 get_ks(int idx){
             return dfft.get_ks(idx);
         }
@@ -1312,6 +1362,11 @@ class HQPairCPU{
         #endif
 
     };
+
+template<> 
+inline const char* queryName<HQPairCPU>(){
+    return "HQPairCPU";
+}
 
 }
 
