@@ -91,18 +91,7 @@ int main(int argc, char** argv){
         ngz = atoi(argv[3]);
     }
 
-    //test<swfft<HQA2AGPU,CPUMPI,gpuFFT>, complexDoubleDevice>(true,ngx,ngy,ngz);
-
     //swfft_init_threads(2);
-
-    test<swfft<HQA2ACPU,CPUMPI,fftw>, complexDoubleDevice>(false,ngx,ngy,ngz);
-    test<swfft<HQA2ACPU,CPUMPI,fftw>, complexDoubleDevice>(true,ngx,ngy,ngz);
-    test<swfft<HQA2ACPU,CPUMPI,fftw>, complexFloatDevice>(false,ngx,ngy,ngz);
-    test<swfft<HQA2ACPU,CPUMPI,fftw>, complexFloatDevice>(true,ngx,ngy,ngz);
-    test<swfft<HQA2ACPU,CPUMPI,fftw>, complexDoubleHost>(false,ngx,ngy,ngz);
-    test<swfft<HQA2ACPU,CPUMPI,fftw>, complexDoubleHost>(true,ngx,ngy,ngz);
-    test<swfft<HQA2ACPU,CPUMPI,fftw>, complexFloatHost>(false,ngx,ngy,ngz);
-    test<swfft<HQA2ACPU,CPUMPI,fftw>, complexFloatHost>(true,ngx,ngy,ngz);
 
     #ifdef SWFFT_HQFFT
         #ifdef SWFFT_GPU
@@ -220,7 +209,6 @@ int main(int argc, char** argv){
     
     #ifdef SWFFT_ALLTOALL
         #ifdef SWFFT_GPU
-        //test<swfft<AllToAllGPU,CPUMPI,gpuFFT>, complexDoubleDevice>(false,8);
         #ifdef SWFFT_CUFFT
         test<swfft<AllToAllGPU,CPUMPI,gpuFFT>, complexDoubleDevice>(false,ngx,ngy,ngz);
         test<swfft<AllToAllGPU,CPUMPI,gpuFFT>, complexFloatDevice>(true,ngx,ngy,ngz);
