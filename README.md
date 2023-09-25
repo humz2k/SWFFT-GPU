@@ -104,11 +104,11 @@ FFTBackend = SWFFT::gpuFFT | SWFFT::fftw
 
 ### Constructors
 ```
-swfft<DistBackend,MPI_T,FFTBackend> my_swfft(MPI_Comm comm, int ngx, int blockSize = 64, bool ks_as_block = true);
+SWFFT::swfft<DistBackend,MPI_T,FFTBackend> my_swfft(MPI_Comm comm, int ngx, int blockSize = 64, bool ks_as_block = true);
 
 OR
 
-swfft<DistBackend,MPI_T,FFTBackend> my_swfft(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize = 64, bool ks_as_block = true);
+SWFFT::swfft<DistBackend,MPI_T,FFTBackend> my_swfft(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize = 64, bool ks_as_block = true);
 ```
 
 ### Accessors
@@ -182,7 +182,7 @@ my_swfft.synchronize() -> void (only for GPUDelegate backend)
 
 ### Timings
 ```
-struct timing_stats_t{
+struct SWFFT::timing_stats_t{
     double max;
     double min;
     double sum;
@@ -208,6 +208,8 @@ my_swfft.getLastTime() -> timing_stats_t
 #define SWFFT_ALLTOALL
 
 #include "swfft.hpp"
+
+using namespace SWFFT;
 
 int test(){
     swfft<AllToAllGPU,CPUMPI,gpuFFT> my_swfft(MPI_COMM_WORLD,256,256,256,64);
