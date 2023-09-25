@@ -98,7 +98,7 @@ int test(){
     complexDoubleDevice* scratch; swfftAlloc(&scratch,sizeof(complexDoubleDevice) * my_swfft.buff_sz());
 
     int3 this_position_in_kspace = my_swfft.get_ks(0);
-    printf("index 0 is at (%d %d %d) in kspace\n",this_position_in_kspace.x,this_position_in_kspace.y,this_position_in_kspace.z);
+    printf("for rank %d, index 0 is at (%d %d %d) in kspace\n",my_swfft.rank(),this_position_in_kspace.x,this_position_in_kspace.y,this_position_in_kspace.z);
 
     my_swfft.forward(data,scratch);
     my_swfft.synchronize(); //only important if using the GPUDelegate backend!
