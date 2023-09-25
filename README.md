@@ -202,6 +202,11 @@ my_swfft.getLastTime() -> timing_stats_t
 #include <stdio.h>
 #include <stdlib.h>
 #include <mpi.h>
+
+#define SWFFT_GPU
+#define SWFFT_CUFFT
+#define SWFFT_ALLTOALL
+
 #include "swfft.hpp"
 
 int test(){
