@@ -196,6 +196,11 @@ my_swfft.printLastTime() -> timing_stats_t (prints the time for the last FFT)
 my_swfft.getLastTime() -> timing_stats_t
 ```
 
+### Threading
+```
+swfft_init_threads(int nthreads = 0) -> void
+```
+
 # Minimal example
 
 ```
