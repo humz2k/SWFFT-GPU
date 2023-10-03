@@ -482,6 +482,16 @@ template class Distribution<PairSends,CPUMPI,GPUReshape>;
 template class Distribution<AllToAll,CPUMPI,CPUReshape>;
 template class Distribution<PairSends,CPUMPI,CPUReshape>;
 
+#ifdef SWFFT_GPU
+#ifndef SWFFT_NOCUDAMPI
+template class Distribution<AllToAll,GPUMPI,GPUReshape>;
+template class Distribution<PairSends,GPUMPI,GPUReshape>;
+
+template class Distribution<AllToAll,GPUMPI,CPUReshape>;
+template class Distribution<PairSends,GPUMPI,CPUReshape>;
+#endif
+#endif
+
 }
 }
 

@@ -268,6 +268,31 @@ namespace HQFFT{
     template class Dfft<Distribution,CPUReshape,AllToAll,CPUMPI,TestFFT>;
     template class Dfft<Distribution,CPUReshape,PairSends,CPUMPI,TestFFT>;
 
+    #ifdef SWFFT_GPU
+    #ifndef SWFFT_NOCUDAMPI
+    #ifdef SWFFT_CUFFT
+    template class Dfft<Distribution,GPUReshape,AllToAll,GPUMPI,gpuFFT>;
+    template class Dfft<Distribution,GPUReshape,PairSends,GPUMPI,gpuFFT>;
+    template class Dfft<Distribution,CPUReshape,AllToAll,GPUMPI,gpuFFT>;
+    template class Dfft<Distribution,CPUReshape,PairSends,GPUMPI,gpuFFT>;
+    #endif
+    #ifdef SWFFT_FFTW
+    template class Dfft<Distribution,GPUReshape,AllToAll,GPUMPI,fftw>;
+    template class Dfft<Distribution,GPUReshape,PairSends,GPUMPI,fftw>;
+    #endif
+    template class Dfft<Distribution,GPUReshape,AllToAll,GPUMPI,TestFFT>;
+    template class Dfft<Distribution,GPUReshape,PairSends,GPUMPI,TestFFT>;
+
+    #ifdef SWFFT_FFTW
+    template class Dfft<Distribution,CPUReshape,AllToAll,GPUMPI,fftw>;
+    template class Dfft<Distribution,CPUReshape,PairSends,GPUMPI,fftw>;
+    #endif
+
+    template class Dfft<Distribution,CPUReshape,AllToAll,GPUMPI,TestFFT>;
+    template class Dfft<Distribution,CPUReshape,PairSends,GPUMPI,TestFFT>;
+    #endif
+    #endif
+
 }
 }
 #endif
