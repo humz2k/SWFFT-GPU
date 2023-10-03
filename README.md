@@ -46,12 +46,18 @@ make FFT_BACKEND="FFTW" DIST_BACKEND="ALLTOALL PAIRWISE" USE_GPU=FALSE
 
 will build with only `fftw` for the FFT backend, and `AllToAllCPU`/`Pairwise` for the distribution backend.
 
+```
+make USE_CUDAMPI=TRUE
+```
+
+will build using cuda-aware mpi.
+
 #### All options
 
 All the options are as follows
 
 ```
-make FFT_BACKEND="FFTW CUFFT" DIST_BACKEND="ALLTOALL PAIRWISE HQFFT GPUDELEGATE" USE_GPU=TRUE|FALSE USE_OMP=TRUE|FALSE
+make FFT_BACKEND="FFTW CUFFT" DIST_BACKEND="ALLTOALL PAIRWISE HQFFT GPUDELEGATE" USE_GPU=TRUE|FALSE (default = TRUE) USE_OMP=TRUE|FALSE (default = FALSE) USE_CUDAMPI=TRUE|FALSE (default = False)
 ```
 
 ### Environment Variables
