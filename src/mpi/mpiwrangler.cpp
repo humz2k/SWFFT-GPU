@@ -108,7 +108,7 @@ void CPUMPI::gpu_memcpy_alltoall(T* buff1, T* buff2, int n, MPI_Comm comm){
     gpuMemcpy(buff2,h_buff2,sz,gpuMemcpyHostToDevice);
 }
 
-#ifndef nocudampi
+#ifndef SWFFT_NOCUDAMPI
 template<class T>
 void cpu_memcpy_alltoall(T* buff1, T* buff2, int n, MPI_Comm comm){
     int world_size; MPI_Comm_size(comm,&world_size);
@@ -192,7 +192,7 @@ void CPUMPI::alltoall(complexFloatDevice* buff1, complexFloatDevice* buff2, int 
 #endif
 
 #ifdef SWFFT_GPU
-#ifndef nocudampi
+#ifndef SWFFT_NOCUDAMPI
 
 GPUMPI::GPUMPI(){
 

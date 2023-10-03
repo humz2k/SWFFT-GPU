@@ -34,7 +34,7 @@ Distribution<Communicator,MPI_T,REORDER_T>::Distribution(MPI_Comm comm_, int ngx
         printf("   nlocal          = %d\n",nlocal);
         printf("   blockSize       = %d\n",blockSize);
         printf("   world_size      = %d\n",world_size);
-        #ifndef nocudampi
+        #ifndef SWFFT_NOCUDAMPI
         printf("   using cuda mpi\n");
         #else
         printf("   not using cuda mpi (!!)\n");

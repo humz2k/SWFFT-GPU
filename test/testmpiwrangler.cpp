@@ -113,7 +113,7 @@ int main(){
         IS_TRUE(test_fftwrangler,complexDoubleDevice,CPUMPI);
         IS_TRUE(test_fftwrangler,complexFloatDevice,CPUMPI);
 
-        #ifndef nocudampi
+        #ifndef SWFFT_NOCUDAMPI
         IS_TRUE(test_fftwrangler,complexDoubleHost,GPUMPI);
         IS_TRUE(test_fftwrangler,complexFloatHost,GPUMPI);
         IS_TRUE(test_fftwrangler,complexDoubleDevice,GPUMPI);

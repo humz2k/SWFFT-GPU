@@ -24,7 +24,12 @@ DFFT_CUDA_LD ?= -lcufft -lcudart
 
 DFFT_CUDA_FLAGS ?= -lineinfo -Xptxas -v -Xcompiler="-fPIC"
 
-DFFT_CUDA_MPI ?= -Dnocudampi
+USE_CUDAMPI ?= FALSE
+ifeq ($(USE_CUDAMPI), TRUE)
+DFFT_CUDA_MPI ?=
+else
+DFFT_CUDA_MPI ?= -DSWFFT_NOCUDAMPI
+endif
 
 DFFT_GPU ?= CUDA
 USE_GPU ?= TRUE

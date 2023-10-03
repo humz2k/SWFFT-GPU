@@ -250,9 +250,9 @@ namespace A2A{
     template class SWFFT::A2A::Distribution<SWFFT::CPUMPI,SWFFT::A2A::CPUReorder>;
     #ifdef SWFFT_GPU
     template class SWFFT::A2A::Distribution<SWFFT::CPUMPI,SWFFT::A2A::GPUReorder>;
-    #ifndef nocudampi
-    template class SWFFT:A2A::Distribution<SWFFT::GPUMPI,SWFFT:A2A::CPUReorder>;
-    template class SWFFT::A2A::Distribution<SWFFT::GPUMPI,SWFFT:A2A::GPUReorder>;
+    #ifndef SWFFT_NOCUDAMPI
+    template class SWFFT::A2A::Distribution<SWFFT::GPUMPI,SWFFT::A2A::CPUReorder>;
+    template class SWFFT::A2A::Distribution<SWFFT::GPUMPI,SWFFT::A2A::GPUReorder>;
     #endif
     #endif
 
