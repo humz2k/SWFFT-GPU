@@ -20,17 +20,17 @@ namespace A2A{
     */
     void topology2localgrid(int Ng, int* dims, int* grid_size){
 
-        grid_size[0] = Ng / dims[0];
-        grid_size[1] = Ng / dims[1];
-        grid_size[2] = Ng / dims[2];
+        grid_size[0] = (Ng + (dims[0]-1)) / dims[0];
+        grid_size[1] = (Ng + (dims[1]-1)) / dims[1];
+        grid_size[2] = (Ng + (dims[2]-1)) / dims[2];
 
     }
 
     void topology2localgrid(int ngx, int ngy, int ngz, int* dims, int* grid_size){
 
-        grid_size[0] = ngx / dims[0];
-        grid_size[1] = ngy / dims[1];
-        grid_size[2] = ngz / dims[2];
+        grid_size[0] = (ngx + (dims[0]-1)) / dims[0];
+        grid_size[1] = (ngy + (dims[1]-1)) / dims[1];
+        grid_size[2] = (ngz + (dims[2]-1)) / dims[2];
 
     }
 
@@ -42,6 +42,24 @@ namespace A2A{
         local_coordinates_start[0] = local_grid_size[0] * coords[0];
         local_coordinates_start[1] = local_grid_size[1] * coords[1];
         local_coordinates_start[2] = local_grid_size[2] * coords[2];
+
+    }
+
+    template<class MPI_T, class REORDER_T>
+    int Distribution<MPI_T,REORDER_T>::assert_distribution(){
+        CheckCondition((ng[0] % dims[0]) == 0);
+        CheckCondition((ng[1] % dims[1]) == 0);
+        CheckCondition((ng[2] % dims[2]) == 0);
+
+        CheckCondition((world_size % dims[0]) == 0);
+        CheckCondition((world_size % dims[1]) == 0);
+        CheckCondition((world_size % dims[2]) == 0);
+
+        CheckCondition(((local_grid_size[0] * local_grid_size[1]) % world_size) == 0);
+        CheckCondition(((local_grid_size[0] * local_grid_size[2]) % world_size) == 0);
+        CheckCondition(((local_grid_size[1] * local_grid_size[2]) % world_size) == 0);
+
+        return 1;
 
     }
 
@@ -120,6 +138,25 @@ namespace A2A{
             fftcomms[i] = shuffle_comm(i);
         }
 
+        if (assert_distribution()){
+            SwfftLog("Distribution Passed Check",world_rank);
+        }
+
+        use_alltoall[0] = (((local_grid_size[2] * local_grid_size[1]) % world_size) == 0);
+        use_alltoall[1] = (((local_grid_size[2] * local_grid_size[0]) % world_size) == 0);
+        use_alltoall[2] = (((local_grid_size[0] * local_grid_size[1]) % world_size) == 0);
+
+        /*if(world_rank == 0){
+            printf("ng = [%d %d %d]\n",ng[0],ng[1],ng[2]);
+            printf("dims = [%d %d %d]\n",dims[0],dims[1],dims[2]);
+            printf("local_grid_size = [%d %d %d]\n",local_grid_size[0],local_grid_size[1],local_grid_size[2]);
+            printf("use_alltoall [%d %d %d]\n",use_alltoall[0],use_alltoall[1],use_alltoall[2]);
+        }
+
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        MPI_Abort(MPI_COMM_WORLD,1);*/
+
         nlocal = local_grid_size[0] * local_grid_size[1] * local_grid_size[2];
 
         REORDER_T reordering_(make_int3(ng[0],ng[1],ng[2]),make_int3(dims[0],dims[1],dims[2]),make_int3(coords[0],coords[1],coords[2]),blockSize);
@@ -142,8 +179,10 @@ namespace A2A{
         MPI_Comm my_comm = fftcomms[dim];
 
         int nsends = (nlocal / world_size);
-
-        mpi.alltoall(Buff1,Buff2,nsends,my_comm);
+        if (use_alltoall[dim]){
+            mpi.alltoall(Buff1,Buff2,nsends,my_comm);
+            return;
+        }
     }
 
     #ifdef SWFFT_GPU
@@ -177,7 +216,10 @@ namespace A2A{
 
         int nsends = (nlocal / world_size);
 
-        mpi.alltoall(Buff1,Buff2,nsends,my_comm);
+        if (use_alltoall[dim]){
+            mpi.alltoall(Buff1,Buff2,nsends,my_comm);
+            return;
+        }
     }
 
     #ifdef SWFFT_GPU
@@ -250,9 +292,9 @@ namespace A2A{
     template class SWFFT::A2A::Distribution<SWFFT::CPUMPI,SWFFT::A2A::CPUReorder>;
     #ifdef SWFFT_GPU
     template class SWFFT::A2A::Distribution<SWFFT::CPUMPI,SWFFT::A2A::GPUReorder>;
-    #ifndef nocudampi
-    template class SWFFT:A2A::Distribution<SWFFT::GPUMPI,SWFFT:A2A::CPUReorder>;
-    template class SWFFT::A2A::Distribution<SWFFT::GPUMPI,SWFFT:A2A::GPUReorder>;
+    #ifndef SWFFT_NOCUDAMPI
+    template class SWFFT::A2A::Distribution<SWFFT::GPUMPI,SWFFT::A2A::CPUReorder>;
+    template class SWFFT::A2A::Distribution<SWFFT::GPUMPI,SWFFT::A2A::GPUReorder>;
     #endif
     #endif
 

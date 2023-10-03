@@ -34,7 +34,7 @@ Distribution<Communicator,MPI_T,REORDER_T>::Distribution(MPI_Comm comm_, int ngx
         printf("   nlocal          = %d\n",nlocal);
         printf("   blockSize       = %d\n",blockSize);
         printf("   world_size      = %d\n",world_size);
-        #ifndef nocudampi
+        #ifndef SWFFT_NOCUDAMPI
         printf("   using cuda mpi\n");
         #else
         printf("   not using cuda mpi (!!)\n");
@@ -481,6 +481,16 @@ template class Distribution<PairSends,CPUMPI,GPUReshape>;
 
 template class Distribution<AllToAll,CPUMPI,CPUReshape>;
 template class Distribution<PairSends,CPUMPI,CPUReshape>;
+
+#ifdef SWFFT_GPU
+#ifndef SWFFT_NOCUDAMPI
+template class Distribution<AllToAll,GPUMPI,GPUReshape>;
+template class Distribution<PairSends,GPUMPI,GPUReshape>;
+
+template class Distribution<AllToAll,GPUMPI,CPUReshape>;
+template class Distribution<PairSends,GPUMPI,CPUReshape>;
+#endif
+#endif
 
 }
 }

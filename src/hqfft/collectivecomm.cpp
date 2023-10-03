@@ -149,6 +149,14 @@ template class AllToAll<CPUMPI>;
 template class PairSends<CPUMPI>;
 template class CollectiveCommunicator<CPUMPI>;
 
+#ifdef SWFFT_GPU
+#ifndef SWFFT_NOCUDAMPI
+template class AllToAll<GPUMPI>;
+template class PairSends<GPUMPI>;
+template class CollectiveCommunicator<GPUMPI>;
+#endif
+#endif
+
 }
 }
 

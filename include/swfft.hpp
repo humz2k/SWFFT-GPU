@@ -82,7 +82,8 @@ namespace SWFFT{
         return "CPUMPI";
     }
 
-    #ifndef nocudampi
+    #ifndef SWFFT_NOCUDAMPI
+    template<>
     inline const char* queryName<GPUMPI>(){
         return "GPUMPI";
     }

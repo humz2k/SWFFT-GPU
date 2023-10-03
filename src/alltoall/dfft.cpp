@@ -389,7 +389,7 @@ namespace A2A{
     template class SWFFT::A2A::Dfft<SWFFT::CPUMPI,SWFFT::A2A::CPUReorder,SWFFT::FFTWPlanManager>;
     #ifdef SWFFT_GPU
     template class SWFFT::A2A::Dfft<SWFFT::CPUMPI,SWFFT::A2A::GPUReorder,SWFFT::FFTWPlanManager>;
-    #ifndef nocudampi
+    #ifndef SWFFT_NOCUDAMPI
     template class SWFFT::A2A::Dfft<SWFFT::GPUMPI,SWFFT::A2A::CPUReorder,SWFFT::FFTWPlanManager>;
     template class SWFFT::A2A::Dfft<SWFFT::GPUMPI,SWFFT::A2A::GPUReorder,SWFFT::FFTWPlanManager>;
     #endif
@@ -402,9 +402,11 @@ namespace A2A{
     #ifdef SWFFT_CUFFT
     template class SWFFT::A2A::Dfft<SWFFT::CPUMPI,SWFFT::A2A::CPUReorder,SWFFT::GPUPlanManager>;
     template class SWFFT::A2A::Dfft<SWFFT::CPUMPI,SWFFT::A2A::GPUReorder,SWFFT::GPUPlanManager>;
-    #ifndef nocudampi
+    #ifndef SWFFT_NOCUDAMPI
     template class SWFFT::A2A::Dfft<SWFFT::GPUMPI,SWFFT::A2A::CPUReorder,SWFFT::GPUPlanManager>;
     template class SWFFT::A2A::Dfft<SWFFT::GPUMPI,SWFFT::A2A::GPUReorder,SWFFT::GPUPlanManager>;
+    template class SWFFT::A2A::Dfft<SWFFT::GPUMPI,SWFFT::A2A::GPUReorder,SWFFT::TestFFT>;
+    template class SWFFT::A2A::Dfft<SWFFT::GPUMPI,SWFFT::A2A::CPUReorder,SWFFT::TestFFT>;
     #endif
     #endif
     #endif

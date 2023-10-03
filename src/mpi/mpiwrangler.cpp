@@ -1,5 +1,6 @@
 #include "mpiwrangler.hpp"
 #include <stdlib.h>
+#include <stdio.h>
 namespace SWFFT{
 
 void CPUMPI::query(){
@@ -108,19 +109,19 @@ void CPUMPI::gpu_memcpy_alltoall(T* buff1, T* buff2, int n, MPI_Comm comm){
     gpuMemcpy(buff2,h_buff2,sz,gpuMemcpyHostToDevice);
 }
 
-#ifndef nocudampi
-template<class T>
+#ifndef SWFFT_NOCUDAMPI
+/*template<class T>
 void cpu_memcpy_alltoall(T* buff1, T* buff2, int n, MPI_Comm comm){
     int world_size; MPI_Comm_size(comm,&world_size);
     int sz = world_size * n * sizeof(T);
-    T* d_buff1; gpuMalloc(&h_buff1,sz);
-    T* d_buff2; gpuMalloc(&h_buff2,sz);
+    T* d_buff1; gpuMalloc(&d_buff1,sz);
+    T* d_buff2; gpuMalloc(&d_buff2,sz);
     gpuMemcpy(d_buff1,buff1,sz,gpuMemcpyHostToDevice);
     base_alltoall(d_buff1,d_buff2,n,comm);
     gpuMemcpy(buff2,d_buff2,sz,gpuMemcpyDeviceToHost);
     gpuFree(d_buff1);
     gpuFree(d_buff2);
-}
+}*/
 #endif
 #endif
 
@@ -192,7 +193,7 @@ void CPUMPI::alltoall(complexFloatDevice* buff1, complexFloatDevice* buff2, int 
 #endif
 
 #ifdef SWFFT_GPU
-#ifndef nocudampi
+#ifndef SWFFT_NOCUDAMPI
 
 GPUMPI::GPUMPI(){
 
@@ -211,16 +212,96 @@ void GPUMPI::alltoall(complexFloatDevice* buff1, complexFloatDevice* buff2, int 
 }
 
 void GPUMPI::alltoall(complexDoubleHost* buff1, complexDoubleHost* buff2, int n, MPI_Comm comm){
-    cpu_memcpy_alltoall(buff1,buff2,n,comm);
+    //cpu_memcpy_alltoall(buff1,buff2,n,comm);
+    base_alltoall(buff1,buff2,n,comm);
 }
 
 void GPUMPI::alltoall(complexFloatHost* buff1, complexFloatHost* buff2, int n, MPI_Comm comm){
-    cpu_memcpy_alltoall(buff1,buff2,n,comm);
+    //cpu_memcpy_alltoall(buff1,buff2,n,comm);
+    base_alltoall(buff1,buff2,n,comm);
 }
 
 void GPUMPI::query(){
     printf("Using GPUMPI\n");
 }
+
+void GPUMPI::sendrecv(complexDoubleDevice* send_buff, int sendcount, int dest, int sendtag, complexDoubleDevice* recv_buff, int recvcount, int source, int recvtag, MPI_Comm comm){
+    base_sendrecv(send_buff,sendcount,dest,sendtag,recv_buff,recvcount,source,recvtag,comm);
+}
+
+void GPUMPI::sendrecv(complexFloatDevice* send_buff, int sendcount, int dest, int sendtag, complexFloatDevice* recv_buff, int recvcount, int source, int recvtag, MPI_Comm comm){
+    base_sendrecv(send_buff,sendcount,dest,sendtag,recv_buff,recvcount,source,recvtag,comm);
+}
+
+void GPUMPI::sendrecv(complexDoubleHost* send_buff, int sendcount, int dest, int sendtag, complexDoubleHost* recv_buff, int recvcount, int source, int recvtag, MPI_Comm comm){
+    /*size_t send_size = sendcount * sizeof(complexDoubleHost);
+    size_t recv_size = recvcount * sizeof(complexDoubleHost);
+    complexDoubleDevice* h_buff1; swfftAlloc(&h_buff1,send_size);
+    complexDoubleDevice* h_buff2; swfftAlloc(&h_buff2,send_size);
+    gpuMemcpy(h_buff1,send_buff,send_size,gpuMemcpyHostToDevice);
+    base_sendrecv(h_buff1,sendcount,dest,sendtag,h_buff2,recvcount,source,recvtag,comm);
+    gpuMemcpy(recv_buff,h_buff2,recv_size,gpuMemcpyDeviceToHost);
+    swfftFree(h_buff1);
+    swfftFree(h_buff2);*/
+    base_sendrecv(send_buff,sendcount,dest,sendtag,recv_buff,recvcount,source,recvtag,comm);
+}
+
+void GPUMPI::sendrecv(complexFloatHost* send_buff, int sendcount, int dest, int sendtag, complexFloatHost* recv_buff, int recvcount, int source, int recvtag, MPI_Comm comm){
+    /*size_t send_size = sendcount * sizeof(complexFloatHost);
+    size_t recv_size = recvcount * sizeof(complexFloatHost);
+    complexFloatDevice* h_buff1; swfftAlloc(&h_buff1,send_size);
+    complexFloatDevice* h_buff2; swfftAlloc(&h_buff2,send_size);
+    gpuMemcpy(h_buff1,send_buff,send_size,gpuMemcpyHostToDevice);
+    base_sendrecv(h_buff1,sendcount,dest,sendtag,h_buff2,recvcount,source,recvtag,comm);
+    gpuMemcpy(recv_buff,h_buff2,recv_size,gpuMemcpyDeviceToHost);
+    swfftFree(h_buff1);
+    swfftFree(h_buff2);*/
+    base_sendrecv(send_buff,sendcount,dest,sendtag,recv_buff,recvcount,source,recvtag,comm);
+}
+
+GPUIsend<complexDoubleHost>* GPUMPI::isend(complexDoubleHost* buff, int n, int dest, int tag, MPI_Comm comm){
+    GPUIsend<complexDoubleHost>* out = new GPUIsend<complexDoubleHost>(buff,n,dest,tag,comm);
+    return out;
+}
+
+GPUIsend<complexFloatHost>* GPUMPI::isend(complexFloatHost* buff, int n, int dest, int tag, MPI_Comm comm){
+    GPUIsend<complexFloatHost>* out = new GPUIsend<complexFloatHost>(buff,n,dest,tag,comm);
+    return out;
+}
+
+GPUIrecv<complexDoubleHost>* GPUMPI::irecv(complexDoubleHost* buff, int n, int source, int tag, MPI_Comm comm){
+    GPUIrecv<complexDoubleHost>* out = new GPUIrecv<complexDoubleHost>(buff,n,source,tag,comm);
+    return out;
+}
+
+GPUIrecv<complexFloatHost>* GPUMPI::irecv(complexFloatHost* buff, int n, int source, int tag, MPI_Comm comm){
+    GPUIrecv<complexFloatHost>* out = new GPUIrecv<complexFloatHost>(buff,n,source,tag,comm);
+    return out;
+}
+
+//#ifdef SWFFT_GPU
+GPUIsend<complexDoubleDevice>* GPUMPI::isend(complexDoubleDevice* buff, int n, int dest, int tag, MPI_Comm comm){
+    //printf("make isend!\n");
+    GPUIsend<complexDoubleDevice>* out = new GPUIsend<complexDoubleDevice>(buff,n,dest,tag,comm);
+    return out;
+}
+
+GPUIsend<complexFloatDevice>* GPUMPI::isend(complexFloatDevice* buff, int n, int dest, int tag, MPI_Comm comm){
+    GPUIsend<complexFloatDevice>* out = new GPUIsend<complexFloatDevice>(buff,n,dest,tag,comm);
+    return out;
+}
+
+GPUIrecv<complexDoubleDevice>* GPUMPI::irecv(complexDoubleDevice* buff, int n, int source, int tag, MPI_Comm comm){
+    //printf("make irecv\n");
+    GPUIrecv<complexDoubleDevice>* out = new GPUIrecv<complexDoubleDevice>(buff,n,source,tag,comm);//(buff,n,source,tag,comm);
+    return out;
+}
+
+GPUIrecv<complexFloatDevice>* GPUMPI::irecv(complexFloatDevice* buff, int n, int source, int tag, MPI_Comm comm){
+    GPUIrecv<complexFloatDevice>* out = new GPUIrecv<complexFloatDevice>(buff,n,source,tag,comm);
+    return out;
+}
+//#endif
 
 #endif
 #endif

@@ -19,6 +19,8 @@
 
 namespace SWFFT{
 
+enum fftdirection {FFT_FORWARD, FFT_BACKWARD};
+
 //#define gpuFFT GPUPlanManager
 //#define fftw FFTWPlanManager
 
@@ -77,8 +79,6 @@ class TestFFT{
 };
 
 #ifdef SWFFT_FFTW
-
-enum fftdirection {FFT_FORWARD, FFT_BACKWARD};
 
 inline int swfft_fftw_init_threads(int omt){
     #ifdef _OPENMP

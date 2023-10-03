@@ -161,10 +161,14 @@ void Dfft<MPI_T,FFTBackend>::_fft(T* buff1, int direction){
 
         execFFT(fftBuff2,fftBuff1,direction);
 
+        gpuEvent_t my_events[world_size * nsends];
+
         for (int i = 0; i < world_size; i++){
             if (i == world_rank)continue;
             reorder(1,fftBuff1,&fftBuff2[nlocal * i],int3_ng,int3_local_grid_size,int3_dims,i,0,blockSize);
             for (int send = 0; send < nsends; send++){
+                gpuEventCreate(&my_events[i*nsends + send]);
+                gpuEventRecord(my_events[i*nsends + send]);
                 sends[i*nsends + send] = mpi.isend(&fftBuff2[nlocal * i + send*npersend],npersend,i,send,comm);
             }
         }
@@ -174,7 +178,9 @@ void Dfft<MPI_T,FFTBackend>::_fft(T* buff1, int direction){
         for (int i = 0; i < world_size; i++){
             if (i == world_rank)continue;
             for (int send = 0; send < nsends; send++){
+                gpuEventSynchronize(my_events[i*nsends + send]);
                 sends[i*nsends + send].execute();
+                gpuEventDestroy(my_events[i*nsends + send]);
             }
         }
 
@@ -523,6 +529,9 @@ int Dfft<MPI_T,FFTBackend>::buff_sz(){
 }
 
 template class Dfft<CPUMPI,gpuFFT>;
+#ifndef SWFFT_NOCUDAMPI
+template class Dfft<GPUMPI,gpuFFT>;
+#endif
 
 }
 }

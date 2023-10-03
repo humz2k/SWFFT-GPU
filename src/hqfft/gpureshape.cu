@@ -49,12 +49,14 @@ template<class T>
 inline void GPUReshape::_reshape(T* buff1, T* buff2, int n_recvs, int mini_pencil_size, int send_per_rank, int pencils_per_rank, int nlocal, int blockSize){
     int numBlocks = (nlocal + (blockSize - 1))/blockSize;
     gpuLaunch(reshape_kernel,numBlocks,blockSize,buff1,buff2,n_recvs,mini_pencil_size,send_per_rank,pencils_per_rank,nlocal);
+    gpuDeviceSynchronize();
 }
 
 template<class T>
 inline void GPUReshape::_inverse_reshape(T* buff1, T* buff2, int n_recvs, int mini_pencil_size, int send_per_rank, int pencils_per_rank, int nlocal, int blockSize){
     int numBlocks = (nlocal + (blockSize - 1))/blockSize;
     gpuLaunch(inverse_reshape_kernel,numBlocks,blockSize,buff1,buff2,n_recvs,mini_pencil_size,send_per_rank,pencils_per_rank,nlocal);
+    gpuDeviceSynchronize();
 }
 
 void GPUReshape::reshape(complexDoubleDevice* buff1, complexDoubleDevice* buff2, int n_recvs, int mini_pencil_size, int send_per_rank, int pencils_per_rank, int nlocal, int blockSize){
@@ -147,12 +149,14 @@ template<class T>
 inline void GPUReshape::_unreshape(T* buff1, T* buff2, int z_dim, int x_dim, int y_dim, int nlocal, int blockSize){
     int numBlocks = (nlocal + (blockSize - 1))/blockSize;
     gpuLaunch(unreshape_kernel,numBlocks,blockSize,buff1,buff2,z_dim,x_dim,y_dim,nlocal);
+    gpuDeviceSynchronize();
 }
 
 template<class T>
 inline void GPUReshape::_inverse_unreshape(T* buff1, T* buff2, int z_dim, int x_dim, int y_dim, int nlocal, int blockSize){
     int numBlocks = (nlocal + (blockSize - 1))/blockSize;
     gpuLaunch(inverse_unreshape_kernel,numBlocks,blockSize,buff1,buff2,z_dim,x_dim,y_dim,nlocal);
+    gpuDeviceSynchronize();
 }
 
 void GPUReshape::unreshape(complexDoubleDevice* buff1, complexDoubleDevice* buff2, int z_dim, int x_dim, int y_dim, int nlocal, int blockSize){
@@ -255,6 +259,7 @@ inline void GPUReshape::_reshape_final(T* buff1, T* buff2, int ny, int nz, int l
     int numBlocks = (nlocal + (blockSize - 1))/blockSize;
     int3 local_grid_size_vec = make_int3(local_grid_size[0],local_grid_size[1],local_grid_size[2]);
     gpuLaunch(reshape_final_kernel,numBlocks,blockSize,buff1,buff2,ny,nz,local_grid_size_vec,nlocal);
+    gpuDeviceSynchronize();
 }
 
 void GPUReshape::reshape_final(complexDoubleDevice* buff1, complexDoubleDevice* buff2, int ny, int nz, int local_grid_size[], int nlocal, int blockSize){

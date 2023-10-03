@@ -24,7 +24,12 @@ DFFT_CUDA_LD ?= -lcufft -lcudart
 
 DFFT_CUDA_FLAGS ?= -lineinfo -Xptxas -v -Xcompiler="-fPIC"
 
-DFFT_CUDA_MPI ?= -Dnocudampi
+USE_CUDAMPI ?= FALSE
+ifeq ($(USE_CUDAMPI), TRUE)
+DFFT_CUDA_MPI ?=
+else
+DFFT_CUDA_MPI ?= -DSWFFT_NOCUDAMPI
+endif
 
 DFFT_GPU ?= CUDA
 USE_GPU ?= TRUE
@@ -70,7 +75,7 @@ endif
 
 #$(patsubst .cpp,.o,$(wildcard src/**/*.cpp) $(wildcard src/*.cpp))
 
-main: $(DFFT_BUILD_DIR)/testdfft $(DFFT_BUILD_DIR)/benchmark $(DFFT_BUILD_DIR)/testks
+main: $(DFFT_BUILD_DIR)/testdfft $(DFFT_BUILD_DIR)/benchmark $(DFFT_BUILD_DIR)/testks $(DFFT_BUILD_DIR)/testalltoallgpu
 
 #$(DFFT_BUILD_DIR)/%: test/%.cpp | $(DFFT_AR) $(DFFT_BUILD_DIR)
 #	$(DFFT_MPI_CXX) $(GPU_FLAG) $(DFFT_CUDA_MPI) -D$(DFFT_GPU) $(DFFT_DIST_BACKEND_DEFINES) $(DFFT_FFT_BACKEND_DEFINES) $(DFFT_INCLUDE) $< $(DFFT_FFTW_LDFLAGS) -L$(DFFT_LIB_DIR) -lswfft -L$(DFFT_CUDA_LIB) $(DFFT_CUDA_LD) -o $@
