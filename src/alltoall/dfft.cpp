@@ -405,6 +405,8 @@ namespace A2A{
     #ifndef SWFFT_NOCUDAMPI
     template class SWFFT::A2A::Dfft<SWFFT::GPUMPI,SWFFT::A2A::CPUReorder,SWFFT::GPUPlanManager>;
     template class SWFFT::A2A::Dfft<SWFFT::GPUMPI,SWFFT::A2A::GPUReorder,SWFFT::GPUPlanManager>;
+    template class SWFFT::A2A::Dfft<SWFFT::GPUMPI,SWFFT::A2A::GPUReorder,SWFFT::TestFFT>;
+    template class SWFFT::A2A::Dfft<SWFFT::GPUMPI,SWFFT::A2A::CPUReorder,SWFFT::TestFFT>;
     #endif
     #endif
     #endif

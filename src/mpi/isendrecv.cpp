@@ -215,3 +215,222 @@ namespace SWFFT{
     template class CPUIrecv<complexFloatDevice>;
     #endif
 }
+
+#ifdef SWFFT_GPU
+#ifndef SWFFT_NOCUDAMPI
+namespace SWFFT{
+
+    template<class T>
+    GPUIsend<T>::GPUIsend() : initialized(false){
+        
+    }
+
+    template<class T>
+    GPUIsend<T>::GPUIsend(T* in_buff_, int n_, int dest_, int tag_, MPI_Comm comm_) : initialized(true), in_buff(in_buff_), n(n_), dest(dest_), tag(tag_), comm(comm_){
+        //printf("WTF\n");
+    }
+    
+    template<class T>
+    GPUIsend<T>::~GPUIsend(){
+        
+    }
+
+    template<class T>
+    void GPUIsend<T>::execute(){
+        //printf("WTF1\n");
+        MPI_Isend(in_buff,n * sizeof(T),MPI_BYTE,dest,tag,comm,&req);
+    }
+
+    template<class T>
+    void GPUIsend<T>::wait(){
+        //printf("WTF2\n");
+        MPI_Wait(&req,MPI_STATUS_IGNORE);
+    }
+
+    //#ifdef SWFFT_GPU
+    template<>
+    GPUIsend<complexDoubleHost>::GPUIsend(complexDoubleHost* in_buff_, int n_, int dest_, int tag_, MPI_Comm comm_) : initialized(true), in_buff(in_buff_), n(n_), dest(dest_), tag(tag_), comm(comm_){
+        size_t sz = sizeof(complexDoubleDevice) * n;        
+        gpuMalloc(&d_in_buff,sz);
+        gpuEventCreate(&event);
+        gpuMemcpyAsync(d_in_buff,in_buff,sz,gpuMemcpyHostToDevice);
+        gpuEventRecord(event);
+    }
+
+    template<>
+    GPUIsend<complexDoubleHost>::GPUIsend() : initialized(false){
+        
+    }
+
+    template<>
+    GPUIsend<complexFloatHost>::GPUIsend() : initialized(false){
+        
+    }
+
+    template<>
+    GPUIsend<complexDoubleHost>::~GPUIsend(){
+        
+    }
+
+    template<>
+    void GPUIsend<complexDoubleHost>::execute(){
+        
+        gpuEventSynchronize(event);
+        MPI_Isend(d_in_buff,n * sizeof(complexDoubleHost),MPI_BYTE,dest,tag,comm,&req);
+        gpuEventDestroy(event);
+    }
+
+    template<>
+    void GPUIsend<complexDoubleHost>::wait(){
+        MPI_Wait(&req,MPI_STATUS_IGNORE);
+        gpuFree(d_in_buff);
+    }
+
+    template<>
+    GPUIsend<complexFloatHost>::GPUIsend(complexFloatHost* in_buff_, int n_, int dest_, int tag_, MPI_Comm comm_) : initialized(true), in_buff(in_buff_), n(n_), dest(dest_), tag(tag_), comm(comm_){
+        size_t sz = sizeof(complexFloatHost) * n;
+        gpuMalloc(&d_in_buff,sz);
+        gpuEventCreate(&event);
+        gpuMemcpyAsync(d_in_buff,in_buff,n * sizeof(complexFloatDevice),gpuMemcpyHostToDevice);
+        gpuEventRecord(event);
+    }
+
+    template<>
+    GPUIsend<complexFloatHost>::~GPUIsend(){}
+
+    template<>
+    void GPUIsend<complexFloatHost>::execute(){
+        gpuEventSynchronize(event);
+        MPI_Isend(d_in_buff,n * sizeof(complexFloatHost),MPI_BYTE,dest,tag,comm,&req);
+        gpuEventDestroy(event);
+    }
+
+    template<>
+    void GPUIsend<complexFloatHost>::wait(){
+        MPI_Wait(&req,MPI_STATUS_IGNORE);
+        gpuFree(d_in_buff);
+    }
+    //#endif
+
+    template<class T>
+    GPUIrecv<T>::GPUIrecv(T* out_buff_, int n_, int source_, int tag_, MPI_Comm comm_) : initialized(true), out_buff(out_buff_), n(n_), source(source_), tag(tag_), comm(comm_){
+        //printf("WTF3\n");
+    }
+
+    template<class T>
+    GPUIrecv<T>::GPUIrecv() : initialized(false){
+        
+    }
+    
+    template<class T>
+    GPUIrecv<T>::~GPUIrecv(){
+        
+    }
+
+    template<class T>
+    void GPUIrecv<T>::execute(){
+        //printf("WTF4\n");
+        MPI_Irecv(out_buff,n * sizeof(T),MPI_BYTE,source,tag,comm,&req);
+    }
+
+    template<class T>
+    void GPUIrecv<T>::wait(){
+        //printf("WTF5\n");
+        MPI_Wait(&req,MPI_STATUS_IGNORE);
+    }
+
+    template<class T>
+    void GPUIrecv<T>::finalize(){
+        
+    }
+
+    //#ifdef SWFFT_GPU
+    template<>
+    GPUIrecv<complexDoubleHost>::GPUIrecv(complexDoubleHost* out_buff_, int n_, int source_, int tag_, MPI_Comm comm_) : initialized(true), out_buff(out_buff_), n(n_), source(source_), tag(tag_), comm(comm_){
+        sz = n * sizeof(complexDoubleHost);
+        gpuMalloc(&d_out_buff,sz);
+    }
+
+    template<>
+    GPUIrecv<complexDoubleHost>::GPUIrecv() : initialized(false){
+        
+    }
+
+    template<>
+    GPUIrecv<complexFloatHost>::GPUIrecv() : initialized(false){
+        
+    }
+
+    template<>
+    GPUIrecv<complexDoubleHost>::~GPUIrecv(){
+        //printf("Irecv::delete!\n");
+    }
+
+    template<>
+    void GPUIrecv<complexDoubleHost>::execute(){
+        //printf("Irecv::execute!\n");
+        MPI_Irecv(d_out_buff,sz,MPI_BYTE,source,tag,comm,&req);
+    }
+
+    template<>
+    void GPUIrecv<complexDoubleHost>::wait(){
+        //printf("Irecv::wait!\n");
+        MPI_Wait(&req,MPI_STATUS_IGNORE);
+        gpuEventCreate(&event);
+        gpuMemcpyAsync(out_buff,d_out_buff,sz,gpuMemcpyDeviceToHost);
+        gpuEventRecord(event);
+        //free(h_out_buff);
+    }
+
+    template<>
+    void GPUIrecv<complexDoubleHost>::finalize(){
+        //printf("Irecv::finalize!\n");
+        gpuEventSynchronize(event);
+        gpuFree(d_out_buff);
+        gpuEventDestroy(event);
+    }
+
+    template<>
+    GPUIrecv<complexFloatHost>::GPUIrecv(complexFloatHost* out_buff_, int n_, int source_, int tag_, MPI_Comm comm_) : initialized(true), out_buff(out_buff_), n(n_), source(source_), tag(tag_), comm(comm_){
+        sz = n * sizeof(complexFloatHost);
+        gpuMalloc(&d_out_buff,sz);   
+    }
+
+    template<>
+    GPUIrecv<complexFloatHost>::~GPUIrecv(){}
+
+    template<>
+    void GPUIrecv<complexFloatHost>::execute(){
+        MPI_Irecv(d_out_buff,sz,MPI_BYTE,source,tag,comm,&req);
+    }
+
+    template<>
+    void GPUIrecv<complexFloatHost>::wait(){
+        MPI_Wait(&req,MPI_STATUS_IGNORE);
+        gpuEventCreate(&event);
+        gpuMemcpyAsync(out_buff,d_out_buff,sz,gpuMemcpyDeviceToHost);
+        gpuEventRecord(event);
+        //free(h_out_buff);
+    }
+
+    template<>
+    void GPUIrecv<complexFloatHost>::finalize(){
+        gpuEventSynchronize(event);
+        gpuFree(d_out_buff);
+        gpuEventDestroy(event);
+    }
+    //#endif
+
+    template class GPUIsend<complexDoubleHost>;
+    template class GPUIsend<complexFloatHost>;
+    template class GPUIrecv<complexDoubleHost>;
+    template class GPUIrecv<complexFloatHost>;
+    //#ifdef SWFFT_GPU
+    template class GPUIsend<complexDoubleDevice>;
+    template class GPUIsend<complexFloatDevice>;
+    template class GPUIrecv<complexDoubleDevice>;
+    template class GPUIrecv<complexFloatDevice>;
+    //#endif
+}
+#endif
+#endif

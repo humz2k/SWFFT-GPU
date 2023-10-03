@@ -523,6 +523,9 @@ int Dfft<MPI_T,FFTBackend>::buff_sz(){
 }
 
 template class Dfft<CPUMPI,gpuFFT>;
+#ifndef SWFFT_NOCUDAMPI
+template class Dfft<GPUMPI,gpuFFT>;
+#endif
 
 }
 }
