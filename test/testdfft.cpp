@@ -423,7 +423,9 @@ int main(int argc, char** argv){
     #endif
     #endif
     
-    if(world_rank == 0)printf("%d/%d tests passed\n",n_passed,n_tests);
+    if(world_rank == 0){
+        printf("%d/%d tests passed\n",n_passed,n_tests);
+    }
     MPI_Finalize();
     return 0;
 }

@@ -9,6 +9,7 @@
 #include "copy_buffers.hpp"
 #include "hqfft_reorder.hpp"
 #include "query.hpp"
+#include <stdio.h>
 
 namespace SWFFT{
 

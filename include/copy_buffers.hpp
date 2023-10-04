@@ -3,6 +3,7 @@
 
 #include "gpu.hpp"
 #include "complex-type.h"
+#include <stdio.h>
 
 namespace SWFFT{
 
@@ -53,7 +54,7 @@ namespace SWFFT{
     template<>
     inline copyBuffers<complexDoubleDevice>::copyBuffers(complexDoubleDevice* dest_, complexDoubleDevice* src_, int n_) : dest(dest_), src(src_), n(n_){
         gpuEventCreate(&event);
-        gpuMemcpyAsync(dest,src,n * sizeof(complexDoubleDevice),gpuMemcpyDeviceToDevice);
+        gpuMemcpyAsync(dest_,src_,n_ * sizeof(complexDoubleDevice),gpuMemcpyDeviceToDevice);
         gpuEventRecord(event);
     }
 
@@ -65,8 +66,9 @@ namespace SWFFT{
 
     template<>
     inline copyBuffers<complexFloatDevice>::copyBuffers(complexFloatDevice* dest_, complexFloatDevice* src_, int n_) : dest(dest_), src(src_), n(n_){
+        //printf("COPY!!!\n");
         gpuEventCreate(&event);
-        gpuMemcpyAsync(dest,src,n * sizeof(complexFloatDevice),gpuMemcpyDeviceToDevice);
+        gpuMemcpyAsync(dest_,src_,n_ * sizeof(complexFloatDevice),gpuMemcpyDeviceToDevice);
         gpuEventRecord(event);
     }
 
