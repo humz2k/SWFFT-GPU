@@ -248,7 +248,7 @@ namespace SWFFT{
     }
 
     //#ifdef SWFFT_GPU
-    template<>
+    /*template<>
     GPUIsend<complexDoubleHost>::GPUIsend(complexDoubleHost* in_buff_, int n_, int dest_, int tag_, MPI_Comm comm_) : initialized(true), in_buff(in_buff_), n(n_), dest(dest_), tag(tag_), comm(comm_){
         size_t sz = sizeof(complexDoubleDevice) * n;        
         gpuMalloc(&d_in_buff,sz);
@@ -310,7 +310,7 @@ namespace SWFFT{
         MPI_Wait(&req,MPI_STATUS_IGNORE);
         gpuFree(d_in_buff);
     }
-    //#endif
+    //#endif*/
 
     template<class T>
     GPUIrecv<T>::GPUIrecv(T* out_buff_, int n_, int source_, int tag_, MPI_Comm comm_) : initialized(true), out_buff(out_buff_), n(n_), source(source_), tag(tag_), comm(comm_){
@@ -344,7 +344,7 @@ namespace SWFFT{
         
     }
 
-    //#ifdef SWFFT_GPU
+    /*//#ifdef SWFFT_GPU
     template<>
     GPUIrecv<complexDoubleHost>::GPUIrecv(complexDoubleHost* out_buff_, int n_, int source_, int tag_, MPI_Comm comm_) : initialized(true), out_buff(out_buff_), n(n_), source(source_), tag(tag_), comm(comm_){
         sz = n * sizeof(complexDoubleHost);
@@ -419,7 +419,7 @@ namespace SWFFT{
         gpuFree(d_out_buff);
         gpuEventDestroy(event);
     }
-    //#endif
+    //#endif*/
 
     template class GPUIsend<complexDoubleHost>;
     template class GPUIsend<complexFloatHost>;
