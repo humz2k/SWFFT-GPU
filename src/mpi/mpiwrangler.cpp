@@ -1,5 +1,6 @@
 #include "mpiwrangler.hpp"
 #include <stdlib.h>
+#include <stdio.h>
 namespace SWFFT{
 
 void CPUMPI::query(){
