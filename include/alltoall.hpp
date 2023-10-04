@@ -7,6 +7,7 @@
 #include "fftwrangler.hpp"
 #include "mpiwrangler.hpp"
 #include "query.hpp"
+#include "logging.hpp"
 
 namespace SWFFT{
 
@@ -31,10 +32,14 @@ namespace A2A{
             MPI_T mpi;
             REORDER_T reordering;
 
+            bool use_alltoall[3];
+
             int blockSize;
 
             Distribution(MPI_Comm comm_, int ngx, int ngy, int ngz, int blockSize_, bool ks_as_block_);
             ~Distribution();
+
+            int assert_distribution();
 
             MPI_Comm shuffle_comm_1();
             MPI_Comm shuffle_comm_2();
@@ -161,7 +166,7 @@ class AllToAllGPU{
         }
 
         inline AllToAllGPU(MPI_Comm comm, int ngx, int blockSize, bool ks_as_block=true) : dist(comm,ngx,ngx,ngx,blockSize,ks_as_block), dfft(dist,ks_as_block){
-
+            
         }
 
         inline AllToAllGPU(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize, bool ks_as_block=true) : dist(comm,ngx,ngy,ngz,blockSize,ks_as_block), dfft(dist,ks_as_block){
