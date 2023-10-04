@@ -82,7 +82,7 @@ DFFT_CUDA_CC ?= nvcc -O3
 
 # Tests/Benchmarks
 
-Running `build/testdfft <ngx> [ngy ngz]` will test all possible configurations of swfft that were compiled.
+Running `mpirun -n <n> build/testdfft <ngx> [ngy ngz]` will test all possible configurations of swfft that were compiled.
 
 # Interface
 
