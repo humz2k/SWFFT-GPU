@@ -76,8 +76,11 @@ endif
 
 
 #$(patsubst .cpp,.o,$(wildcard src/**/*.cpp) $(wildcard src/*.cpp))
+.PHONY: main
+main: $(DFFT_BUILD_DIR)/testdfft $(DFFT_BUILD_DIR)/benchmark $(DFFT_BUILD_DIR)/testks $(DFFT_BUILD_DIR)/testalltoallgpu
 
-main: $(DFFT_BUILD_DIR)/testdfft $(DFFT_BUILD_DIR)/benchmark $(DFFT_BUILD_DIR)/testks $(DFFT_BUILD_DIR)/testalltoallgpu $(DFFT_ARC) $(DFFT_BUILD_DIR)/testdfftc
+.PHONY: swfftc
+swfftc: $(DFFT_ARC) $(DFFT_BUILD_DIR)/testdfftc
 
 
 #$(DFFT_BUILD_DIR)/%: test/%.cpp | $(DFFT_AR) $(DFFT_BUILD_DIR)
