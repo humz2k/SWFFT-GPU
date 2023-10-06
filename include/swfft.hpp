@@ -28,6 +28,12 @@
 #include "gpudelegate.hpp"
 #endif
 
+#if defined(SWFFT_GPU) && !defined(SWFFT_NOCUDAMPI)
+#define OPTMPI GPUMPI
+#else
+#define OPTMPI CPUMPI
+#endif
+
 namespace SWFFT{
 
     inline int swfft_init_threads(int nthreads = 0){
