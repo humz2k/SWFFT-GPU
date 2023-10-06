@@ -279,6 +279,28 @@ namespace SWFFT{
             }
 
             template<class T>
+            inline void forward_sync(T* buff1, T* buff2){
+                double start = MPI_Wtime();
+
+                backend.forward(buff1,buff2);
+                synchronize();
+                double end = MPI_Wtime();
+                last_time = end-start;
+                last_was = 0;
+            }
+
+            template<class T>
+            inline void backward_sync(T* buff1, T* buff2){
+                double start = MPI_Wtime();
+
+                backend.backward(buff1,buff2);
+                synchronize();
+                double end = MPI_Wtime();
+                last_time = end-start;
+                last_was = 1;
+            }
+
+            template<class T>
             inline void forward(T* buff1){
                 double start = MPI_Wtime();
 
