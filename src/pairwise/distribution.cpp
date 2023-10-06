@@ -1821,6 +1821,12 @@ namespace PAIR{
 
     template class distribution_t<complexFloatHost,CPUMPI>;
     template class distribution_t<complexDoubleHost,CPUMPI>;
+    #ifdef SWFFT_GPU
+    #ifndef SWFFT_NOCUDAMPI
+    template class distribution_t<complexFloatHost,GPUMPI>;
+    template class distribution_t<complexDoubleHost,GPUMPI>;
+    #endif
+    #endif
 
 }
 }

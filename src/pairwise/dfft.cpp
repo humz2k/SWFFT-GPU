@@ -263,6 +263,11 @@ namespace PAIR{
     #ifdef SWFFT_CUFFT
     template class Dfft<CPUMPI,gpuFFT>;
     #endif
+    #ifndef SWFFT_NOCUDAMPI
+    template class Dfft<GPUMPI,gpuFFT>;
+    template class Dfft<GPUMPI,fftw>;
+    template class Dfft<GPUMPI,TestFFT>;
+    #endif
     #endif
 
 }

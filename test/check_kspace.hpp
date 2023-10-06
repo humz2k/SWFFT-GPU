@@ -99,6 +99,7 @@ bool check_kspace_(FFT &fft, T *a){
     allreduce(&LocalImagMin,&GlobalImagMin,1,MPI_MIN,comm);
     allreduce(&LocalImagMax,&GlobalImagMax,1,MPI_MIN,comm);
 
+    #ifndef CHECK_SILENT
     if(fft.rank() == 0) {
     std::cout << "k-space:" << std::endl
             << "      real in " << std::scientific
@@ -114,6 +115,7 @@ bool check_kspace_(FFT &fft, T *a){
             << f2u(GlobalImagMax) << "]"
             << std::endl << "   " << std::fixed;
     }
+    #endif
 
     if ((round(GlobalRealMin) == 1) && (round(GlobalRealMax) == 1) && (round(GlobalImagMin) == 0) && (round(GlobalImagMax) == 0))return true;
     return false;
@@ -150,6 +152,7 @@ bool check_rspace_(FFT &fft, T *a){
     allreduce(&LocalImagMin,&GlobalImagMin,1,MPI_MIN,comm);
     allreduce(&LocalImagMax,&GlobalImagMax,1,MPI_MIN,comm);
 
+    #ifndef CHECK_SILENT
     if(fft.rank() == 0) {
     std::cout << "r-space:" << std::endl
             << "      a[0,0,0] = (" << std::fixed << a[0] << "," << a[1] << ")"
@@ -171,6 +174,8 @@ bool check_rspace_(FFT &fft, T *a){
             << f2u(GlobalImagMax) << "]"
             << std::endl << "   " << std::fixed;
     }
+    #endif
+
     bool base_correct = ((round(GlobalRealMin) == 0) && (round(GlobalRealMax) == 0) && (round(GlobalImagMin) == 0) && (round(GlobalImagMax) == 0));
     if (fft.rank() == 0){
         bool center_correct = (round(a[0]) == fft.ngx() * fft.ngy() * fft.ngz()) && (round(a[1]) == 0);
