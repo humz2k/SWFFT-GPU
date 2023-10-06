@@ -225,7 +225,7 @@ int main(int argc, char** argv){
         ngz = atoi(argv[3]);
     }
 
-    swfft_init_threads(2);
+    swfft_init_threads();
 
     //swfft_init_threads(2);
     #ifdef SWFFT_FFTW
@@ -236,9 +236,13 @@ int main(int argc, char** argv){
     output_strings gpu_times = benchmark_gpu<complexDoubleDevice,gpuFFT>(false,ngx,ngy,ngz);
     #endif
 
+    #ifdef SWFFT_FFTW
     cpu_times.print("CPU Times");
+    #endif
 
+    #if defined(SWFFT_GPU) && defined(SWFFT_CUFFT)
     gpu_times.print("GPU Times");
+    #endif
     
     //if(world_rank == 0){
     //    printf("%d/%d tests passed\n",n_passed,n_tests);
