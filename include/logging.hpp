@@ -1,7 +1,7 @@
 #ifndef SWFFT_LOGGING_H
 #define SWFFT_LOGGING_H
 
-#define SWFFT_LOG
+//#define SWFFT_LOG
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
@@ -11,7 +11,7 @@
 #ifdef SWFFT_LOG
 #define SwfftLog(str,world_rank) {if(world_rank == 0)printf("SWFFT: %s\n",str);}
 #else
-#define SwfftLog(str,world_rank) {}
+#define SwfftLog(str,world_rank)
 #endif
 
 #endif

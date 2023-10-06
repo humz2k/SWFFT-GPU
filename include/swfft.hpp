@@ -28,6 +28,12 @@
 #include "gpudelegate.hpp"
 #endif
 
+#if defined(SWFFT_GPU) && !defined(SWFFT_NOCUDAMPI)
+#define OPTMPI GPUMPI
+#else
+#define OPTMPI CPUMPI
+#endif
+
 namespace SWFFT{
 
     inline int swfft_init_threads(int nthreads = 0){
@@ -267,6 +273,28 @@ namespace SWFFT{
 
                 backend.backward(buff1,buff2);
 
+                double end = MPI_Wtime();
+                last_time = end-start;
+                last_was = 1;
+            }
+
+            template<class T>
+            inline void forward_sync(T* buff1, T* buff2){
+                double start = MPI_Wtime();
+
+                backend.forward(buff1,buff2);
+                synchronize();
+                double end = MPI_Wtime();
+                last_time = end-start;
+                last_was = 0;
+            }
+
+            template<class T>
+            inline void backward_sync(T* buff1, T* buff2){
+                double start = MPI_Wtime();
+
+                backend.backward(buff1,buff2);
+                synchronize();
                 double end = MPI_Wtime();
                 last_time = end-start;
                 last_was = 1;

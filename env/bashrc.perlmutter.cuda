@@ -1,0 +1,26 @@
+module load cudatoolkit
+module load craype-accel-nvidia80
+module load cray-fftw
+
+export FFTW_HOME="${FFTW_DIR}"
+
+export DFFT_PLATFORM="perlmutter"
+
+export CRAY_ACCEL_TARGET=nvidia80
+
+export DFFT_CUDA_INC="${CUDA_HOME}/include"
+export DFFT_CUDA_LIB="${CUDA_HOME}/lib64"
+
+export DFFT_CUDA_ARCH="-gencode arch=compute_80,code=sm_80"
+export DFFT_CUDA_FLAGS="-Xcompiler -O3,-fopenmp,-g -gencode arch=compute_80,code=sm_80"
+
+export DFFT_CUDA_LD="-L${CUDA_HOME}/lib64 -L${CUDA_HOME}/extras/CUPTI/lib64 -Wl,--as-needed -Wl,-lcupti -Wl,-lcudart -Wl,--no-as-needed -lcuda -lnvToolsExt -lcufft"
+
+export DFFT_MPI_CC="cc"
+export DFFT_MPI_CXX="CC"
+export DFFT_CUDA_CC="nvcc"
+
+export USE_CUDAMPI="TRUE"
+export USE_GPU="TRUE"
+export DFFT_GPU="CUDA"
+export USE_OMP="TRUE"
