@@ -4,6 +4,8 @@ module load cray-fftw
 
 export FFTW_HOME="${FFTW_DIR}"
 
+export DFFT_PLATFORM="perlmutter"
+
 export CRAY_ACCEL_TARGET=nvidia80
 
 export DFFT_CUDA_INC="${CUDA_HOME}/include"

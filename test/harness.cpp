@@ -5,6 +5,10 @@
 #include <stdlib.h>
 #include <vector>
 
+#ifndef SWFFT_PLATFORM
+#define SWFFT_PLATFORM unknown
+#endif
+
 using namespace SWFFT;
 
 int n_tests = 0;
@@ -210,11 +214,19 @@ int main(int argc, char** argv){
     #endif
 
     int world_rank;MPI_Comm_rank(MPI_COMM_WORLD,&world_rank);
+    int world_size;MPI_Comm_size(MPI_COMM_WORLD,&world_size);
 
     if (!((argc == 2) || (argc == 4))){
         if(world_rank == 0)printf("USAGE: %s <ngx> [ngy ngz]\n", argv[0]);
         MPI_Finalize();
         return -1;
+    }
+
+    if (world_rank == 0){
+        printf("Running with %d ranks on %s\n",world_size,TOSTRING(SWFFT_PLATFORM));
+        #ifndef SWFFT_NOCUDAMPI
+        printf("Using gpu-aware mpi\n");
+        #endif
     }
     
     int ngx = atoi(argv[1]);
@@ -226,6 +238,7 @@ int main(int argc, char** argv){
     }
 
     swfft_init_threads();
+    if (world_rank == 0)printf("\n");
 
     //swfft_init_threads(2);
     #ifdef SWFFT_FFTW
