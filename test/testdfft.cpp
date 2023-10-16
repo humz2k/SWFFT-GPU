@@ -268,6 +268,25 @@ int main(int argc, char** argv){
     #endif
     #endif
 
+    #ifdef SWFFT_SMARTMAP
+    #ifdef SWFFT_FFTW
+    test<swfft<SmartFFT,CPUMPI,fftw>, complexDoubleHost>(false,ngx,ngy,ngz);
+    test<swfft<SmartFFT,CPUMPI,fftw>, complexFloatHost>(false,ngx,ngy,ngz);
+    #ifdef SWFFT_GPU
+    test<swfft<SmartFFT,CPUMPI,fftw>, complexDoubleDevice>(false,ngx,ngy,ngz);
+    test<swfft<SmartFFT,CPUMPI,fftw>, complexFloatDevice>(false,ngx,ngy,ngz);
+    #endif
+    #endif
+    #ifdef SWFFT_GPU
+    #ifdef SWFFT_CUFFT
+    test<swfft<SmartFFT,CPUMPI,gpuFFT>, complexDoubleHost>(false,ngx,ngy,ngz);
+    test<swfft<SmartFFT,CPUMPI,gpuFFT>, complexFloatHost>(false,ngx,ngy,ngz);
+    test<swfft<SmartFFT,CPUMPI,gpuFFT>, complexDoubleDevice>(false,ngx,ngy,ngz);
+    test<swfft<SmartFFT,CPUMPI,gpuFFT>, complexFloatDevice>(false,ngx,ngy,ngz);
+    #endif
+    #endif
+    #endif
+
     #ifdef SWFFT_GPU
     #ifndef SWFFT_NOCUDAMPI
         #ifdef SWFFT_HQFFT
@@ -421,24 +440,6 @@ int main(int argc, char** argv){
         #endif
         #endif
 
-        #ifdef SWFFT_SMARTMAP
-        #ifdef SWFFT_FFTW
-        test<swfft<SmartFFT,CPUMPI,fftw>, complexDoubleHost>(false,ngx,ngy,ngz);
-        test<swfft<SmartFFT,CPUMPI,fftw>, complexFloatHost>(false,ngx,ngy,ngz);
-        #ifdef SWFFT_GPU
-        test<swfft<SmartFFT,CPUMPI,fftw>, complexDoubleDevice>(false,ngx,ngy,ngz);
-        test<swfft<SmartFFT,CPUMPI,fftw>, complexFloatDevice>(false,ngx,ngy,ngz);
-        #endif
-        #endif
-        #ifdef SWFFT_GPU
-        #ifdef SWFFT_CUFFT
-        test<swfft<SmartFFT,CPUMPI,gpuFFT>, complexDoubleHost>(false,ngx,ngy,ngz);
-        test<swfft<SmartFFT,CPUMPI,gpuFFT>, complexFloatHost>(false,ngx,ngy,ngz);
-        test<swfft<SmartFFT,CPUMPI,gpuFFT>, complexDoubleDevice>(false,ngx,ngy,ngz);
-        test<swfft<SmartFFT,CPUMPI,gpuFFT>, complexFloatDevice>(false,ngx,ngy,ngz);
-        #endif
-        #endif
-        #endif
     #endif
     #endif
 

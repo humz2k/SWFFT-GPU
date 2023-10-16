@@ -28,9 +28,24 @@ class SmartMap{
         int total_gets;
         bool init;
 
+        int local_only;
+
     public:
         inline SmartMap() : init(false){
 
+        }
+
+        inline void check_local_only(){
+            int tmp_local_only = 1;
+
+            for (int i = 0; i < comm_size; i++){
+                if (i == comm_rank)continue;
+                if (nsends[i] != 0)tmp_local_only = 0;
+            }
+
+            MPI_Allreduce(&tmp_local_only,&local_only,1,MPI_INT,MPI_SUM,comm);
+
+            local_only = local_only == comm_size;
         }
 
         inline SmartMap(MPI_Comm comm_, Map map_, int n_) : comm(comm_), map(map_), n(n_), gets(NULL), sends(NULL), init(true){
@@ -56,11 +71,48 @@ class SmartMap{
 
             count_sends(sends,nsends,send_starts,rank_buff_starts,rank_buff_ns,comm_size);
 
+            check_local_only();
+
+            /*if (!comm_rank){
+                printf("SMART MAP INFO:\n");
+            }
+            MPI_Barrier(comm);
+            for (int i = 0; i < comm_size; i++){
+                if (comm_rank == i){
+                    printf("   rank %d info:\n",comm_rank);
+                    for (int j = 0; j < comm_size; j++){
+                        if (nsends[j] != 0)
+                            printf("      send to %d\n",j);
+                        if (ngets[j] != 0)
+                            printf("      recv from %d\n",j);
+                    }
+                    if (local_only){
+                        printf("LOCAL ONLY!\n");
+                    }
+                }
+                MPI_Barrier(comm);
+            }
+            MPI_Barrier(comm);*/
+
+        }
+
+        template<class T>
+        inline void forward_local_only(T* in, T* out){
+            for (int i = 0; i < nsends[comm_rank]; i++){
+                get_serial_t this_get = sends[send_starts[comm_rank] + i];
+                int dest = this_get.dest;
+                for (int k = 0; k < this_get.n; k++){
+                    int get_idx = this_get.src + k*this_get.stride;
+                    int out_idx = dest++;
+                    out[out_idx] = in[get_idx];
+                }
+            }
         }
 
         template<class T>
         inline void forward(T* in, T* out){
             if (!init)return;
+            if (local_only)return forward_local_only(in,out);
             MPI_Request send_reqs[comm_size];
             MPI_Request get_reqs[comm_size];
 
@@ -111,8 +163,22 @@ class SmartMap{
         }
 
         template<class T>
+        inline void backward_local_only(T* in, T* out){
+            for (int i = 0; i < nsends[comm_rank]; i++){
+                get_serial_t this_get = sends[send_starts[comm_rank] + i];
+                int dest = this_get.dest;
+                for (int k = 0; k < this_get.n; k++){
+                    int get_idx = this_get.src + k*this_get.stride;
+                    int out_idx = dest++;
+                    out[get_idx] = in[out_idx];
+                }
+            }
+        }
+
+        template<class T>
         inline void backward(T* in, T* out){
             if (!init)return;
+            if (local_only)return backward_local_only(in,out);
             MPI_Request send_reqs[comm_size];
             MPI_Request get_reqs[comm_size];
 
