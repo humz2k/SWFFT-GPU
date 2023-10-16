@@ -28,6 +28,10 @@
 #include "gpudelegate.hpp"
 #endif
 
+#ifdef SWFFT_SMARTMAP
+#include "smartmap.hpp"
+#endif
+
 #if defined(SWFFT_GPU) && !defined(SWFFT_NOCUDAMPI)
 #define OPTMPI GPUMPI
 #else

@@ -171,6 +171,13 @@ output_strings benchmark_cpu(bool k_in_blocks, int ngx, int ngy, int ngz){
         out.avgs.push_back(fmt_string("Pairwise     "," complexDoubleHost ","avg",pairwise_timings.avg_f,pairwise_timings.avg_b));
     }
     #endif
+    #ifdef SWFFT_SMARTMAP
+    if (!k_in_blocks){
+        benchmark_data_t smartmap_timings = test<swfft<SmartFFT,CPUMPI,FFTBackend>, T>(k_in_blocks,ngx,ngy,ngz);
+        out.inis.push_back(fmt_string("SmartFFT     "," complexDoubleHost ","ini",smartmap_timings.initial_f,smartmap_timings.initial_b));
+        out.avgs.push_back(fmt_string("SmartFFT     "," complexDoubleHost ","avg",smartmap_timings.avg_f,smartmap_timings.avg_b));
+    }
+    #endif
 
     return out;
 
