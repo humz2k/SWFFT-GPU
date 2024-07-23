@@ -116,6 +116,14 @@ template <class MPI_T, class FFTBackend> class AllToAllGPU : public Backend {
      */
     int local_ng(int i) { return dist.local_grid_size[i]; }
 
+    /**
+     * @brief Gets a `dist3d_t`.
+     *
+     * This can be passed into GPU kernels (I think...), and has the methods
+     *      `int3 dist3d_t::get_ks(int idx)`
+     * and
+     *      `int3 dist3d_t::get_rs(int idx)`
+     */
     dist3d_t<AllToAllGPU> dist3d() {
         return dist3d_t<AllToAllGPU>(dfft.dist3d());
     }
@@ -544,6 +552,14 @@ template <class MPI_T, class FFTBackend> class AllToAllCPU : public Backend {
      */
     int local_ng(int i) { return dist.local_grid_size[i]; }
 
+    /**
+     * @brief Gets a `dist3d_t`.
+     *
+     * This can be passed into GPU kernels (I think...), and has the methods
+     *      `int3 dist3d_t::get_ks(int idx)`
+     * and
+     *      `int3 dist3d_t::get_rs(int idx)`
+     */
     dist3d_t<AllToAllCPU> dist3d() {
         return dist3d_t<AllToAllCPU>(dfft.dist3d());
     }

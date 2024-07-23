@@ -115,6 +115,14 @@ template <class MPI_T, class FFTBackend> class Pairwise : public Backend {
                my_dims.z);
     }
 
+    /**
+     * @brief Gets a `dist3d_t`.
+     *
+     * This can be passed into GPU kernels (I think...), and has the methods
+     *      `int3 dist3d_t::get_ks(int idx)`
+     * and
+     *      `int3 dist3d_t::get_rs(int idx)`
+     */
     dist3d_t<Pairwise> dist3d() { return dist3d_t<Pairwise>(dfft.dist3d()); }
 
     /**
