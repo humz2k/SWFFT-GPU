@@ -17,6 +17,14 @@
 #include <mpi.h>
 
 namespace SWFFT {
+template <class MPI_T, class FFTBackend> class Pairwise;
+
+template <> class dist3d_t<Pairwise> : public PAIR::pairwise_dist3d {
+  public:
+    using PAIR::pairwise_dist3d::pairwise_dist3d;
+    dist3d_t(PAIR::pairwise_dist3d in) : PAIR::pairwise_dist3d(in) {}
+};
+
 /**
  * @class Pairwise
  * @brief Class to manage pairwise distributed FFT operations.
@@ -106,6 +114,8 @@ template <class MPI_T, class FFTBackend> class Pairwise : public Backend {
         printf("   distribution = [%d %d %d]\n", my_dims.x, my_dims.y,
                my_dims.z);
     }
+
+    dist3d_t<Pairwise> dist3d() { return dist3d_t<Pairwise>(dfft.dist3d()); }
 
     /**
      * @brief Get the k-space coordinates for a given index.

@@ -20,6 +20,35 @@
 #include <stdio.h>
 
 namespace SWFFT {
+template <class MPI_T, class FFTBackend> class HQA2AGPU;
+template <class MPI_T, class FFTBackend> class HQA2ACPU;
+template <class MPI_T, class FFTBackend> class HQPairGPU;
+template <class MPI_T, class FFTBackend> class HQPairCPU;
+
+template <> class dist3d_t<HQA2AGPU> : public HQFFT::hqfft_dist3d {
+  public:
+    using HQFFT::hqfft_dist3d::hqfft_dist3d;
+    dist3d_t(HQFFT::hqfft_dist3d in) : HQFFT::hqfft_dist3d(in) {}
+};
+
+template <> class dist3d_t<HQPairGPU> : public HQFFT::hqfft_dist3d {
+  public:
+    using HQFFT::hqfft_dist3d::hqfft_dist3d;
+    dist3d_t(HQFFT::hqfft_dist3d in) : HQFFT::hqfft_dist3d(in) {}
+};
+
+template <> class dist3d_t<HQA2ACPU> : public HQFFT::hqfft_dist3d {
+  public:
+    using HQFFT::hqfft_dist3d::hqfft_dist3d;
+    dist3d_t(HQFFT::hqfft_dist3d in) : HQFFT::hqfft_dist3d(in) {}
+};
+
+template <> class dist3d_t<HQPairCPU> : public HQFFT::hqfft_dist3d {
+  public:
+    using HQFFT::hqfft_dist3d::hqfft_dist3d;
+    dist3d_t(HQFFT::hqfft_dist3d in) : HQFFT::hqfft_dist3d(in) {}
+};
+
 #ifdef SWFFT_GPU
 /**
  * @class HQA2AGPU
@@ -57,6 +86,8 @@ template <class MPI_T, class FFTBackend> class HQA2AGPU : public Backend {
     int3 local_ng() { return dfft.local_ng(); }
 
     int local_ng(int i) { return dfft.local_ng(i); }
+
+    dist3d_t<HQA2AGPU> dist3d() { return dist3d_t<HQA2AGPU>(dfft.dist3d()); }
 
     int3 get_ks(int idx) { return dfft.get_ks(idx); }
 
@@ -280,6 +311,8 @@ template <class MPI_T, class FFTBackend> class HQPairGPU : public Backend {
 
     int local_ng(int i) { return dfft.local_ng(i); }
 
+    dist3d_t<HQPairGPU> dist3d() { return dist3d_t<HQPairGPU>(dfft.dist3d()); }
+
     int3 get_ks(int idx) { return dfft.get_ks(idx); }
 
     int3 get_rs(int idx) { return dfft.get_rs(idx); }
@@ -502,6 +535,8 @@ template <class MPI_T, class FFTBackend> class HQA2ACPU : public Backend {
     int3 local_ng() { return dfft.local_ng(); }
 
     int local_ng(int i) { return dfft.local_ng(i); }
+
+    dist3d_t<HQA2ACPU> dist3d() { return dist3d_t<HQA2ACPU>(dfft.dist3d()); }
 
     int3 get_ks(int idx) { return dfft.get_ks(idx); }
 
@@ -732,6 +767,8 @@ template <class MPI_T, class FFTBackend> class HQPairCPU : public Backend {
     int3 local_ng() { return dfft.local_ng(); }
 
     int local_ng(int i) { return dfft.local_ng(i); }
+
+    dist3d_t<HQPairCPU> dist3d() { return dist3d_t<HQPairCPU>(dfft.dist3d()); }
 
     int3 get_ks(int idx) { return dfft.get_ks(idx); }
 

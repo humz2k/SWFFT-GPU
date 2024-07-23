@@ -21,14 +21,18 @@ namespace SWFFT {
 template <class MPI_T, class FFTBackend> class AllToAllGPU;
 template <class MPI_T, class FFTBackend> class AllToAllCPU;
 
+#ifdef SWFFT_GPU
 template <> class dist3d_t<AllToAllGPU> : A2A::alltoall_dist3d {
   public:
     using A2A::alltoall_dist3d::alltoall_dist3d;
+    dist3d_t(A2A::alltoall_dist3d in) : alltoall_dist3d(in) {}
 };
+#endif
 
 template <> class dist3d_t<AllToAllCPU> : A2A::alltoall_dist3d {
   public:
     using A2A::alltoall_dist3d::alltoall_dist3d;
+    dist3d_t(A2A::alltoall_dist3d in) : A2A::alltoall_dist3d(in) {}
 };
 
 #ifdef SWFFT_GPU
@@ -111,6 +115,10 @@ template <class MPI_T, class FFTBackend> class AllToAllGPU : public Backend {
      * @return int Local number of grid cells.
      */
     int local_ng(int i) { return dist.local_grid_size[i]; }
+
+    dist3d_t<AllToAllGPU> dist3d() {
+        return dist3d_t<AllToAllGPU>(dfft.dist3d());
+    }
 
     /**
      * @brief Get k-space coordinates for a given index.
@@ -535,6 +543,10 @@ template <class MPI_T, class FFTBackend> class AllToAllCPU : public Backend {
      * @return int Local number of grid cells.
      */
     int local_ng(int i) { return dist.local_grid_size[i]; }
+
+    dist3d_t<AllToAllCPU> dist3d() {
+        return dist3d_t<AllToAllCPU>(dfft.dist3d());
+    }
 
     /**
      * @brief Get k-space coordinates for a given index.

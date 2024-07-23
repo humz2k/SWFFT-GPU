@@ -141,6 +141,8 @@ class swfft {
         return getTimingStats(backend.comm(), last_time);
     }
 
+    dist3d_t<DistBackend> dist3d() { return backend.dist3d(); }
+
     /**
      * @brief Get the k-space coordinates for a given index.
      *
