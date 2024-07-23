@@ -201,7 +201,9 @@ template <class MPI_T, class FFTBackend> class AllToAllGPU : public Backend {
      *
      * @return int3 Dimensions of the process grid.
      */
-    int3 dims() { return make_int3(m_dist.dims[0], m_dist.dims[1], m_dist.dims[2]); }
+    int3 dims() {
+        return make_int3(m_dist.dims[0], m_dist.dims[1], m_dist.dims[2]);
+    }
 
     /**
      * @brief Get the rank of the current process.
@@ -637,7 +639,9 @@ template <class MPI_T, class FFTBackend> class AllToAllCPU : public Backend {
      *
      * @return int3 Dimensions of the process grid.
      */
-    int3 dims() { return make_int3(m_dist.dims[0], m_dist.dims[1], m_dist.dims[2]); }
+    int3 dims() {
+        return make_int3(m_dist.dims[0], m_dist.dims[1], m_dist.dims[2]);
+    }
 
     /**
      * @brief Get the rank of the current process.

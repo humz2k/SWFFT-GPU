@@ -36,9 +36,9 @@ template <class MPI_T, class FFTBackend> class Pairwise : public Backend {
   private:
     PAIR::Dfft<MPI_T, FFTBackend> m_dfft; /**< Distributed FFT manager */
     int m_n[3];                           /**< Dimensions of the data grid */
-    int m_buff_sz;                       /**< Buffer size */
-    int m_rank;                          /**< Rank of the current process */
-    MPI_Comm m_comm;                     /**< MPI communicator */
+    int m_buff_sz;                        /**< Buffer size */
+    int m_rank;                           /**< Rank of the current process */
+    MPI_Comm m_comm;                      /**< MPI communicator */
 
   public:
     /**

@@ -192,7 +192,7 @@ Distribution<MPI_T, REORDER_T>::~Distribution() {
 template <class MPI_T, class REORDER_T>
 template <class T>
 inline void Distribution<MPI_T, REORDER_T>::_get_pencils(T* Buff1, T* Buff2,
-                                                        int n) {
+                                                         int n) {
     int dim = (n + 2) % 3;
 
     MPI_Comm my_comm = fftcomms[dim];
@@ -207,37 +207,37 @@ inline void Distribution<MPI_T, REORDER_T>::_get_pencils(T* Buff1, T* Buff2,
 #ifdef SWFFT_GPU
 template <class MPI_T, class REORDER_T>
 void Distribution<MPI_T, REORDER_T>::get_pencils(complexDoubleDevice* Buff1,
-                                                complexDoubleDevice* Buff2,
-                                                int n) {
+                                                 complexDoubleDevice* Buff2,
+                                                 int n) {
     _get_pencils(Buff1, Buff2, n);
 }
 
 template <class MPI_T, class REORDER_T>
 void Distribution<MPI_T, REORDER_T>::get_pencils(complexFloatDevice* Buff1,
-                                                complexFloatDevice* Buff2,
-                                                int n) {
+                                                 complexFloatDevice* Buff2,
+                                                 int n) {
     _get_pencils(Buff1, Buff2, n);
 }
 #endif
 
 template <class MPI_T, class REORDER_T>
 void Distribution<MPI_T, REORDER_T>::get_pencils(complexDoubleHost* Buff1,
-                                                complexDoubleHost* Buff2,
-                                                int n) {
+                                                 complexDoubleHost* Buff2,
+                                                 int n) {
     _get_pencils(Buff1, Buff2, n);
 }
 
 template <class MPI_T, class REORDER_T>
 void Distribution<MPI_T, REORDER_T>::get_pencils(complexFloatHost* Buff1,
-                                                complexFloatHost* Buff2,
-                                                int n) {
+                                                 complexFloatHost* Buff2,
+                                                 int n) {
     _get_pencils(Buff1, Buff2, n);
 }
 
 template <class MPI_T, class REORDER_T>
 template <class T>
 inline void Distribution<MPI_T, REORDER_T>::_return_pencils(T* Buff1, T* Buff2,
-                                                           int n) {
+                                                            int n) {
     int dim = (n + 2) % 3;
 
     MPI_Comm my_comm = fftcomms[dim];
@@ -253,30 +253,30 @@ inline void Distribution<MPI_T, REORDER_T>::_return_pencils(T* Buff1, T* Buff2,
 #ifdef SWFFT_GPU
 template <class MPI_T, class REORDER_T>
 void Distribution<MPI_T, REORDER_T>::return_pencils(complexDoubleDevice* Buff1,
-                                                   complexDoubleDevice* Buff2,
-                                                   int n) {
+                                                    complexDoubleDevice* Buff2,
+                                                    int n) {
     _return_pencils(Buff1, Buff2, n);
 }
 
 template <class MPI_T, class REORDER_T>
 void Distribution<MPI_T, REORDER_T>::return_pencils(complexFloatDevice* Buff1,
-                                                   complexFloatDevice* Buff2,
-                                                   int n) {
+                                                    complexFloatDevice* Buff2,
+                                                    int n) {
     _return_pencils(Buff1, Buff2, n);
 }
 #endif
 
 template <class MPI_T, class REORDER_T>
 void Distribution<MPI_T, REORDER_T>::return_pencils(complexDoubleHost* Buff1,
-                                                   complexDoubleHost* Buff2,
-                                                   int n) {
+                                                    complexDoubleHost* Buff2,
+                                                    int n) {
     _return_pencils(Buff1, Buff2, n);
 }
 
 template <class MPI_T, class REORDER_T>
 void Distribution<MPI_T, REORDER_T>::return_pencils(complexFloatHost* Buff1,
-                                                   complexFloatHost* Buff2,
-                                                   int n) {
+                                                    complexFloatHost* Buff2,
+                                                    int n) {
     _return_pencils(Buff1, Buff2, n);
 }
 

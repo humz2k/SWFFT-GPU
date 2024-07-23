@@ -32,8 +32,8 @@ class alltoallDist3d {
 
   public:
     alltoallDist3d(bool ks_as_block, int local_grid_size[],
-                    int local_coordinates_start[], int nlocal, int world_size,
-                    int dims[], MPI_Comm comm)
+                   int local_coordinates_start[], int nlocal, int world_size,
+                   int dims[], MPI_Comm comm)
         : m_ks_as_block(ks_as_block), m_local_grid_size{local_grid_size[0],
                                                         local_grid_size[1],
                                                         local_grid_size[2]},

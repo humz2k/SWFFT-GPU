@@ -109,7 +109,9 @@ template <class MPI_T, class FFTBackend> class HQA2AGPU : public Backend {
         return make_int3(m_dist.coords[0], m_dist.coords[1], m_dist.coords[2]);
     }
 
-    int3 dims() { return make_int3(m_dist.dims[0], m_dist.dims[1], m_dist.dims[2]); }
+    int3 dims() {
+        return make_int3(m_dist.dims[0], m_dist.dims[1], m_dist.dims[2]);
+    }
 
     int rank() { return m_dist.world_rank; }
 

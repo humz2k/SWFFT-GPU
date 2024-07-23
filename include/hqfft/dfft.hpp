@@ -33,8 +33,8 @@ class hqfftDist3d {
 
   public:
     hqfftDist3d(bool ks_as_block, int local_grid_size[],
-                 int local_coords_start[], int nlocal, int ng[], int dims[],
-                 int coords[])
+                int local_coords_start[], int nlocal, int ng[], int dims[],
+                int coords[])
         : m_ks_as_block(ks_as_block), m_local_grid_size{local_grid_size[0],
                                                         local_grid_size[1],
                                                         local_grid_size[2]},

@@ -80,7 +80,8 @@ gpufftHandle GPUPlanManager::find_plan(int ng, int nFFTs, gpufftType t) {
             m_plans[i].ng = ng;
             m_plans[i].nFFTs = nFFTs;
             m_plans[i].t = t;
-            if (gpufftPlan1d(&m_plans[i].plan, ng, t, nFFTs) != GPUFFT_SUCCESS) {
+            if (gpufftPlan1d(&m_plans[i].plan, ng, t, nFFTs) !=
+                GPUFFT_SUCCESS) {
                 printf("CUFFT error: Plan creation failed with (ng = %d, nFFTs "
                        "= %d)\n",
                        ng, nFFTs);

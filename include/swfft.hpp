@@ -81,7 +81,7 @@ class swfft {
     DistBackend<MPI_T, FFTBackend> m_backend; /**< Backend for FFT operations */
     double m_last_time; /**< Time taken for the last operation */
     int m_last_was; /**< Last operation performed: 0 for forward, 1 for backward
-                   */
+                     */
 
   public:
     /**
@@ -111,8 +111,8 @@ class swfft {
      */
     inline swfft(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize = 64,
                  bool ks_as_block = true)
-        : m_backend(comm, ngx, ngy, ngz, blockSize, ks_as_block), m_last_time(0),
-          m_last_was(-1) {}
+        : m_backend(comm, ngx, ngy, ngz, blockSize, ks_as_block),
+          m_last_time(0), m_last_was(-1) {}
 
     /**
      * @brief Destructor for swfft.

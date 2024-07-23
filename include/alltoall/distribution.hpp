@@ -163,7 +163,7 @@ template <class MPI_T, class REORDER_T> class Distribution {
      * @param dim Dimension index.
      */
     void get_pencils(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2,
-                    int dim);
+                     int dim);
 
     /**
      * @brief Get pencils from device buffers.
@@ -173,7 +173,7 @@ template <class MPI_T, class REORDER_T> class Distribution {
      * @param dim Dimension index.
      */
     void get_pencils(complexFloatDevice* Buff1, complexFloatDevice* Buff2,
-                    int dim);
+                     int dim);
 #endif
     /**
      * @brief Get pencils from host buffers.
@@ -183,7 +183,7 @@ template <class MPI_T, class REORDER_T> class Distribution {
      * @param dim Dimension index.
      */
     void get_pencils(complexDoubleHost* Buff1, complexDoubleHost* Buff2,
-                    int dim);
+                     int dim);
 
     /**
      * @brief Get pencils from host buffers.
@@ -203,7 +203,7 @@ template <class MPI_T, class REORDER_T> class Distribution {
      * @param dim Dimension index.
      */
     void return_pencils(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2,
-                       int dim);
+                        int dim);
 
     /**
      * @brief Return pencils to device buffers.
@@ -213,7 +213,7 @@ template <class MPI_T, class REORDER_T> class Distribution {
      * @param dim Dimension index.
      */
     void return_pencils(complexFloatDevice* Buff1, complexFloatDevice* Buff2,
-                       int dim);
+                        int dim);
 #endif
     /**
      * @brief Return pencils to host buffers.
@@ -223,7 +223,7 @@ template <class MPI_T, class REORDER_T> class Distribution {
      * @param dim Dimension index.
      */
     void return_pencils(complexDoubleHost* Buff1, complexDoubleHost* Buff2,
-                       int dim);
+                        int dim);
 
     /**
      * @brief Return pencils to host buffers.
@@ -233,7 +233,7 @@ template <class MPI_T, class REORDER_T> class Distribution {
      * @param dim Dimension index.
      */
     void return_pencils(complexFloatHost* Buff1, complexFloatHost* Buff2,
-                       int dim);
+                        int dim);
 
 #ifdef SWFFT_GPU
     /**

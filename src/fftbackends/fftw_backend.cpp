@@ -143,7 +143,8 @@ void FFTWPlanManager::forward(complexFloatDevice* data,
     allocate_host(sizeof(complexFloatHost) * ng * nFFTs);
     gpuMemcpy(m_h_data, data, sizeof(complexFloatHost) * ng * nFFTs,
               gpuMemcpyDeviceToHost);
-    forward((complexFloatHost*)m_h_data, (complexFloatHost*)m_h_scratch, ng, nFFTs);
+    forward((complexFloatHost*)m_h_data, (complexFloatHost*)m_h_scratch, ng,
+            nFFTs);
     gpuMemcpy(scratch, m_h_scratch, sizeof(complexFloatHost) * ng * nFFTs,
               gpuMemcpyHostToDevice);
 }

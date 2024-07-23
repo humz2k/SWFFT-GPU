@@ -93,24 +93,24 @@ void Dfft<MPI_T, FFTBackend>::forward(complexDoubleHost* data,
     m_double_dist.dist_3_to_2(data, scratch, 0);
 
     m_FFTs.forward(scratch, data, m_double_dist.process_topology_2_x.n[0],
-                 m_double_dist.process_topology_2_x.n[1] *
-                     m_double_dist.process_topology_2_x.n[2]);
+                   m_double_dist.process_topology_2_x.n[1] *
+                       m_double_dist.process_topology_2_x.n[2]);
 
     m_double_dist.dist_2_to_3(data, scratch, 0);
 
     m_double_dist.dist_3_to_2(scratch, data, 1);
 
     m_FFTs.forward(data, scratch, m_double_dist.process_topology_2_y.n[1],
-                 m_double_dist.process_topology_2_y.n[0] *
-                     m_double_dist.process_topology_2_y.n[2]);
+                   m_double_dist.process_topology_2_y.n[0] *
+                       m_double_dist.process_topology_2_y.n[2]);
 
     m_double_dist.dist_2_to_3(scratch, data, 1);
 
     m_double_dist.dist_3_to_2(data, scratch, 2);
 
     m_FFTs.forward(scratch, data, m_double_dist.process_topology_2_z.n[2],
-                 m_double_dist.process_topology_2_z.n[0] *
-                     m_double_dist.process_topology_2_z.n[1]);
+                   m_double_dist.process_topology_2_z.n[0] *
+                       m_double_dist.process_topology_2_z.n[1]);
 }
 
 template <class MPI_T, class FFTBackend>
@@ -119,24 +119,24 @@ void Dfft<MPI_T, FFTBackend>::forward(complexFloatHost* data,
     m_float_dist.dist_3_to_2(data, scratch, 0);
 
     m_FFTs.forward(scratch, data, m_float_dist.process_topology_2_x.n[0],
-                 m_float_dist.process_topology_2_x.n[1] *
-                     m_float_dist.process_topology_2_x.n[2]);
+                   m_float_dist.process_topology_2_x.n[1] *
+                       m_float_dist.process_topology_2_x.n[2]);
 
     m_float_dist.dist_2_to_3(data, scratch, 0);
 
     m_float_dist.dist_3_to_2(scratch, data, 1);
 
     m_FFTs.forward(data, scratch, m_float_dist.process_topology_2_y.n[1],
-                 m_float_dist.process_topology_2_y.n[0] *
-                     m_float_dist.process_topology_2_y.n[2]);
+                   m_float_dist.process_topology_2_y.n[0] *
+                       m_float_dist.process_topology_2_y.n[2]);
 
     m_float_dist.dist_2_to_3(scratch, data, 1);
 
     m_float_dist.dist_3_to_2(data, scratch, 2);
 
     m_FFTs.forward(scratch, data, m_float_dist.process_topology_2_z.n[2],
-                 m_float_dist.process_topology_2_z.n[0] *
-                     m_float_dist.process_topology_2_z.n[1]);
+                   m_float_dist.process_topology_2_z.n[0] *
+                       m_float_dist.process_topology_2_z.n[1]);
 }
 
 template <class MPI_T, class FFTBackend>
@@ -144,24 +144,24 @@ void Dfft<MPI_T, FFTBackend>::backward(complexDoubleHost* data,
                                        complexDoubleHost* scratch) {
 
     m_FFTs.backward(data, scratch, m_double_dist.process_topology_2_z.n[2],
-                  m_double_dist.process_topology_2_z.n[0] *
-                      m_double_dist.process_topology_2_z.n[1]);
+                    m_double_dist.process_topology_2_z.n[0] *
+                        m_double_dist.process_topology_2_z.n[1]);
 
     m_double_dist.dist_2_to_3(scratch, data, 2);
 
     m_double_dist.dist_3_to_2(data, scratch, 1);
 
     m_FFTs.backward(scratch, data, m_double_dist.process_topology_2_y.n[1],
-                  m_double_dist.process_topology_2_y.n[0] *
-                      m_double_dist.process_topology_2_y.n[2]);
+                    m_double_dist.process_topology_2_y.n[0] *
+                        m_double_dist.process_topology_2_y.n[2]);
 
     m_double_dist.dist_2_to_3(data, scratch, 1);
 
     m_double_dist.dist_3_to_2(scratch, data, 0);
 
     m_FFTs.backward(data, scratch, m_double_dist.process_topology_2_x.n[0],
-                  m_double_dist.process_topology_2_x.n[1] *
-                      m_double_dist.process_topology_2_x.n[2]);
+                    m_double_dist.process_topology_2_x.n[1] *
+                        m_double_dist.process_topology_2_x.n[2]);
 
     m_double_dist.dist_2_to_3(scratch, data, 0);
 }
@@ -171,24 +171,24 @@ void Dfft<MPI_T, FFTBackend>::backward(complexFloatHost* data,
                                        complexFloatHost* scratch) {
 
     m_FFTs.backward(data, scratch, m_float_dist.process_topology_2_z.n[2],
-                  m_float_dist.process_topology_2_z.n[0] *
-                      m_float_dist.process_topology_2_z.n[1]);
+                    m_float_dist.process_topology_2_z.n[0] *
+                        m_float_dist.process_topology_2_z.n[1]);
 
     m_float_dist.dist_2_to_3(scratch, data, 2);
 
     m_float_dist.dist_3_to_2(data, scratch, 1);
 
     m_FFTs.backward(scratch, data, m_float_dist.process_topology_2_y.n[1],
-                  m_float_dist.process_topology_2_y.n[0] *
-                      m_float_dist.process_topology_2_y.n[2]);
+                    m_float_dist.process_topology_2_y.n[0] *
+                        m_float_dist.process_topology_2_y.n[2]);
 
     m_float_dist.dist_2_to_3(data, scratch, 1);
 
     m_float_dist.dist_3_to_2(scratch, data, 0);
 
     m_FFTs.backward(data, scratch, m_float_dist.process_topology_2_x.n[0],
-                  m_float_dist.process_topology_2_x.n[1] *
-                      m_float_dist.process_topology_2_x.n[2]);
+                    m_float_dist.process_topology_2_x.n[1] *
+                        m_float_dist.process_topology_2_x.n[2]);
 
     m_float_dist.dist_2_to_3(scratch, data, 0);
 }

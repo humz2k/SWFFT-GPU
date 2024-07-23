@@ -23,7 +23,7 @@ class pairwiseDist3d {
     process_topology_t m_process_topology_3;   /**< 3D dist */
   public:
     pairwiseDist3d(process_topology_t process_topology_2_z,
-                    process_topology_t process_topology_3)
+                   process_topology_t process_topology_3)
         : m_process_topology_2_z(process_topology_2_z),
           m_process_topology_3(process_topology_3) {}
 
@@ -86,8 +86,9 @@ template <class MPI_T, class FFTBackend> class Dfft {
     MPI_Comm m_comm;   /**< MPI communicator */
     FFTBackend m_FFTs; /**< FFT backend */
     int m_n[3];        /**< Dimensions of the data grid */
-    distribution_t<complexDoubleHost, MPI_T> m_double_dist; /**< Dist (double) */
-    distribution_t<complexFloatHost, MPI_T> m_float_dist;   /**< Dist (single) */
+    distribution_t<complexDoubleHost, MPI_T>
+        m_double_dist;                                    /**< Dist (double) */
+    distribution_t<complexFloatHost, MPI_T> m_float_dist; /**< Dist (single) */
     pairwiseDist3d m_dist3d;
 
     /**
