@@ -60,67 +60,67 @@ template <> class dist3d_t<HQPairCPU> : public HQFFT::hqfftDist3d {
  */
 template <class MPI_T, class FFTBackend> class HQA2AGPU : public Backend {
   private:
-    HQFFT::Distribution<HQFFT::AllToAll, MPI_T, HQFFT::GPUReshape> dist;
+    HQFFT::Distribution<HQFFT::AllToAll, MPI_T, HQFFT::GPUReshape> m_dist;
     HQFFT::Dfft<HQFFT::Distribution, HQFFT::GPUReshape, HQFFT::AllToAll, MPI_T,
                 FFTBackend>
-        dfft;
+        m_dfft;
 
   public:
     HQA2AGPU() {}
 
     HQA2AGPU(MPI_Comm comm, int ngx, int blockSize, bool ks_as_block = true)
-        : dist(comm, ngx, ngx, ngx, blockSize), dfft(dist, ks_as_block) {}
+        : m_dist(comm, ngx, ngx, ngx, blockSize), m_dfft(m_dist, ks_as_block) {}
 
     HQA2AGPU(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize,
              bool ks_as_block = true)
-        : dist(comm, ngx, ngy, ngz, blockSize), dfft(dist, ks_as_block) {}
+        : m_dist(comm, ngx, ngy, ngz, blockSize), m_dfft(m_dist, ks_as_block) {}
 
     ~HQA2AGPU(){};
 
     void query() {
         printf("Using HQAllToAllGPU\n");
-        printf("   distribution = [%d %d %d]\n", dist.dims[0], dist.dims[1],
-               dist.dims[2]);
+        printf("   distribution = [%d %d %d]\n", m_dist.dims[0], m_dist.dims[1],
+               m_dist.dims[2]);
     }
 
-    int3 local_ng() { return dfft.local_ng(); }
+    int3 local_ng() { return m_dfft.local_ng(); }
 
-    int local_ng(int i) { return dfft.local_ng(i); }
+    int local_ng(int i) { return m_dfft.local_ng(i); }
 
-    dist3d_t<HQA2AGPU> dist3d() { return dist3d_t<HQA2AGPU>(dfft.dist3d()); }
+    dist3d_t<HQA2AGPU> dist3d() { return dist3d_t<HQA2AGPU>(m_dfft.dist3d()); }
 
-    int3 get_ks(int idx) { return dfft.get_ks(idx); }
+    int3 get_ks(int idx) { return m_dfft.get_ks(idx); }
 
-    int3 get_rs(int idx) { return dfft.get_rs(idx); }
+    int3 get_rs(int idx) { return m_dfft.get_rs(idx); }
 
-    int ngx() { return dfft.ng[0]; }
+    int ngx() { return m_dfft.ng[0]; }
 
-    int ngy() { return dfft.ng[1]; }
+    int ngy() { return m_dfft.ng[1]; }
 
-    int ngz() { return dfft.ng[2]; }
+    int ngz() { return m_dfft.ng[2]; }
 
-    int3 ng() { return make_int3(dfft.ng[0], dfft.ng[1], dfft.ng[2]); }
+    int3 ng() { return make_int3(m_dfft.ng[0], m_dfft.ng[1], m_dfft.ng[2]); }
 
-    int ng(int i) { return dfft.ng[i]; }
+    int ng(int i) { return m_dfft.ng[i]; }
 
-    size_t buff_sz() { return dist.nlocal; }
+    size_t buff_sz() { return m_dist.nlocal; }
 
     int3 coords() {
-        return make_int3(dist.coords[0], dist.coords[1], dist.coords[2]);
+        return make_int3(m_dist.coords[0], m_dist.coords[1], m_dist.coords[2]);
     }
 
-    int3 dims() { return make_int3(dist.dims[0], dist.dims[1], dist.dims[2]); }
+    int3 dims() { return make_int3(m_dist.dims[0], m_dist.dims[1], m_dist.dims[2]); }
 
-    int rank() { return dist.world_rank; }
+    int rank() { return m_dist.world_rank; }
 
-    MPI_Comm comm() { return dist.world_comm; }
+    MPI_Comm comm() { return m_dist.world_comm; }
 
     void forward(complexDoubleDevice* data, complexDoubleDevice* scratch) {
-        dfft.forward(data, scratch);
+        m_dfft.forward(data, scratch);
     }
 
     void forward(complexFloatDevice* data, complexFloatDevice* scratch) {
-        dfft.forward(data, scratch);
+        m_dfft.forward(data, scratch);
     }
 
     void forward(complexDoubleHost* data, complexDoubleHost* scratch) {
@@ -130,7 +130,7 @@ template <class MPI_T, class FFTBackend> class HQA2AGPU : public Backend {
         swfftAlloc(&d_scratch, sizeof(complexDoubleDevice) * buff_sz());
         gpuMemcpy(d_data, data, sizeof(complexDoubleDevice) * buff_sz(),
                   gpuMemcpyHostToDevice);
-        dfft.forward(d_data, d_scratch);
+        m_dfft.forward(d_data, d_scratch);
         gpuMemcpy(data, d_data, sizeof(complexDoubleDevice) * buff_sz(),
                   gpuMemcpyDeviceToHost);
         swfftFree(d_data);
@@ -144,7 +144,7 @@ template <class MPI_T, class FFTBackend> class HQA2AGPU : public Backend {
         swfftAlloc(&d_scratch, sizeof(complexFloatDevice) * buff_sz());
         gpuMemcpy(d_data, data, sizeof(complexFloatDevice) * buff_sz(),
                   gpuMemcpyHostToDevice);
-        dfft.forward(d_data, d_scratch);
+        m_dfft.forward(d_data, d_scratch);
         gpuMemcpy(data, d_data, sizeof(complexFloatDevice) * buff_sz(),
                   gpuMemcpyDeviceToHost);
         swfftFree(d_data);
@@ -152,11 +152,11 @@ template <class MPI_T, class FFTBackend> class HQA2AGPU : public Backend {
     }
 
     void backward(complexDoubleDevice* data, complexDoubleDevice* scratch) {
-        dfft.backward(data, scratch);
+        m_dfft.backward(data, scratch);
     }
 
     void backward(complexFloatDevice* data, complexFloatDevice* scratch) {
-        dfft.backward(data, scratch);
+        m_dfft.backward(data, scratch);
     }
 
     void backward(complexDoubleHost* data, complexDoubleHost* scratch) {
@@ -166,7 +166,7 @@ template <class MPI_T, class FFTBackend> class HQA2AGPU : public Backend {
         swfftAlloc(&d_scratch, sizeof(complexDoubleDevice) * buff_sz());
         gpuMemcpy(d_data, data, sizeof(complexDoubleDevice) * buff_sz(),
                   gpuMemcpyHostToDevice);
-        dfft.backward(d_data, d_scratch);
+        m_dfft.backward(d_data, d_scratch);
         gpuMemcpy(data, d_data, sizeof(complexDoubleDevice) * buff_sz(),
                   gpuMemcpyDeviceToHost);
         swfftFree(d_data);
@@ -180,7 +180,7 @@ template <class MPI_T, class FFTBackend> class HQA2AGPU : public Backend {
         swfftAlloc(&d_scratch, sizeof(complexFloatDevice) * buff_sz());
         gpuMemcpy(d_data, data, sizeof(complexFloatDevice) * buff_sz(),
                   gpuMemcpyHostToDevice);
-        dfft.backward(d_data, d_scratch);
+        m_dfft.backward(d_data, d_scratch);
         gpuMemcpy(data, d_data, sizeof(complexFloatDevice) * buff_sz(),
                   gpuMemcpyDeviceToHost);
         swfftFree(d_data);

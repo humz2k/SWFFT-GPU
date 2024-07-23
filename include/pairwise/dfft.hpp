@@ -83,11 +83,11 @@ class pairwiseDist3d {
  */
 template <class MPI_T, class FFTBackend> class Dfft {
   private:
-    MPI_Comm comm;   /**< MPI communicator */
-    FFTBackend FFTs; /**< FFT backend */
-    int n[3];        /**< Dimensions of the data grid */
-    distribution_t<complexDoubleHost, MPI_T> double_dist; /**< Dist (double) */
-    distribution_t<complexFloatHost, MPI_T> float_dist;   /**< Dist (single) */
+    MPI_Comm m_comm;   /**< MPI communicator */
+    FFTBackend m_FFTs; /**< FFT backend */
+    int m_n[3];        /**< Dimensions of the data grid */
+    distribution_t<complexDoubleHost, MPI_T> m_double_dist; /**< Dist (double) */
+    distribution_t<complexFloatHost, MPI_T> m_float_dist;   /**< Dist (single) */
     pairwiseDist3d m_dist3d;
 
     /**
