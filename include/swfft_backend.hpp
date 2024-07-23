@@ -12,6 +12,8 @@
 
 namespace SWFFT {
 
+template <template <class, class> class T> class dist3d_t {};
+
 /**
  * @class Backend
  * @brief Abstract base class for 3D FFT backend implementations.
