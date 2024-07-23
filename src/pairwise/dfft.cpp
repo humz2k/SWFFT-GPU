@@ -15,20 +15,20 @@ namespace PAIR {
 
 template <class MPI_T, class FFTBackend>
 Dfft<MPI_T, FFTBackend>::Dfft(MPI_Comm comm_, int nx, int ny, int nz)
-    : comm(comm_), n{nx, ny, nz},
-      double_dist(comm_, nx, ny, nz, DEBUG_CONDITION),
-      float_dist(comm_, nx, ny, nz, DEBUG_CONDITION),
-      m_dist3d(double_dist.process_topology_2_z,
-               double_dist.process_topology_3) {}
+    : m_comm(comm_), m_n{nx, ny, nz},
+      m_double_dist(comm_, nx, ny, nz, DEBUG_CONDITION),
+      m_float_dist(comm_, nx, ny, nz, DEBUG_CONDITION),
+      m_dist3d(m_double_dist.process_topology_2_z,
+               m_double_dist.process_topology_3) {}
 
 template <class MPI_T, class FFTBackend>
 int3 Dfft<MPI_T, FFTBackend>::coords() {
-    return make_int3(double_dist.get_self_3d(0), double_dist.get_self_3d(1),
-                     double_dist.get_self_3d(2));
+    return make_int3(m_double_dist.get_self_3d(0), m_double_dist.get_self_3d(1),
+                     m_double_dist.get_self_3d(2));
 }
 
 template <class MPI_T, class FFTBackend>
-pairwise_dist3d Dfft<MPI_T, FFTBackend>::dist3d() {
+pairwiseDist3d Dfft<MPI_T, FFTBackend>::dist3d() {
     return m_dist3d;
 }
 
@@ -44,7 +44,7 @@ int3 Dfft<MPI_T, FFTBackend>::get_rs(int idx) {
 
 template <class MPI_T, class FFTBackend>
 int Dfft<MPI_T, FFTBackend>::get_local_ng_3d(int direction) {
-    return double_dist.local_ng_3d(direction);
+    return m_double_dist.local_ng_3d(direction);
 }
 
 template <class MPI_T, class FFTBackend> Dfft<MPI_T, FFTBackend>::~Dfft() {}
@@ -90,107 +90,107 @@ void Dfft<MPI_T, FFTBackend>::backward(complexFloatHost* data) {
 template <class MPI_T, class FFTBackend>
 void Dfft<MPI_T, FFTBackend>::forward(complexDoubleHost* data,
                                       complexDoubleHost* scratch) {
-    double_dist.dist_3_to_2(data, scratch, 0);
+    m_double_dist.dist_3_to_2(data, scratch, 0);
 
-    FFTs.forward(scratch, data, double_dist.process_topology_2_x.n[0],
-                 double_dist.process_topology_2_x.n[1] *
-                     double_dist.process_topology_2_x.n[2]);
+    m_FFTs.forward(scratch, data, m_double_dist.process_topology_2_x.n[0],
+                   m_double_dist.process_topology_2_x.n[1] *
+                       m_double_dist.process_topology_2_x.n[2]);
 
-    double_dist.dist_2_to_3(data, scratch, 0);
+    m_double_dist.dist_2_to_3(data, scratch, 0);
 
-    double_dist.dist_3_to_2(scratch, data, 1);
+    m_double_dist.dist_3_to_2(scratch, data, 1);
 
-    FFTs.forward(data, scratch, double_dist.process_topology_2_y.n[1],
-                 double_dist.process_topology_2_y.n[0] *
-                     double_dist.process_topology_2_y.n[2]);
+    m_FFTs.forward(data, scratch, m_double_dist.process_topology_2_y.n[1],
+                   m_double_dist.process_topology_2_y.n[0] *
+                       m_double_dist.process_topology_2_y.n[2]);
 
-    double_dist.dist_2_to_3(scratch, data, 1);
+    m_double_dist.dist_2_to_3(scratch, data, 1);
 
-    double_dist.dist_3_to_2(data, scratch, 2);
+    m_double_dist.dist_3_to_2(data, scratch, 2);
 
-    FFTs.forward(scratch, data, double_dist.process_topology_2_z.n[2],
-                 double_dist.process_topology_2_z.n[0] *
-                     double_dist.process_topology_2_z.n[1]);
+    m_FFTs.forward(scratch, data, m_double_dist.process_topology_2_z.n[2],
+                   m_double_dist.process_topology_2_z.n[0] *
+                       m_double_dist.process_topology_2_z.n[1]);
 }
 
 template <class MPI_T, class FFTBackend>
 void Dfft<MPI_T, FFTBackend>::forward(complexFloatHost* data,
                                       complexFloatHost* scratch) {
-    float_dist.dist_3_to_2(data, scratch, 0);
+    m_float_dist.dist_3_to_2(data, scratch, 0);
 
-    FFTs.forward(scratch, data, float_dist.process_topology_2_x.n[0],
-                 float_dist.process_topology_2_x.n[1] *
-                     float_dist.process_topology_2_x.n[2]);
+    m_FFTs.forward(scratch, data, m_float_dist.process_topology_2_x.n[0],
+                   m_float_dist.process_topology_2_x.n[1] *
+                       m_float_dist.process_topology_2_x.n[2]);
 
-    float_dist.dist_2_to_3(data, scratch, 0);
+    m_float_dist.dist_2_to_3(data, scratch, 0);
 
-    float_dist.dist_3_to_2(scratch, data, 1);
+    m_float_dist.dist_3_to_2(scratch, data, 1);
 
-    FFTs.forward(data, scratch, float_dist.process_topology_2_y.n[1],
-                 float_dist.process_topology_2_y.n[0] *
-                     float_dist.process_topology_2_y.n[2]);
+    m_FFTs.forward(data, scratch, m_float_dist.process_topology_2_y.n[1],
+                   m_float_dist.process_topology_2_y.n[0] *
+                       m_float_dist.process_topology_2_y.n[2]);
 
-    float_dist.dist_2_to_3(scratch, data, 1);
+    m_float_dist.dist_2_to_3(scratch, data, 1);
 
-    float_dist.dist_3_to_2(data, scratch, 2);
+    m_float_dist.dist_3_to_2(data, scratch, 2);
 
-    FFTs.forward(scratch, data, float_dist.process_topology_2_z.n[2],
-                 float_dist.process_topology_2_z.n[0] *
-                     float_dist.process_topology_2_z.n[1]);
+    m_FFTs.forward(scratch, data, m_float_dist.process_topology_2_z.n[2],
+                   m_float_dist.process_topology_2_z.n[0] *
+                       m_float_dist.process_topology_2_z.n[1]);
 }
 
 template <class MPI_T, class FFTBackend>
 void Dfft<MPI_T, FFTBackend>::backward(complexDoubleHost* data,
                                        complexDoubleHost* scratch) {
 
-    FFTs.backward(data, scratch, double_dist.process_topology_2_z.n[2],
-                  double_dist.process_topology_2_z.n[0] *
-                      double_dist.process_topology_2_z.n[1]);
+    m_FFTs.backward(data, scratch, m_double_dist.process_topology_2_z.n[2],
+                    m_double_dist.process_topology_2_z.n[0] *
+                        m_double_dist.process_topology_2_z.n[1]);
 
-    double_dist.dist_2_to_3(scratch, data, 2);
+    m_double_dist.dist_2_to_3(scratch, data, 2);
 
-    double_dist.dist_3_to_2(data, scratch, 1);
+    m_double_dist.dist_3_to_2(data, scratch, 1);
 
-    FFTs.backward(scratch, data, double_dist.process_topology_2_y.n[1],
-                  double_dist.process_topology_2_y.n[0] *
-                      double_dist.process_topology_2_y.n[2]);
+    m_FFTs.backward(scratch, data, m_double_dist.process_topology_2_y.n[1],
+                    m_double_dist.process_topology_2_y.n[0] *
+                        m_double_dist.process_topology_2_y.n[2]);
 
-    double_dist.dist_2_to_3(data, scratch, 1);
+    m_double_dist.dist_2_to_3(data, scratch, 1);
 
-    double_dist.dist_3_to_2(scratch, data, 0);
+    m_double_dist.dist_3_to_2(scratch, data, 0);
 
-    FFTs.backward(data, scratch, double_dist.process_topology_2_x.n[0],
-                  double_dist.process_topology_2_x.n[1] *
-                      double_dist.process_topology_2_x.n[2]);
+    m_FFTs.backward(data, scratch, m_double_dist.process_topology_2_x.n[0],
+                    m_double_dist.process_topology_2_x.n[1] *
+                        m_double_dist.process_topology_2_x.n[2]);
 
-    double_dist.dist_2_to_3(scratch, data, 0);
+    m_double_dist.dist_2_to_3(scratch, data, 0);
 }
 
 template <class MPI_T, class FFTBackend>
 void Dfft<MPI_T, FFTBackend>::backward(complexFloatHost* data,
                                        complexFloatHost* scratch) {
 
-    FFTs.backward(data, scratch, float_dist.process_topology_2_z.n[2],
-                  float_dist.process_topology_2_z.n[0] *
-                      float_dist.process_topology_2_z.n[1]);
+    m_FFTs.backward(data, scratch, m_float_dist.process_topology_2_z.n[2],
+                    m_float_dist.process_topology_2_z.n[0] *
+                        m_float_dist.process_topology_2_z.n[1]);
 
-    float_dist.dist_2_to_3(scratch, data, 2);
+    m_float_dist.dist_2_to_3(scratch, data, 2);
 
-    float_dist.dist_3_to_2(data, scratch, 1);
+    m_float_dist.dist_3_to_2(data, scratch, 1);
 
-    FFTs.backward(scratch, data, float_dist.process_topology_2_y.n[1],
-                  float_dist.process_topology_2_y.n[0] *
-                      float_dist.process_topology_2_y.n[2]);
+    m_FFTs.backward(scratch, data, m_float_dist.process_topology_2_y.n[1],
+                    m_float_dist.process_topology_2_y.n[0] *
+                        m_float_dist.process_topology_2_y.n[2]);
 
-    float_dist.dist_2_to_3(data, scratch, 1);
+    m_float_dist.dist_2_to_3(data, scratch, 1);
 
-    float_dist.dist_3_to_2(scratch, data, 0);
+    m_float_dist.dist_3_to_2(scratch, data, 0);
 
-    FFTs.backward(data, scratch, float_dist.process_topology_2_x.n[0],
-                  float_dist.process_topology_2_x.n[1] *
-                      float_dist.process_topology_2_x.n[2]);
+    m_FFTs.backward(data, scratch, m_float_dist.process_topology_2_x.n[0],
+                    m_float_dist.process_topology_2_x.n[1] *
+                        m_float_dist.process_topology_2_x.n[2]);
 
-    float_dist.dist_2_to_3(scratch, data, 0);
+    m_float_dist.dist_2_to_3(scratch, data, 0);
 }
 
 #ifdef SWFFT_GPU
@@ -266,14 +266,14 @@ void Dfft<MPI_T, FFTBackend>::backward(complexFloatDevice* data,
 
 template <class MPI_T, class FFTBackend>
 int Dfft<MPI_T, FFTBackend>::get_nproc_3d(int direction) {
-    return double_dist.get_nproc_3d(direction);
+    return m_double_dist.get_nproc_3d(direction);
 }
 
 template <class MPI_T, class FFTBackend>
 int Dfft<MPI_T, FFTBackend>::buff_sz() {
     int size = 1;
     for (int i = 0; i < 3; i++) {
-        size *= n[i] / double_dist.process_topology_3.nproc[i];
+        size *= m_n[i] / m_double_dist.process_topology_3.nproc[i];
     }
     return size;
 }

@@ -17,13 +17,13 @@
 namespace SWFFT {
 namespace PAIR {
 
-class pairwise_dist3d {
+class pairwiseDist3d {
   private:
     process_topology_t m_process_topology_2_z; /**< 2D dist (z) */
     process_topology_t m_process_topology_3;   /**< 3D dist */
   public:
-    pairwise_dist3d(process_topology_t process_topology_2_z,
-                    process_topology_t process_topology_3)
+    pairwiseDist3d(process_topology_t process_topology_2_z,
+                   process_topology_t process_topology_3)
         : m_process_topology_2_z(process_topology_2_z),
           m_process_topology_3(process_topology_3) {}
 
@@ -83,12 +83,13 @@ class pairwise_dist3d {
  */
 template <class MPI_T, class FFTBackend> class Dfft {
   private:
-    MPI_Comm comm;   /**< MPI communicator */
-    FFTBackend FFTs; /**< FFT backend */
-    int n[3];        /**< Dimensions of the data grid */
-    distribution_t<complexDoubleHost, MPI_T> double_dist; /**< Dist (double) */
-    distribution_t<complexFloatHost, MPI_T> float_dist;   /**< Dist (single) */
-    pairwise_dist3d m_dist3d;
+    MPI_Comm m_comm;   /**< MPI communicator */
+    FFTBackend m_FFTs; /**< FFT backend */
+    int m_n[3];        /**< Dimensions of the data grid */
+    distribution_t<complexDoubleHost, MPI_T>
+        m_double_dist;                                    /**< Dist (double) */
+    distribution_t<complexFloatHost, MPI_T> m_float_dist; /**< Dist (single) */
+    pairwiseDist3d m_dist3d;
 
     /**
      * @brief Template method to perform forward FFT.
@@ -136,7 +137,7 @@ template <class MPI_T, class FFTBackend> class Dfft {
      */
     int3 coords();
 
-    pairwise_dist3d dist3d();
+    pairwiseDist3d dist3d();
 
     /**
      * @brief Get the k-space coordinates for a given index.

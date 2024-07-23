@@ -19,9 +19,9 @@ namespace SWFFT {
  */
 template <class T> class copyBuffersBase {
   protected:
-    T* dest; /**< Pointer to the destination buffer */
-    T* src;  /**< Pointer to the source buffer */
-    int n;   /**< Number of elements to copy */
+    T* m_dest; /**< Pointer to the destination buffer */
+    T* m_src;  /**< Pointer to the source buffer */
+    int m_n;   /**< Number of elements to copy */
   public:
     /**
      * @brief Constructor for copyBuffersBase.
@@ -31,7 +31,7 @@ template <class T> class copyBuffersBase {
      * @param n_ Number of elements to copy.
      */
     copyBuffersBase(T* dest_, T* src_, int n_)
-        : dest(dest_), src(src_), n(n_) {}
+        : m_dest(dest_), m_src(src_), m_n(n_) {}
 
     /**
      * @brief Virtual function to wait for the copy operation to complete.
@@ -58,8 +58,8 @@ template <class T> class copyBuffersCPU : public copyBuffersBase<T> {
      */
     copyBuffersCPU(T* dest_, T* src_, int n_)
         : copyBuffersBase<T>(dest_, src_, n_) {
-        for (int i = 0; i < this->n; i++) {
-            this->dest[i] = this->src[i];
+        for (int i = 0; i < this->m_n; i++) {
+            this->m_dest[i] = this->m_src[i];
         }
     }
 };
@@ -98,7 +98,7 @@ template <class T> class copyBuffersGPU : public copyBuffersBase<T> {
     copyBuffersGPU(T* dest_, T* src_, int n_)
         : copyBuffersBase<T>(dest_, src_, n_) {
         gpuEventCreate(&event);
-        gpuMemcpyAsync(this->dest, this->src, this->n * sizeof(T),
+        gpuMemcpyAsync(this->m_dest, this->m_src, this->m_n * sizeof(T),
                        gpuMemcpyDeviceToDevice);
         gpuEventRecord(event);
     }

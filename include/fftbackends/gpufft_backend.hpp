@@ -43,9 +43,20 @@ class GPUPlanWrapper {
  * @brief Class to manage GPU FFT plans and perform FFT operations.
  */
 class GPUPlanManager : public FFTBackend_T {
-  public:
-    GPUPlanWrapper plans[N_FFT_CACHE]; /**< Array of cached GPU FFT plans */
+  private:
+    GPUPlanWrapper m_plans[N_FFT_CACHE]; /**< Array of cached GPU FFT plans */
 
+    /**
+     * @brief Find or create a GPU FFT plan.
+     *
+     * @param ng Number of grid cells.
+     * @param nFFTs Number of FFTs.
+     * @param t GPU FFT type.
+     * @return gpufftHandle Handle to the GPU FFT plan.
+     */
+    gpufftHandle find_plan(int ng, int nFFTs, gpufftType t);
+
+  public:
     /**
      * @brief Constructor for GPUPlanManager.
      */
@@ -60,16 +71,6 @@ class GPUPlanManager : public FFTBackend_T {
      * @brief Query the GPU FFT backend.
      */
     void query();
-
-    /**
-     * @brief Find or create a GPU FFT plan.
-     *
-     * @param ng Number of grid cells.
-     * @param nFFTs Number of FFTs.
-     * @param t GPU FFT type.
-     * @return gpufftHandle Handle to the GPU FFT plan.
-     */
-    gpufftHandle find_plan(int ng, int nFFTs, gpufftType t);
 
     /**
      * @brief Perform forward FFT on GPU with double-precision complex data.
