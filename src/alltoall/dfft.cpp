@@ -7,7 +7,7 @@ namespace A2A {
 template <class MPI_T, class REORDER_T, class FFTBackend>
 Dfft<MPI_T, REORDER_T, FFTBackend>::Dfft(Distribution<MPI_T, REORDER_T>& dist_,
                                          bool ks_as_block_)
-    : ks_as_block(ks_as_block_), dist(dist_) {
+    : ks_as_block(ks_as_block_), dist(dist_), m_dist3d(ks_as_block,dist.local_grid_size,dist.local_coordinates_start,dist.nlocal,dist.world_size,dist.dims,dist.fftcomms[1]) {
     ng[0] = dist.ng[0];
     ng[1] = dist.ng[1];
     ng[2] = dist.ng[2];
@@ -22,6 +22,14 @@ Dfft<MPI_T, REORDER_T, FFTBackend>::Dfft(Distribution<MPI_T, REORDER_T>& dist_,
 
 template <class MPI_T, class REORDER_T, class FFTBackend>
 Dfft<MPI_T, REORDER_T, FFTBackend>::~Dfft() {}
+
+template <class MPI_T, class REORDER_T, class FFTBackend>
+alltoall_dist3d Dfft<MPI_T, REORDER_T, FFTBackend>::dist3d() {
+    return m_dist3d;
+    //int my_rank;
+    //MPI_Comm_rank(dist.fftcomms[1], &my_rank);
+    //return alltoall_dist3d(ks_as_block,dist.local_grid_size,dist.local_coordinates_start,dist.nlocal,dist.world_size,dist.dims,my_rank);
+}
 
 template <class MPI_T, class REORDER_T, class FFTBackend>
 int3 Dfft<MPI_T, REORDER_T, FFTBackend>::get_ks(int idx) {
