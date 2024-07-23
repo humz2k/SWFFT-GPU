@@ -26,93 +26,16 @@ Dfft<MPI_T, REORDER_T, FFTBackend>::~Dfft() {}
 template <class MPI_T, class REORDER_T, class FFTBackend>
 alltoall_dist3d Dfft<MPI_T, REORDER_T, FFTBackend>::dist3d() {
     return m_dist3d;
-    //int my_rank;
-    //MPI_Comm_rank(dist.fftcomms[1], &my_rank);
-    //return alltoall_dist3d(ks_as_block,dist.local_grid_size,dist.local_coordinates_start,dist.nlocal,dist.world_size,dist.dims,my_rank);
 }
 
 template <class MPI_T, class REORDER_T, class FFTBackend>
 int3 Dfft<MPI_T, REORDER_T, FFTBackend>::get_ks(int idx) {
-    if (ks_as_block) {
-        int3 local_idx;
-        local_idx.x = idx / (dist.local_grid_size[1] * dist.local_grid_size[2]);
-        local_idx.y = (idx - local_idx.x * (dist.local_grid_size[1] *
-                                            dist.local_grid_size[2])) /
-                      dist.local_grid_size[2];
-        local_idx.z = (idx - local_idx.x * (dist.local_grid_size[1] *
-                                            dist.local_grid_size[2])) -
-                      (local_idx.y * dist.local_grid_size[2]);
-        int3 global_idx =
-            make_int3(dist.local_coordinates_start[0] + local_idx.x,
-                      dist.local_coordinates_start[1] + local_idx.y,
-                      dist.local_coordinates_start[2] + local_idx.z);
-        return global_idx;
-    }
-
-    int i;
-
-    // this is really really dumb please fix
-    for (i = 0; i < nlocal; i++) {
-        if ((calc_mini_pencil_idx(
-                i, (nlocal / world_size) / dist.local_grid_size[1], world_size,
-                dist.local_grid_size[1])) == idx)
-            break;
-    }
-
-    int rank_of_origin = i / (nlocal / world_size);
-    int rank_z = rank_of_origin / (dist.dims[0] * dist.dims[1]);
-    int rank_x =
-        (rank_of_origin - rank_z * dist.dims[0] * dist.dims[1]) / dist.dims[1];
-    int rank_y = (rank_of_origin - rank_z * dist.dims[0] * dist.dims[1]) -
-                 rank_x * dist.dims[1];
-
-    int my_rank;
-    MPI_Comm_rank(dist.fftcomms[1], &my_rank);
-
-    int local_rank_idx =
-        (i % (nlocal / world_size)) + (nlocal / world_size) * my_rank;
-
-    int lgridz = dist.local_grid_size[2];
-    int lgridy = dist.local_grid_size[1];
-
-    int _i = local_rank_idx / (lgridz * lgridy);
-    int _k = (local_rank_idx - _i * (lgridz * lgridy)) / lgridy;
-    int _j = (local_rank_idx - _i * (lgridz * lgridy)) - _k * lgridy;
-    int dest_index = _i * lgridz * lgridy + _j * lgridz + _k;
-
-    int3 local_idx;
-    local_idx.x =
-        dest_index / (dist.local_grid_size[1] * dist.local_grid_size[2]);
-    local_idx.y = (dest_index - local_idx.x * (dist.local_grid_size[1] *
-                                               dist.local_grid_size[2])) /
-                  dist.local_grid_size[2];
-    local_idx.z = (dest_index - local_idx.x * (dist.local_grid_size[1] *
-                                               dist.local_grid_size[2])) -
-                  (local_idx.y * dist.local_grid_size[2]);
-
-    int3 global_idx;
-    global_idx.x = rank_x * dist.local_grid_size[0] + local_idx.x;
-    global_idx.y = rank_y * dist.local_grid_size[1] + local_idx.y;
-    global_idx.z = rank_z * dist.local_grid_size[2] + local_idx.z;
-
-    return global_idx;
+    return m_dist3d.get_ks(idx);
 }
 
 template <class MPI_T, class REORDER_T, class FFTBackend>
 int3 Dfft<MPI_T, REORDER_T, FFTBackend>::get_rs(int idx) {
-
-    int3 local_idx;
-    local_idx.x = idx / (dist.local_grid_size[1] * dist.local_grid_size[2]);
-    local_idx.y = (idx - local_idx.x * (dist.local_grid_size[1] *
-                                        dist.local_grid_size[2])) /
-                  dist.local_grid_size[2];
-    local_idx.z = (idx - local_idx.x * (dist.local_grid_size[1] *
-                                        dist.local_grid_size[2])) -
-                  (local_idx.y * dist.local_grid_size[2]);
-    int3 global_idx = make_int3(dist.local_coordinates_start[0] + local_idx.x,
-                                dist.local_coordinates_start[1] + local_idx.y,
-                                dist.local_coordinates_start[2] + local_idx.z);
-    return global_idx;
+    return m_dist3d.get_rs(idx);
 }
 
 template <class MPI_T, class REORDER_T, class FFTBackend>
