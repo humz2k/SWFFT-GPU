@@ -104,7 +104,6 @@ void run_test() {
 
     // do a forward fft on the data
     fft.forward(data, scratch);
-    fft.synchronize();
     fft.printLastTime();
     if (!world_rank)
         printf("\n");
@@ -116,7 +115,6 @@ void run_test() {
 
     // do a backward fft
     fft.backward(data, scratch);
-    fft.synchronize();
     fft.printLastTime();
     if (!world_rank)
         printf("\n");
