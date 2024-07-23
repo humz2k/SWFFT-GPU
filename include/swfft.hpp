@@ -78,10 +78,10 @@ template <template <class, class> class DistBackend, class MPI_T,
           class FFTBackend>
 class swfft {
   private:
-    DistBackend<MPI_T, FFTBackend> backend; /**< Backend for FFT operations */
-    double last_time; /**< Time taken for the last operation */
-    int last_was; /**< Last operation performed: 0 for forward, 1 for backward
-                   */
+    DistBackend<MPI_T, FFTBackend> m_backend; /**< Backend for FFT operations */
+    double m_last_time; /**< Time taken for the last operation */
+    int m_last_was; /**< Last operation performed: 0 for forward, 1 for backward
+                     */
 
   public:
     /**
@@ -95,8 +95,8 @@ class swfft {
      */
     inline swfft(MPI_Comm comm, int ngx, int blockSize = 64,
                  bool ks_as_block = true)
-        : backend(comm, ngx, blockSize, ks_as_block), last_time(0),
-          last_was(-1) {}
+        : m_backend(comm, ngx, blockSize, ks_as_block), m_last_time(0),
+          m_last_was(-1) {}
 
     /**
      * @brief Constructor for swfft with non-cubic grid.
@@ -111,8 +111,8 @@ class swfft {
      */
     inline swfft(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize = 64,
                  bool ks_as_block = true)
-        : backend(comm, ngx, ngy, ngz, blockSize, ks_as_block), last_time(0),
-          last_was(-1) {}
+        : m_backend(comm, ngx, ngy, ngz, blockSize, ks_as_block),
+          m_last_time(0), m_last_was(-1) {}
 
     /**
      * @brief Destructor for swfft.
@@ -125,10 +125,10 @@ class swfft {
      * @return timing_stats_t Timing statistics for the last operation.
      */
     inline timing_stats_t printLastTime() {
-        if (last_was == 0) {
-            return printTimingStats(backend.comm(), "FORWARD ", last_time);
+        if (m_last_was == 0) {
+            return printTimingStats(m_backend.comm(), "FORWARD ", m_last_time);
         } else {
-            return printTimingStats(backend.comm(), "BACKWARD", last_time);
+            return printTimingStats(m_backend.comm(), "BACKWARD", m_last_time);
         }
     }
 
@@ -138,7 +138,7 @@ class swfft {
      * @return timing_stats_t Timing statistics for the last operation.
      */
     inline timing_stats_t getLastTime() {
-        return getTimingStats(backend.comm(), last_time);
+        return getTimingStats(m_backend.comm(), m_last_time);
     }
 
     /**
@@ -149,7 +149,7 @@ class swfft {
      * and
      *      `int3 dist3d_t::get_rs(int idx)`
      */
-    dist3d_t<DistBackend> dist3d() { return backend.dist3d(); }
+    dist3d_t<DistBackend> dist3d() { return m_backend.dist3d(); }
 
     /**
      * @brief Get the k-space coordinates for a given index.
@@ -157,7 +157,7 @@ class swfft {
      * @param idx Index of the coordinate.
      * @return int3 k-space coordinates.
      */
-    inline int3 get_ks(int idx) { return backend.get_ks(idx); }
+    inline int3 get_ks(int idx) { return m_backend.get_ks(idx); }
 
     /**
      * @brief Get the real-space coordinates for a given index.
@@ -165,28 +165,28 @@ class swfft {
      * @param idx Index of the coordinate.
      * @return int3 Real-space coordinates.
      */
-    inline int3 get_rs(int idx) { return backend.get_rs(idx); }
+    inline int3 get_rs(int idx) { return m_backend.get_rs(idx); }
 
     /**
      * @brief Get the number of grid cells in the x dimension.
      *
      * @return int Number of grid cells in the x dimension.
      */
-    inline int ngx() { return backend.ngx(); }
+    inline int ngx() { return m_backend.ngx(); }
 
     /**
      * @brief Get the number of grid cells in the y dimension.
      *
      * @return int Number of grid cells in the y dimension.
      */
-    inline int ngy() { return backend.ngy(); }
+    inline int ngy() { return m_backend.ngy(); }
 
     /**
      * @brief Get the number of grid cells in the z dimension.
      *
      * @return int Number of grid cells in the z dimension.
      */
-    inline int ngz() { return backend.ngz(); }
+    inline int ngz() { return m_backend.ngz(); }
 
     /**
      * @brief Get the global size of the grid.
@@ -200,7 +200,7 @@ class swfft {
      *
      * @return int3 Number of grid cells in each dimension.
      */
-    inline int3 ng() { return backend.ng(); }
+    inline int3 ng() { return m_backend.ng(); }
 
     /**
      * @brief Get the number of grid cells in a specific dimension.
@@ -208,14 +208,14 @@ class swfft {
      * @param i Dimension index (0 for x, 1 for y, 2 for z).
      * @return int Number of grid cells.
      */
-    inline int ng(int i) { return backend.ng(i); }
+    inline int ng(int i) { return m_backend.ng(i); }
 
     /**
      * @brief Get the local number of grid cells in each dimension.
      *
      * @return int3 Local number of grid cells.
      */
-    inline int3 local_ng() { return backend.local_ng(); }
+    inline int3 local_ng() { return m_backend.local_ng(); }
 
     /**
      * @brief Get the local number of grid cells in a specific dimension.
@@ -223,35 +223,35 @@ class swfft {
      * @param i Dimension index (0 for x, 1 for y, 2 for z).
      * @return int Local number of grid cells.
      */
-    inline int local_ng(int i) { return backend.local_ng(i); }
+    inline int local_ng(int i) { return m_backend.local_ng(i); }
 
     /**
      * @brief Get the local number of grid cells in the x dimension.
      *
      * @return int Local number of grid cells in the x dimension.
      */
-    inline int local_ngx() { return backend.local_ng(0); }
+    inline int local_ngx() { return m_backend.local_ng(0); }
 
     /**
      * @brief Get the local number of grid cells in the y dimension.
      *
      * @return int Local number of grid cells in the y dimension.
      */
-    inline int local_ngy() { return backend.local_ng(1); }
+    inline int local_ngy() { return m_backend.local_ng(1); }
 
     /**
      * @brief Get the local number of grid cells in the z dimension.
      *
      * @return int Local number of grid cells in the z dimension.
      */
-    inline int local_ngz() { return backend.local_ng(2); }
+    inline int local_ngz() { return m_backend.local_ng(2); }
 
     /**
      * @brief Get the buffer size required for FFT operations.
      *
      * @return size_t Buffer size.
      */
-    inline size_t buff_sz() { return backend.buff_sz(); }
+    inline size_t buff_sz() { return m_backend.buff_sz(); }
 
     /**
      * @brief Get the local size of the buffer.
@@ -265,28 +265,28 @@ class swfft {
      *
      * @return int3 Coordinates of the current process.
      */
-    inline int3 coords() { return backend.coords(); }
+    inline int3 coords() { return m_backend.coords(); }
 
     /**
      * @brief Get the dimensions of the process grid.
      *
      * @return int3 Dimensions of the process grid.
      */
-    inline int3 dims() { return backend.dims(); }
+    inline int3 dims() { return m_backend.dims(); }
 
     /**
      * @brief Get the rank of the current process.
      *
      * @return int Rank of the current process.
      */
-    inline int rank() { return backend.rank(); }
+    inline int rank() { return m_backend.rank(); }
 
     /**
      * @brief Get the MPI communicator.
      *
      * @return MPI_Comm MPI communicator.
      */
-    inline MPI_Comm comm() { return backend.comm(); }
+    inline MPI_Comm comm() { return m_backend.comm(); }
 
     /**
      * @brief Get the size of the MPI world.
@@ -339,11 +339,11 @@ class swfft {
     template <class T> inline void forward(T* data, T* scratch) {
         double start = MPI_Wtime();
 
-        backend.forward(data, scratch);
+        m_backend.forward(data, scratch);
 
         double end = MPI_Wtime();
-        last_time = end - start;
-        last_was = 0;
+        m_last_time = end - start;
+        m_last_was = 0;
     }
 
     /**
@@ -356,11 +356,11 @@ class swfft {
     template <class T> inline void backward(T* data, T* scratch) {
         double start = MPI_Wtime();
 
-        backend.backward(data, scratch);
+        m_backend.backward(data, scratch);
 
         double end = MPI_Wtime();
-        last_time = end - start;
-        last_was = 1;
+        m_last_time = end - start;
+        m_last_was = 1;
     }
 
     /**
@@ -372,11 +372,11 @@ class swfft {
     template <class T> inline void forward(T* data) {
         double start = MPI_Wtime();
 
-        backend.forward(data);
+        m_backend.forward(data);
 
         double end = MPI_Wtime();
-        last_time = end - start;
-        last_was = 0;
+        m_last_time = end - start;
+        m_last_was = 0;
     }
 
     /**
@@ -388,11 +388,11 @@ class swfft {
     template <class T> inline void backward(T* data) {
         double start = MPI_Wtime();
 
-        backend.backward(data);
+        m_backend.backward(data);
 
         double end = MPI_Wtime();
-        last_time = end - start;
-        last_was = 1;
+        m_last_time = end - start;
+        m_last_was = 1;
     }
 };
 
