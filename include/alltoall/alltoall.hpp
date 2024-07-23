@@ -21,16 +21,14 @@ namespace SWFFT {
 template <class MPI_T, class FFTBackend> class AllToAllGPU;
 template <class MPI_T, class FFTBackend> class AllToAllCPU;
 
-template<>
-class dist3d_t<AllToAllGPU> : A2A::alltoall_dist3d{
-    public:
-        using A2A::alltoall_dist3d::alltoall_dist3d;
+template <> class dist3d_t<AllToAllGPU> : A2A::alltoall_dist3d {
+  public:
+    using A2A::alltoall_dist3d::alltoall_dist3d;
 };
 
-template<>
-class dist3d_t<AllToAllCPU> : A2A::alltoall_dist3d{
-    public:
-        using A2A::alltoall_dist3d::alltoall_dist3d;
+template <> class dist3d_t<AllToAllCPU> : A2A::alltoall_dist3d {
+  public:
+    using A2A::alltoall_dist3d::alltoall_dist3d;
 };
 
 #ifdef SWFFT_GPU

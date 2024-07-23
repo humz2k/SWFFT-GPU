@@ -12,8 +12,7 @@
 
 namespace SWFFT {
 
-template<template<class, class> class T>
-class dist3d_t{ };
+template <template <class, class> class T> class dist3d_t {};
 
 /**
  * @class Backend
