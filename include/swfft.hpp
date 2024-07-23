@@ -142,6 +142,16 @@ class swfft {
     }
 
     /**
+     * @brief Gets a `dist3d_t` from the current backend.
+     *
+     * This can be passed into GPU kernels (I think...), and has the methods
+     *      `int3 dist3d_t::get_ks(int idx)`
+     * and
+     *      `int3 dist3d_t::get_rs(int idx)`
+     */
+    dist3d_t<DistBackend> dist3d() { return backend.dist3d(); }
+
+    /**
      * @brief Get the k-space coordinates for a given index.
      *
      * @param idx Index of the coordinate.

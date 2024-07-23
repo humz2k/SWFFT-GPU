@@ -32,6 +32,7 @@ endif
 
 # Include/link settings
 DFFT_INCLUDE ?= -I$(DFFT_INCLUDE_DIR) -I$(DFFT_CUDA_INC) # -I$(DFFT_SOURCE_DIR)
+DFFT_MPI_INCLUDE ?= -I/usr/include/x86_64-linux-gnu/mpich
 DFFT_LD ?= -L$(DFFT_CUDA_LIB)
 
 # GPU settings
@@ -80,12 +81,15 @@ OBJECTS := $(SOURCES:%.cpp=%.o)
 OUTPUTS := $(OBJECTS:%=$(DFFT_BUILD_DIR)/%)
 endif
 
+HEADERS := $(shell find $(DFFT_INCLUDE_DIR) -name '*.hpp')
+
 # Test files/objects
-TESTSOURCES := $(shell find $(DFFT_TEST_DIR) -name '*.cpp')
-TESTOBJECTS := $(TESTSOURCES:%.cpp=%.o)
+TESTSOURCES := $(shell find $(DFFT_TEST_DIR) -name '*.cpp') $(shell find $(DFFT_TEST_DIR) -name '*.cu')
+TESTOBJECTS_1 := $(TESTSOURCES:%.cpp=$(DFFT_BUILD_DIR)/%.o)
+TESTOBJECTS := $(TESTOBJECTS_1:%.cu=$(DFFT_BUILD_DIR)/%.o)
 
 .PHONY: main
-main: $(DFFT_BUILD_DIR)/testdfft $(DFFT_BUILD_DIR)/benchmark $(DFFT_BUILD_DIR)/testks $(DFFT_BUILD_DIR)/testalltoallgpu $(DFFT_BUILD_DIR)/harness
+main: $(DFFT_BUILD_DIR)/testdfft $(DFFT_BUILD_DIR)/benchmark $(DFFT_BUILD_DIR)/testalltoallgpu $(DFFT_BUILD_DIR)/harness
 
 .secondary: $(OUTPUTS) $(TESTOBJECTS)
 
@@ -98,13 +102,13 @@ clean:
 	rm -rf $(DFFT_BUILD_DIR)
 	rm -rf $(DFFT_LIB_DIR)
 
-$(DFFT_BUILD_DIR)/%.o: %.cpp
+$(DFFT_BUILD_DIR)/%.o: %.cpp $(HEADERS)
 	mkdir -p $(@D)
 	$(DFFT_MPI_CXX) -c -o $@ $< $(GPU_FLAG) $(DFFT_CUDA_MPI) -DSWFFT_$(DFFT_GPU) -DSWFFT_PLATFORM=$(DFFT_PLATFORM) $(DFFT_DIST_BACKEND_DEFINES) $(DFFT_FFT_BACKEND_DEFINES) $(DFFT_INCLUDE) $(DFFT_OPENMP) -fPIC
 
-$(DFFT_BUILD_DIR)/%.o: %.cu
+$(DFFT_BUILD_DIR)/%.o: %.cu $(HEADERS)
 	mkdir -p $(@D)
-	$(DFFT_CUDA_CC) -o $@ $< $(GPU_FLAG) $(DFFT_CUDA_MPI) -DSWFFT_$(DFFT_GPU) -DSWFFT_PLATFORM=$(DFFT_PLATFORM) $(DFFT_DIST_BACKEND_DEFINES) $(DFFT_FFT_BACKEND_DEFINES) $(DFFT_INCLUDE) $(DFFT_CUDA_FLAGS) $(DFFT_CUDA_ARCH) -c
+	$(DFFT_CUDA_CC) -o $@ $< $(GPU_FLAG) $(DFFT_CUDA_MPI) -DSWFFT_$(DFFT_GPU) -DSWFFT_PLATFORM=$(DFFT_PLATFORM) $(DFFT_DIST_BACKEND_DEFINES) $(DFFT_FFT_BACKEND_DEFINES) $(DFFT_INCLUDE) $(DFFT_MPI_INCLUDE) $(DFFT_CUDA_FLAGS) $(DFFT_CUDA_ARCH) -c
 
 $(DFFT_LIB_DIR)/$(DFFT_AR): $(OUTPUTS)
 	mkdir -p $(@D)
