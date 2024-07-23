@@ -26,7 +26,7 @@ template <class MPI_T, class REORDER_T, class FFTBackend>
 Dfft<MPI_T, REORDER_T, FFTBackend>::~Dfft() {}
 
 template <class MPI_T, class REORDER_T, class FFTBackend>
-alltoall_dist3d Dfft<MPI_T, REORDER_T, FFTBackend>::dist3d() {
+alltoallDist3d Dfft<MPI_T, REORDER_T, FFTBackend>::dist3d() {
     return m_dist3d;
 }
 
@@ -47,7 +47,7 @@ void Dfft<MPI_T, REORDER_T, FFTBackend>::fft(T* data, T* scratch,
     if (ks_as_block) {
 #pragma GCC unroll 3
         for (int i = 0; i < 3; i++) {
-            dist.getPencils(data, scratch, i);
+            dist.get_pencils(data, scratch, i);
             dist.reorder(data, scratch, i, 0);
 
             int dim = (i + 2) % 3;
@@ -60,7 +60,7 @@ void Dfft<MPI_T, REORDER_T, FFTBackend>::fft(T* data, T* scratch,
             }
 
             dist.reorder(data, scratch, i, 1);
-            dist.returnPencils(data, scratch, i);
+            dist.return_pencils(data, scratch, i);
             dist.shuffle_indices(data, scratch, i);
         }
     } else {
@@ -70,17 +70,17 @@ void Dfft<MPI_T, REORDER_T, FFTBackend>::fft(T* data, T* scratch,
 
                 int dim = (i + 2) % 3;
 
-                dist.getPencils(data, scratch, i);
+                dist.get_pencils(data, scratch, i);
                 dist.reorder(data, scratch, i, 0);
 
                 int nFFTs = (nlocal / ng[dim]);
                 FFTs.forward(data, scratch, ng[dim], nFFTs);
 
                 dist.reorder(data, scratch, i, 1);
-                dist.returnPencils(data, scratch, i);
+                dist.return_pencils(data, scratch, i);
                 dist.shuffle_indices(data, scratch, i);
             }
-            dist.getPencils(data, scratch, 2);
+            dist.get_pencils(data, scratch, 2);
             dist.reorder(data, scratch, 2, 0);
             int dim = (2 + 2) % 3;
             int nFFTs = (nlocal / ng[dim]);
@@ -93,10 +93,10 @@ void Dfft<MPI_T, REORDER_T, FFTBackend>::fft(T* data, T* scratch,
             FFTs.backward(data, scratch, ng[dim], nFFTs);
 
             dist.reorder(data, scratch, 2, 1);
-            dist.returnPencils(data, scratch, 2);
+            dist.return_pencils(data, scratch, 2);
             dist.shuffle_indices(data, scratch, 2);
 
-            dist.getPencils(data, scratch, 0);
+            dist.get_pencils(data, scratch, 0);
             dist.reorder(data, scratch, 0, 0);
 
             dim = (0 + 2) % 3;
@@ -104,10 +104,10 @@ void Dfft<MPI_T, REORDER_T, FFTBackend>::fft(T* data, T* scratch,
             FFTs.backward(data, scratch, ng[dim], nFFTs);
 
             dist.reorder(data, scratch, 0, 1);
-            dist.returnPencils(data, scratch, 0);
+            dist.return_pencils(data, scratch, 0);
             dist.shuffle_indices(data, scratch, 0);
 
-            dist.getPencils(data, scratch, 1);
+            dist.get_pencils(data, scratch, 1);
             dist.reorder(data, scratch, 1, 0);
 
             dim = (1 + 2) % 3;
@@ -115,7 +115,7 @@ void Dfft<MPI_T, REORDER_T, FFTBackend>::fft(T* data, T* scratch,
             FFTs.backward(data, scratch, ng[dim], nFFTs);
 
             dist.reorder(data, scratch, 1, 1);
-            dist.returnPencils(data, scratch, 1);
+            dist.return_pencils(data, scratch, 1);
             dist.shuffle_indices(data, scratch, 3);
         }
     }

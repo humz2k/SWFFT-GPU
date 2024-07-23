@@ -23,8 +23,7 @@ Dfft<Dist, REORDER_T, CollectiveComm, MPI_T, FFTBackend>::~Dfft() {}
 template <template <template <class> class, class, class> class Dist,
           class REORDER_T, template <class> class CollectiveComm, class MPI_T,
           class FFTBackend>
-hqfft_dist3d
-Dfft<Dist, REORDER_T, CollectiveComm, MPI_T, FFTBackend>::dist3d() {
+hqfftDist3d Dfft<Dist, REORDER_T, CollectiveComm, MPI_T, FFTBackend>::dist3d() {
     return m_dist3d;
 }
 

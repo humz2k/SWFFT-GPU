@@ -20,7 +20,7 @@
 namespace SWFFT {
 namespace A2A {
 
-class alltoall_dist3d {
+class alltoallDist3d {
   private:
     bool m_ks_as_block;
     int m_local_grid_size[3];
@@ -31,9 +31,9 @@ class alltoall_dist3d {
     int m_my_rank;
 
   public:
-    alltoall_dist3d(bool ks_as_block, int local_grid_size[],
-                    int local_coordinates_start[], int nlocal, int world_size,
-                    int dims[], MPI_Comm comm)
+    alltoallDist3d(bool ks_as_block, int local_grid_size[],
+                   int local_coordinates_start[], int nlocal, int world_size,
+                   int dims[], MPI_Comm comm)
         : m_ks_as_block(ks_as_block), m_local_grid_size{local_grid_size[0],
                                                         local_grid_size[1],
                                                         local_grid_size[2]},
@@ -164,7 +164,7 @@ template <class MPI_T, class REORDER_T, class FFTBackend> class Dfft {
     Distribution<MPI_T, REORDER_T>& dist; /**< Distribution strategy instance */
     FFTBackend FFTs;                      /**< FFT backend instance */
 
-    alltoall_dist3d m_dist3d;
+    alltoallDist3d m_dist3d;
 
     /**
      * @brief Constructor for Dfft.
@@ -180,7 +180,7 @@ template <class MPI_T, class REORDER_T, class FFTBackend> class Dfft {
      */
     ~Dfft();
 
-    alltoall_dist3d dist3d();
+    alltoallDist3d dist3d();
 
     /**
      * @brief Get k-space coordinates for a given index.
