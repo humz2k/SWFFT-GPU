@@ -17,6 +17,63 @@
 namespace SWFFT {
 namespace PAIR {
 
+class pairwise_dist3d {
+  private:
+    process_topology_t m_process_topology_2_z; /**< 2D dist (z) */
+    process_topology_t m_process_topology_3;   /**< 3D dist */
+  public:
+    pairwise_dist3d(process_topology_t process_topology_2_z,
+                    process_topology_t process_topology_3)
+        : m_process_topology_2_z(process_topology_2_z),
+          m_process_topology_3(process_topology_3) {}
+
+#ifdef SWFFT_GPU
+    __host__ __device__
+#endif
+        int3
+        get_ks(int idx) {
+        int3 local_ng_k =
+            make_int3(m_process_topology_2_z.n[0], m_process_topology_2_z.n[1],
+                      m_process_topology_2_z.n[2]);
+        int3 pos_k = make_int3(m_process_topology_2_z.self[0],
+                               m_process_topology_2_z.self[1],
+                               m_process_topology_2_z.self[2]);
+        int3 my_pos;
+        my_pos.x = idx / (local_ng_k.y * local_ng_k.z);
+        my_pos.y =
+            (idx - (my_pos.x * local_ng_k.y * local_ng_k.z)) / local_ng_k.z;
+        my_pos.z = (idx - (my_pos.x * local_ng_k.y * local_ng_k.z)) -
+                   my_pos.y * local_ng_k.z;
+        my_pos.x += pos_k.x * local_ng_k.x;
+        my_pos.y += pos_k.y * local_ng_k.y;
+        my_pos.z += pos_k.z * local_ng_k.z;
+        return my_pos;
+    }
+
+#ifdef SWFFT_GPU
+    __host__ __device__
+#endif
+        int3
+        get_rs(int idx) {
+        int3 local_ng_k =
+            make_int3(m_process_topology_3.n[0], m_process_topology_3.n[1],
+                      m_process_topology_3.n[2]);
+        int3 pos_r = make_int3(m_process_topology_3.self[0],
+                               m_process_topology_3.self[1],
+                               m_process_topology_3.self[2]);
+        int3 my_pos;
+        my_pos.x = idx / (local_ng_k.y * local_ng_k.z);
+        my_pos.y =
+            (idx - (my_pos.x * local_ng_k.y * local_ng_k.z)) / local_ng_k.z;
+        my_pos.z = (idx - (my_pos.x * local_ng_k.y * local_ng_k.z)) -
+                   my_pos.y * local_ng_k.z;
+        my_pos.x += pos_r.x * local_ng_k.x;
+        my_pos.y += pos_r.y * local_ng_k.y;
+        my_pos.z += pos_r.z * local_ng_k.z;
+        return my_pos;
+    }
+};
+
 /**
  * @class Dfft
  * @brief Class to manage distributed FFT operations using MPI and FFT backends.
@@ -31,6 +88,7 @@ template <class MPI_T, class FFTBackend> class Dfft {
     int n[3];        /**< Dimensions of the data grid */
     distribution_t<complexDoubleHost, MPI_T> double_dist; /**< Dist (double) */
     distribution_t<complexFloatHost, MPI_T> float_dist;   /**< Dist (single) */
+    pairwise_dist3d m_dist3d;
 
     /**
      * @brief Template method to perform forward FFT.
@@ -77,6 +135,8 @@ template <class MPI_T, class FFTBackend> class Dfft {
      * @return int3 Coordinates of the current process.
      */
     int3 coords();
+
+    pairwise_dist3d dist3d();
 
     /**
      * @brief Get the k-space coordinates for a given index.

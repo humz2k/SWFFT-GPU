@@ -17,7 +17,9 @@ template <class MPI_T, class FFTBackend>
 Dfft<MPI_T, FFTBackend>::Dfft(MPI_Comm comm_, int nx, int ny, int nz)
     : comm(comm_), n{nx, ny, nz},
       double_dist(comm_, nx, ny, nz, DEBUG_CONDITION),
-      float_dist(comm_, nx, ny, nz, DEBUG_CONDITION) {}
+      float_dist(comm_, nx, ny, nz, DEBUG_CONDITION),
+      m_dist3d(double_dist.process_topology_2_z,
+               double_dist.process_topology_3) {}
 
 template <class MPI_T, class FFTBackend>
 int3 Dfft<MPI_T, FFTBackend>::coords() {
@@ -26,41 +28,18 @@ int3 Dfft<MPI_T, FFTBackend>::coords() {
 }
 
 template <class MPI_T, class FFTBackend>
+pairwise_dist3d Dfft<MPI_T, FFTBackend>::dist3d() {
+    return m_dist3d;
+}
+
+template <class MPI_T, class FFTBackend>
 int3 Dfft<MPI_T, FFTBackend>::get_ks(int idx) {
-    int3 local_ng_k = make_int3(double_dist.process_topology_2_z.n[0],
-                                double_dist.process_topology_2_z.n[1],
-                                double_dist.process_topology_2_z.n[2]);
-    int3 pos_k =
-        make_int3(double_dist.get_self_2d_z(0), double_dist.get_self_2d_z(1),
-                  double_dist.get_self_2d_z(2));
-    int3 my_pos;
-    my_pos.x = idx / (local_ng_k.y * local_ng_k.z);
-    my_pos.y = (idx - (my_pos.x * local_ng_k.y * local_ng_k.z)) / local_ng_k.z;
-    my_pos.z = (idx - (my_pos.x * local_ng_k.y * local_ng_k.z)) -
-               my_pos.y * local_ng_k.z;
-    my_pos.x += pos_k.x * local_ng_k.x;
-    my_pos.y += pos_k.y * local_ng_k.y;
-    my_pos.z += pos_k.z * local_ng_k.z;
-    return my_pos;
+    return m_dist3d.get_ks(idx);
 }
 
 template <class MPI_T, class FFTBackend>
 int3 Dfft<MPI_T, FFTBackend>::get_rs(int idx) {
-    int3 local_ng_k =
-        make_int3(double_dist.local_ng_3d(0), double_dist.local_ng_3d(1),
-                  double_dist.local_ng_3d(2));
-    int3 pos_r =
-        make_int3(double_dist.get_self_3d(0), double_dist.get_self_3d(1),
-                  double_dist.get_self_3d(2));
-    int3 my_pos;
-    my_pos.x = idx / (local_ng_k.y * local_ng_k.z);
-    my_pos.y = (idx - (my_pos.x * local_ng_k.y * local_ng_k.z)) / local_ng_k.z;
-    my_pos.z = (idx - (my_pos.x * local_ng_k.y * local_ng_k.z)) -
-               my_pos.y * local_ng_k.z;
-    my_pos.x += pos_r.x * local_ng_k.x;
-    my_pos.y += pos_r.y * local_ng_k.y;
-    my_pos.z += pos_r.z * local_ng_k.z;
-    return my_pos;
+    return m_dist3d.get_rs(idx);
 }
 
 template <class MPI_T, class FFTBackend>
