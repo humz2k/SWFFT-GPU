@@ -34,7 +34,7 @@ bool test(bool k_in_blocks, int ngx, int ngy_ = 0, int ngz_ = 0) {
             typeid(SWFFT_T).name(), typeid(T).name(), k_in_blocks, ngx, ngy,
             ngz);
     SWFFT_T my_swfft(MPI_COMM_WORLD, ngx, ngy, ngz, BLOCKSIZE, k_in_blocks);
-    // printf("my_swfft.buff_sz() = %d\n",my_swfft.buff_sz());
+
     T* data;
     swfftAlloc(&data, sizeof(T) * my_swfft.buff_sz());
     T* scratch;
@@ -42,21 +42,11 @@ bool test(bool k_in_blocks, int ngx, int ngy_ = 0, int ngz_ = 0) {
 
     bool out;
 
-    // int3 coords = my_swfft.coords();
-
-    // if (world_rank == 0){
-    // printf("rank = %d | coords: %d %d
-    // %d\n",world_rank,coords.x,coords.y,coords.z);
-    // }
-
     for (size_t i = 0; i < my_swfft.buff_sz(); i++) {
         int3 rs = my_swfft.get_rs(i);
         int tmp = rs.x * ngy * ngz + rs.y * ngz + rs.z;
         data[i].x = tmp;
         data[i].y = 0;
-        // if (world_rank == 0){
-        // printf("idx %d = %d\n",i,tmp);
-        //}
     }
     int global, local;
     for (int i = 0; i < 1; i++) {
@@ -69,8 +59,6 @@ bool test(bool k_in_blocks, int ngx, int ngy_ = 0, int ngz_ = 0) {
             int tmp = ks.x * ngy * ngz + ks.y * ngz + ks.z;
             if (((int)data[i].x) != tmp) {
                 local = 0;
-                // printf("rank %d: idx %d = %g not
-                // %d\n",world_rank,i,data[i].x,tmp);
                 break;
             }
         }
@@ -123,7 +111,6 @@ bool test(bool k_in_blocks, int ngx, int ngy_ = 0, int ngz_ = 0) {
     swfftFree(scratch);
 
     return out;
-    // return false;
 }
 
 int main(int argc, char** argv) {
