@@ -1,31 +1,28 @@
+
+# Build directories
 DFFT_BUILD_DIR ?= build
 DFFT_LIB_DIR ?= lib
 
-DFFT_PAIRWISE_LIB_DIR ?= $(DFFT_LIB_DIR)/pairwise
-DFFT_ALLTOALL_LIB_DIR ?= $(DFFT_LIB_DIR)/alltoall
-DFFT_FFT_LIB_DIR ?= $(DFFT_LIB_DIR)/fftbackends
-DFFT_HQFFT_LIB_DIR ?= $(DFFT_LIB_DIR)/hqfft
-DFFT_MPI_LIB_DIR ?= $(DFFT_LIB_DIR)/mpi
-DFFT_GPUDELEGATE_LIB_DIR ?= $(DFFT_LIB_DIR)/gpudelegate
-DFFT_BINDINGS_LIB_DIR ?= $(DFFT_LIB_DIR)/bindings
+# Output library
+DFFT_AR ?= libswfft.a
 
+# Source directories
+DFFT_TEST_DIR ?= test
+DFFT_SOURCE_DIR ?= src
+DFFT_INCLUDE_DIR ?= include
+
+# Platform
 DFFT_PLATFORM ?= unknown
 
-DFFT_AR ?= $(DFFT_LIB_DIR)/libswfft.a
-DFFT_ARC ?= $(DFFT_LIB_DIR)/libswfftc.so
-
-DFFT_CUDA_LIB ?= /usr/local/cuda/lib64
-DFFT_CUDA_INC ?= /usr/local/cuda/include
-
-DFFT_INCLUDE ?= -Iinclude -I$(DFFT_CUDA_INC)
-DFFT_LD ?= -L$(DFFT_CUDA_LIB)
-
+# CUDA settings
+CUDA_PATH ?= /usr/local/cuda
+DFFT_CUDA_LIB ?= $(CUDA_PATH)/lib64
+DFFT_CUDA_INC ?= $(CUDA_PATH)/include
 DFFT_CUDA_ARCH ?= -gencode=arch=compute_60,code=sm_60
-
 DFFT_CUDA_LD ?= -lcufft -lcudart
-
 DFFT_CUDA_FLAGS ?= -lineinfo -Xptxas -v -Xcompiler="-fPIC"
 
+# CUDA MPI settings
 USE_CUDAMPI ?= FALSE
 ifeq ($(USE_CUDAMPI), TRUE)
 DFFT_CUDA_MPI ?=
@@ -33,6 +30,11 @@ else
 DFFT_CUDA_MPI ?= -DSWFFT_NOCUDAMPI
 endif
 
+# Include/link settings
+DFFT_INCLUDE ?= -I$(DFFT_INCLUDE_DIR) -I$(DFFT_CUDA_INC) # -I$(DFFT_SOURCE_DIR)
+DFFT_LD ?= -L$(DFFT_CUDA_LIB)
+
+# GPU settings
 DFFT_GPU ?= CUDA
 USE_GPU ?= TRUE
 ifeq ($(USE_GPU), TRUE)
@@ -40,13 +42,19 @@ GPU_FLAG = -DSWFFT_GPU
 else
 GPU_FLAG =
 endif
+
+# Backend settings
 FFT_BACKEND ?= CUFFT FFTW
-DIST_BACKEND ?= ALLTOALL PAIRWISE HQFFT GPUDELEGATE
+DIST_BACKEND ?= ALLTOALL PAIRWISE HQFFT
+DFFT_FFT_BACKEND_DEFINES ?= $(FFT_BACKEND:%=-DSWFFT_%)
+DFFT_DIST_BACKEND_DEFINES ?= $(DIST_BACKEND:%=-DSWFFT_%)
 
-USE_OMP ?= FALSE
-
+# FFTW settings
 DFFT_FFTW_HOME ?= $(shell dirname $(shell dirname $(shell which fftw-wisdom)))
 DFFT_FFTW_CPPFLAGS ?= -I$(DFFT_FFTW_HOME)/include
+
+# OMP settings
+USE_OMP ?= FALSE
 ifeq ($(USE_OMP), TRUE)
 DFFT_FFTW_LDFLAGS ?= -L$(DFFT_FFTW_HOME)/lib -lfftw3_omp -lfftw3 -lfftw3f -lm
 DFFT_OPENMP ?= -fopenmp
@@ -55,75 +63,49 @@ DFFT_FFTW_LDFLAGS ?= -L$(DFFT_FFTW_HOME)/lib -lfftw3 -lfftw3f -lm
 DFFT_OPENMP ?=
 endif
 
-DFFT_FFT_BACKEND_DEFINES ?= $(FFT_BACKEND:%=-DSWFFT_%)
-DFFT_DIST_BACKEND_DEFINES ?= $(DIST_BACKEND:%=-DSWFFT_%)
-
+# Compilers
 DFFT_MPI_CC ?= mpicc -O3
-DFFT_MPI_CXX ?= mpicxx -O3
+DFFT_MPI_CXX ?= mpicxx -O3 -Wall -Wpedantic -Werror
 DFFT_CUDA_CC ?= nvcc -O3
 
-SOURCEDIR ?= src
+# Source files/objects
 ifeq ($(USE_GPU), TRUE)
-SOURCES := $(shell find $(SOURCEDIR) -name '*.cpp') $(shell find $(SOURCEDIR) -name '*.cu')
+SOURCES := $(shell find $(DFFT_SOURCE_DIR) -name '*.cpp') $(shell find $(DFFT_SOURCE_DIR) -name '*.cu')
 OBJECTS := $(SOURCES:%.cpp=%.o)
 OBJECTS := $(OBJECTS:%.cu=%.o)
-OUTPUTS := $(OBJECTS:src%=lib%)
+OUTPUTS := $(OBJECTS:%=$(DFFT_BUILD_DIR)/%)
 else
-SOURCES := $(shell find $(SOURCEDIR) -name '*.cpp')
+SOURCES := $(shell find $(DFFT_SOURCE_DIR) -name '*.cpp')
 OBJECTS := $(SOURCES:%.cpp=%.o)
-OUTPUTS := $(OBJECTS:src%=lib%)
+OUTPUTS := $(OBJECTS:%=$(DFFT_BUILD_DIR)/%)
 endif
 
+# Test files/objects
+TESTSOURCES := $(shell find $(DFFT_TEST_DIR) -name '*.cpp')
+TESTOBJECTS := $(TESTSOURCES:%.cpp=%.o)
 
-#$(patsubst .cpp,.o,$(wildcard src/**/*.cpp) $(wildcard src/*.cpp))
 .PHONY: main
 main: $(DFFT_BUILD_DIR)/testdfft $(DFFT_BUILD_DIR)/benchmark $(DFFT_BUILD_DIR)/testks $(DFFT_BUILD_DIR)/testalltoallgpu $(DFFT_BUILD_DIR)/harness
 
-.PHONY: swfftc
-swfftc: $(DFFT_ARC) $(DFFT_BUILD_DIR)/testdfftc
+.secondary: $(OUTPUTS) $(TESTOBJECTS)
 
-
-#$(DFFT_BUILD_DIR)/%: test/%.cpp | $(DFFT_AR) $(DFFT_BUILD_DIR)
-#	$(DFFT_MPI_CXX) $(GPU_FLAG) $(DFFT_CUDA_MPI) -D$(DFFT_GPU) $(DFFT_DIST_BACKEND_DEFINES) $(DFFT_FFT_BACKEND_DEFINES) $(DFFT_INCLUDE) $< $(DFFT_FFTW_LDFLAGS) -L$(DFFT_LIB_DIR) -lswfft -L$(DFFT_CUDA_LIB) $(DFFT_CUDA_LD) -o $@
-
-$(DFFT_BINDINGS_LIB_DIR)/%.o: bindings/%.cpp | $(DFFT_AR) $(DFFT_BUILD_DIR)
-	$(DFFT_MPI_CXX) -c -fPIC $(GPU_FLAG) $(DFFT_CUDA_MPI) -DSWFFT_$(DFFT_GPU) -DSWFFT_PLATFORM=$(DFFT_PLATFORM) $(DFFT_DIST_BACKEND_DEFINES) $(DFFT_FFT_BACKEND_DEFINES) $(DFFT_INCLUDE) $^ $(DFFT_FFTW_LDFLAGS) $(DFFT_OPENMP) -L$(DFFT_CUDA_LIB) $(DFFT_CUDA_LD) -o $@
-
-
-$(DFFT_BUILD_DIR)/%: test/%.cpp $(DFFT_AR) | $(DFFT_BUILD_DIR)
+$(DFFT_BUILD_DIR)/%: $(DFFT_BUILD_DIR)/$(DFFT_TEST_DIR)/%.o $(DFFT_LIB_DIR)/$(DFFT_AR)
+	mkdir -p $(@D)
 	$(DFFT_MPI_CXX) $(GPU_FLAG) $(DFFT_CUDA_MPI) -DSWFFT_$(DFFT_GPU) -DSWFFT_PLATFORM=$(DFFT_PLATFORM) $(DFFT_DIST_BACKEND_DEFINES) $(DFFT_FFT_BACKEND_DEFINES) $(DFFT_INCLUDE) $^ $(DFFT_FFTW_LDFLAGS) $(DFFT_OPENMP) -L$(DFFT_CUDA_LIB) $(DFFT_CUDA_LD) -fPIC -o $@
-
-$(DFFT_BUILD_DIR)/%: test/%.c $(DFFT_ARC) | $(DFFT_BUILD_DIR)
-	$(DFFT_MPI_CC) $(GPU_FLAG) $(DFFT_CUDA_MPI) -DSWFFT_$(DFFT_GPU) -DSWFFT_PLATFORM=$(DFFT_PLATFORM) $(DFFT_DIST_BACKEND_DEFINES) $(DFFT_FFT_BACKEND_DEFINES) $(DFFT_INCLUDE) $^ $(DFFT_FFTW_LDFLAGS) $(DFFT_OPENMP) -L$(DFFT_CUDA_LIB) $(DFFT_CUDA_LD) -fPIC -o $@
-
 
 .PHONY: clean
 clean:
 	rm -rf $(DFFT_BUILD_DIR)
 	rm -rf $(DFFT_LIB_DIR)
 
-$(DFFT_LIB_DIR):
-	mkdir -p $(DFFT_LIB_DIR)
-	mkdir -p $(DFFT_FFT_LIB_DIR)
-	mkdir -p $(DFFT_ALLTOALL_LIB_DIR)
-	mkdir -p $(DFFT_PAIRWISE_LIB_DIR)
-	mkdir -p $(DFFT_HQFFT_LIB_DIR)
-	mkdir -p $(DFFT_MPI_LIB_DIR)
-	mkdir -p $(DFFT_GPUDELEGATE_LIB_DIR)
-	mkdir -p $(DFFT_BINDINGS_LIB_DIR)
+$(DFFT_BUILD_DIR)/%.o: %.cpp
+	mkdir -p $(@D)
+	$(DFFT_MPI_CXX) -c -o $@ $< $(GPU_FLAG) $(DFFT_CUDA_MPI) -DSWFFT_$(DFFT_GPU) -DSWFFT_PLATFORM=$(DFFT_PLATFORM) $(DFFT_DIST_BACKEND_DEFINES) $(DFFT_FFT_BACKEND_DEFINES) $(DFFT_INCLUDE) $(DFFT_OPENMP) -fPIC
 
-$(DFFT_BUILD_DIR):
-	mkdir -p $(DFFT_BUILD_DIR)
+$(DFFT_BUILD_DIR)/%.o: %.cu
+	mkdir -p $(@D)
+	$(DFFT_CUDA_CC) -o $@ $< $(GPU_FLAG) $(DFFT_CUDA_MPI) -DSWFFT_$(DFFT_GPU) -DSWFFT_PLATFORM=$(DFFT_PLATFORM) $(DFFT_DIST_BACKEND_DEFINES) $(DFFT_FFT_BACKEND_DEFINES) $(DFFT_INCLUDE) $(DFFT_CUDA_FLAGS) $(DFFT_CUDA_ARCH) -c
 
-$(DFFT_LIB_DIR)/%.o: src/%.cpp | $(DFFT_LIB_DIR)
-	$(DFFT_MPI_CXX) $(GPU_FLAG) $(DFFT_CUDA_MPI) -DSWFFT_$(DFFT_GPU) -DSWFFT_PLATFORM=$(DFFT_PLATFORM) $(DFFT_DIST_BACKEND_DEFINES) $(DFFT_FFT_BACKEND_DEFINES) $(DFFT_INCLUDE) $(DFFT_OPENMP) -fPIC -c -o $@ $<
-
-$(DFFT_LIB_DIR)/%.o: src/%.cu | $(DFFT_LIB_DIR)
-	$(DFFT_CUDA_CC) $(GPU_FLAG) $(DFFT_CUDA_MPI) -DSWFFT_$(DFFT_GPU) -DSWFFT_PLATFORM=$(DFFT_PLATFORM) $(DFFT_DIST_BACKEND_DEFINES) $(DFFT_FFT_BACKEND_DEFINES) $(DFFT_INCLUDE) $(DFFT_CUDA_FLAGS) $(DFFT_CUDA_ARCH) -c -o $@ $<
-
-$(DFFT_AR): $(OUTPUTS) | $(DFFT_LIB_DIR)
+$(DFFT_LIB_DIR)/$(DFFT_AR): $(OUTPUTS)
+	mkdir -p $(@D)
 	ar cr $@ $^
-
-$(DFFT_ARC): $(DFFT_BINDINGS_LIB_DIR)/swfft_c.o $(DFFT_AR) | $(DFFT_LIB_DIR)
-	$(DFFT_MPI_CXX) $^ $(DFFT_FFTW_LDFLAGS) $(DFFT_OPENMP) -L$(DFFT_CUDA_LIB) $(DFFT_CUDA_LD) -fPIC --shared -o $@
-	

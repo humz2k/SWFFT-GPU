@@ -1,18 +1,30 @@
-#ifndef SWFFT_GPUSEEN
-#define SWFFT_GPUSEEN
+/**
+ * @file gpu.hpp
+ * @brief Header file for GPU-related operations and types in the SWFFT
+ * namespace.
+ */
+
+#ifndef _SWFFT_GPU_HPP_
+#define _SWFFT_GPU_HPP_
+
 #ifdef SWFFT_GPU
 #ifdef SWFFT_CUDA
 #include <cuda_runtime.h>
 #include <cufft.h>
 
-namespace SWFFT{
+namespace SWFFT {
+/**
+ * @typedef complexDoubleDevice
+ * @brief Type alias for double-precision complex numbers on GPU using CUDA.
+ */
 typedef cufftDoubleComplex complexDoubleDevice;
-typedef cufftComplex complexFloatDevice;
-}
 
-//#define complexDoubleDevice cufftDoubleComplex
-//#define complexFloatDevice cufftComplex
-//#define complexFFT_t cufftDoubleComplex
+/**
+ * @typedef complexFloatDevice
+ * @brief Type alias for single-precision complex numbers on GPU using CUDA.
+ */
+typedef cufftComplex complexFloatDevice;
+} // namespace SWFFT
 
 #define gpufftHandle cufftHandle
 
@@ -65,14 +77,14 @@ typedef cufftComplex complexFloatDevice;
 
 #define gpuStreamSynchronize cudaStreamSynchronize
 
-#define gpuLaunch(kernel,numBlocks,blockSize,...) kernel<<<numBlocks,blockSize>>>(__VA_ARGS__)
+#define gpuLaunch(kernel, numBlocks, blockSize, ...)                           \
+    kernel<<<numBlocks, blockSize>>>(__VA_ARGS__)
 
 #define gpuMemcpyAsync cudaMemcpyAsync
 
 #define gpuEventCreate cudaEventCreate
 
-
-#else 
+#else // SWFFT_CUDA
 
 #ifdef SWFFT_HIP
 
@@ -119,43 +131,82 @@ typedef cufftComplex complexFloatDevice;
 
 #define gpuFree hipFree
 
-#define gpuLaunch(kernel,numBlocks,blockSize,...) kernel<<<dim3(numBlocks),dim3(blockSize),0,0>>>(__VA_ARGS__)
+#define gpuLaunch(kernel, numBlocks, blockSize, ...)                           \
+    kernel<<<dim3(numBlocks), dim3(blockSize), 0, 0>>>(__VA_ARGS__)
 
-//#define gpuLaunch(kernel,numBlocks,blockSize,...) hipLaunchKernelGGL(kernel,dim3(numBlocks),dim3(blockSize),0,0,__VA_ARGS__)
+#endif // SWFFT_HIP
 
-#endif
+#endif // ~SWFFT_CUDA
 
-#endif
-namespace SWFFT{
-inline void swfftAlloc(complexDoubleDevice** ptr, size_t sz){
-    gpuMalloc(ptr,sz);
-}
-inline void swfftAlloc(complexFloatDevice** ptr, size_t sz){
-    gpuMalloc(ptr,sz);
-}
-inline void swfftFree(complexDoubleDevice* ptr){
-    gpuFree(ptr);
-}
-inline void swfftFree(complexFloatDevice* ptr){
-    gpuFree(ptr);
-}
+namespace SWFFT {
+
+/**
+ * @brief Allocates memory for an array of complexDoubleDevice structures on the
+ * GPU.
+ *
+ * @param ptr A pointer to the pointer that will hold the address of the
+ * allocated memory.
+ * @param sz The size of the memory to allocate.
+ */
+inline void swfftAlloc(complexDoubleDevice** ptr, size_t sz) {
+    gpuMalloc(ptr, sz);
 }
 
-#endif
-#ifndef SWFFT_GPU
-typedef struct {
+/**
+ * @brief Allocates memory for an array of complexFloatDevice structures on the
+ * GPU.
+ *
+ * @param ptr A pointer to the pointer that will hold the address of the
+ * allocated memory.
+ * @param sz The size of the memory to allocate.
+ */
+inline void swfftAlloc(complexFloatDevice** ptr, size_t sz) {
+    gpuMalloc(ptr, sz);
+}
+
+/**
+ * @brief Frees the memory allocated for an array of complexDoubleDevice
+ * structures on the GPU.
+ *
+ * @param ptr A pointer to the memory to free.
+ */
+inline void swfftFree(complexDoubleDevice* ptr) { gpuFree(ptr); }
+
+/**
+ * @brief Frees the memory allocated for an array of complexFloatDevice
+ * structures on the GPU.
+ *
+ * @param ptr A pointer to the memory to free.
+ */
+inline void swfftFree(complexFloatDevice* ptr) { gpuFree(ptr); }
+} // namespace SWFFT
+
+#else  // SWFFT_GPU
+/**
+ * @struct int3
+ * @brief A structure representing a 3-dimensional integer vector.
+ */
+struct int3 {
     int x;
     int y;
     int z;
-} int3;
+};
 
-inline int3 make_int3(int x, int y, int z){
+/**
+ * @brief Creates an int3 structure.
+ *
+ * @param x X component of the vector.
+ * @param y Y component of the vector.
+ * @param z Z component of the vector.
+ * @return int3 A structure representing a 3-dimensional integer vector.
+ */
+inline int3 make_int3(int x, int y, int z) {
     int3 out;
     out.x = x;
     out.y = y;
     out.z = z;
     return out;
 }
-#endif
-#endif
+#endif // ~SWFFT_GPU
 
+#endif // _SWFFT_GPU_HPP_
