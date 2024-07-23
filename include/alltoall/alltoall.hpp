@@ -7,13 +7,13 @@
 #define _SWFFT_ALLTOALL_HPP_
 #ifdef SWFFT_ALLTOALL
 
-#include "fftbackends/fftwrangler.hpp"
-#include "mpi/mpiwrangler.hpp"
-#include "reorder.hpp"
 #include "dfft.hpp"
 #include "distribution.hpp"
+#include "fftbackends/fftwrangler.hpp"
 #include "logging.hpp"
+#include "mpi/mpiwrangler.hpp"
 #include "query.hpp"
+#include "reorder.hpp"
 #include "swfft_backend.hpp"
 #include <mpi.h>
 

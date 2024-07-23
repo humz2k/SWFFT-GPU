@@ -7,4 +7,5 @@ clang-format -i test/*.hpp
 clang-format -i test/*.cpp
 clang-format -i examples/*.cpp
 clang-format -i include/*.hpp
+clang-format -i include/**/*.hpp
 clang-format -i include/*.h

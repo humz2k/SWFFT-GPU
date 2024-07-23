@@ -6,13 +6,13 @@
 #define _SWFFT_HQFFT_DFFT_HPP_
 #ifdef SWFFT_HQFFT
 
+#include "collectivecomm.hpp"
 #include "common/copy_buffers.hpp"
+#include "distribution.hpp"
 #include "fftbackends/fftwrangler.hpp"
+#include "hqfft_reorder.hpp"
 #include "mpi/mpi_isend_irecv.hpp"
 #include "mpi/mpiwrangler.hpp"
-#include "collectivecomm.hpp"
-#include "distribution.hpp"
-#include "hqfft_reorder.hpp"
 #include "query.hpp"
 #include "swfft_backend.hpp"
 #include <mpi.h>

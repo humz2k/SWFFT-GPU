@@ -6,14 +6,14 @@
 #define _SWFFT_HQFFT_HPP_
 #ifdef SWFFT_HQFFT
 
-#include "common/copy_buffers.hpp"
-#include "fftbackends/fftwrangler.hpp"
-#include "mpi/mpi_isend_irecv.hpp"
-#include "mpi/mpiwrangler.hpp"
 #include "collectivecomm.hpp"
+#include "common/copy_buffers.hpp"
 #include "dfft.hpp"
 #include "distribution.hpp"
+#include "fftbackends/fftwrangler.hpp"
 #include "hqfft_reorder.hpp"
+#include "mpi/mpi_isend_irecv.hpp"
+#include "mpi/mpiwrangler.hpp"
 #include "query.hpp"
 #include "swfft_backend.hpp"
 #include <mpi.h>
@@ -21,6 +21,14 @@
 
 namespace SWFFT {
 #ifdef SWFFT_GPU
+/**
+ * @class HQA2AGPU
+ * @brief Class to manage HQFFT distributed FFT operations (using an AllToAll
+ * communicator and reordering with the GPU).
+ *
+ * @tparam MPI_T MPI implementation type (e.g., CPUMPI, GPUMPI).
+ * @tparam FFTBackend FFT backend type (e.g., fftw, gpuFFT).
+ */
 template <class MPI_T, class FFTBackend> class HQA2AGPU : public Backend {
   private:
     HQFFT::Distribution<HQFFT::AllToAll, MPI_T, HQFFT::GPUReshape> dist;
@@ -235,6 +243,14 @@ template <class MPI_T, class FFTBackend> class HQA2AGPU : public Backend {
 
 template <> inline const char* queryName<HQA2AGPU>() { return "HQA2AGPU"; }
 
+/**
+ * @class HQPairGPU
+ * @brief Class to manage HQFFT distributed FFT operations (using an pairwise
+ * communicator and reordering with the GPU).
+ *
+ * @tparam MPI_T MPI implementation type (e.g., CPUMPI, GPUMPI).
+ * @tparam FFTBackend FFT backend type (e.g., fftw, gpuFFT).
+ */
 template <class MPI_T, class FFTBackend> class HQPairGPU : public Backend {
   private:
     HQFFT::Distribution<HQFFT::PairSends, MPI_T, HQFFT::GPUReshape> dist;
@@ -450,6 +466,14 @@ template <class MPI_T, class FFTBackend> class HQPairGPU : public Backend {
 template <> inline const char* queryName<HQPairGPU>() { return "HQPairGPU"; }
 #endif
 
+/**
+ * @class HQA2ACPU
+ * @brief Class to manage HQFFT distributed FFT operations (using an Alltoall
+ * communicator and reordering with the CPU).
+ *
+ * @tparam MPI_T MPI implementation type (e.g., CPUMPI, GPUMPI).
+ * @tparam FFTBackend FFT backend type (e.g., fftw, gpuFFT).
+ */
 template <class MPI_T, class FFTBackend> class HQA2ACPU : public Backend {
   private:
     HQFFT::Distribution<HQFFT::AllToAll, MPI_T, HQFFT::CPUReshape> dist;
@@ -672,6 +696,14 @@ template <class MPI_T, class FFTBackend> class HQA2ACPU : public Backend {
 
 template <> inline const char* queryName<HQA2ACPU>() { return "HQA2ACPU"; }
 
+/**
+ * @class HQPairCPU
+ * @brief Class to manage HQFFT distributed FFT operations (using an pairwise
+ * communicator and reordering with the CPU).
+ *
+ * @tparam MPI_T MPI implementation type (e.g., CPUMPI, GPUMPI).
+ * @tparam FFTBackend FFT backend type (e.g., fftw, gpuFFT).
+ */
 template <class MPI_T, class FFTBackend> class HQPairCPU : public Backend {
   private:
     HQFFT::Distribution<HQFFT::PairSends, MPI_T, HQFFT::CPUReshape> dist;

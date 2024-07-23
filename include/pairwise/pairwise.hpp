@@ -7,11 +7,11 @@
 #define _SWFFT_PAIRWISE_HPP_
 #ifdef SWFFT_PAIRWISE
 
-#include "fftbackends/fftwrangler.hpp"
-#include "mpi/mpiwrangler.hpp"
 #include "common.hpp"
 #include "dfft.hpp"
 #include "distribution.hpp"
+#include "fftbackends/fftwrangler.hpp"
+#include "mpi/mpiwrangler.hpp"
 #include "query.hpp"
 #include "swfft_backend.hpp"
 #include <mpi.h>

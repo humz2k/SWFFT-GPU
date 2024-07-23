@@ -8,11 +8,11 @@
 #define _SWFFT_ALLTOALL_DFFT_HPP_
 #ifdef SWFFT_ALLTOALL
 
-#include "fftbackends/fftwrangler.hpp"
-#include "mpi/mpiwrangler.hpp"
 #include "alltoall/reorder.hpp"
 #include "distribution.hpp"
+#include "fftbackends/fftwrangler.hpp"
 #include "logging.hpp"
+#include "mpi/mpiwrangler.hpp"
 #include "query.hpp"
 #include "swfft_backend.hpp"
 #include <mpi.h>

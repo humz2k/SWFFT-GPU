@@ -8,10 +8,10 @@
 #define _SWFFT_HQFFT_COLLECTIVECOMM_HPP_
 
 #include "common/copy_buffers.hpp"
-#include "mpi/mpi_isend_irecv.hpp"
-#include "mpi/mpiwrangler.hpp"
 #include "complex-type.hpp"
 #include "gpu.hpp"
+#include "mpi/mpi_isend_irecv.hpp"
+#include "mpi/mpiwrangler.hpp"
 
 namespace SWFFT {
 namespace HQFFT {
