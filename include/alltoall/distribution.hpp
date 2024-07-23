@@ -27,6 +27,27 @@ namespace A2A {
  * @tparam REORDER_T Reordering strategy type.
  */
 template <class MPI_T, class REORDER_T> class Distribution {
+  private:
+    /**
+     * @brief Get pencils from the buffer.
+     *
+     * @tparam T Data type of the buffer.
+     * @param Buff1 Input buffer.
+     * @param Buff2 Output buffer.
+     * @param dim Dimension index.
+     */
+    template <class T> inline void _get_pencils(T* Buff1, T* Buff2, int dim);
+
+    /**
+     * @brief Return pencils to the buffer.
+     *
+     * @tparam T Data type of the buffer.
+     * @param Buff1 Input buffer.
+     * @param Buff2 Output buffer.
+     * @param dim Dimension index.
+     */
+    template <class T> inline void _return_pencils(T* Buff1, T* Buff2, int dim);
+
   public:
     int ndims;              /**< Number of dimensions */
     int ng[3];              /**< Number of grid cells in each dimension */
@@ -98,16 +119,6 @@ template <class MPI_T, class REORDER_T> class Distribution {
      */
     MPI_Comm shuffle_comm(int n);
 
-    /**
-     * @brief Get pencils from the buffer.
-     *
-     * @tparam T Data type of the buffer.
-     * @param Buff1 Input buffer.
-     * @param Buff2 Output buffer.
-     * @param dim Dimension index.
-     */
-    template <class T> inline void getPencils_(T* Buff1, T* Buff2, int dim);
-
 #ifdef SWFFT_GPU
     /**
      * @brief Copy data between device buffers.
@@ -151,7 +162,7 @@ template <class MPI_T, class REORDER_T> class Distribution {
      * @param Buff2 Output buffer.
      * @param dim Dimension index.
      */
-    void getPencils(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2,
+    void get_pencils(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2,
                     int dim);
 
     /**
@@ -161,7 +172,7 @@ template <class MPI_T, class REORDER_T> class Distribution {
      * @param Buff2 Output buffer.
      * @param dim Dimension index.
      */
-    void getPencils(complexFloatDevice* Buff1, complexFloatDevice* Buff2,
+    void get_pencils(complexFloatDevice* Buff1, complexFloatDevice* Buff2,
                     int dim);
 #endif
     /**
@@ -171,7 +182,7 @@ template <class MPI_T, class REORDER_T> class Distribution {
      * @param Buff2 Output buffer.
      * @param dim Dimension index.
      */
-    void getPencils(complexDoubleHost* Buff1, complexDoubleHost* Buff2,
+    void get_pencils(complexDoubleHost* Buff1, complexDoubleHost* Buff2,
                     int dim);
 
     /**
@@ -181,17 +192,7 @@ template <class MPI_T, class REORDER_T> class Distribution {
      * @param Buff2 Output buffer.
      * @param dim Dimension index.
      */
-    void getPencils(complexFloatHost* Buff1, complexFloatHost* Buff2, int dim);
-
-    /**
-     * @brief Return pencils to the buffer.
-     *
-     * @tparam T Data type of the buffer.
-     * @param Buff1 Input buffer.
-     * @param Buff2 Output buffer.
-     * @param dim Dimension index.
-     */
-    template <class T> inline void returnPencils_(T* Buff1, T* Buff2, int dim);
+    void get_pencils(complexFloatHost* Buff1, complexFloatHost* Buff2, int dim);
 
 #ifdef SWFFT_GPU
     /**
@@ -201,7 +202,7 @@ template <class MPI_T, class REORDER_T> class Distribution {
      * @param Buff2 Output buffer.
      * @param dim Dimension index.
      */
-    void returnPencils(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2,
+    void return_pencils(complexDoubleDevice* Buff1, complexDoubleDevice* Buff2,
                        int dim);
 
     /**
@@ -211,7 +212,7 @@ template <class MPI_T, class REORDER_T> class Distribution {
      * @param Buff2 Output buffer.
      * @param dim Dimension index.
      */
-    void returnPencils(complexFloatDevice* Buff1, complexFloatDevice* Buff2,
+    void return_pencils(complexFloatDevice* Buff1, complexFloatDevice* Buff2,
                        int dim);
 #endif
     /**
@@ -221,7 +222,7 @@ template <class MPI_T, class REORDER_T> class Distribution {
      * @param Buff2 Output buffer.
      * @param dim Dimension index.
      */
-    void returnPencils(complexDoubleHost* Buff1, complexDoubleHost* Buff2,
+    void return_pencils(complexDoubleHost* Buff1, complexDoubleHost* Buff2,
                        int dim);
 
     /**
@@ -231,7 +232,7 @@ template <class MPI_T, class REORDER_T> class Distribution {
      * @param Buff2 Output buffer.
      * @param dim Dimension index.
      */
-    void returnPencils(complexFloatHost* Buff1, complexFloatHost* Buff2,
+    void return_pencils(complexFloatHost* Buff1, complexFloatHost* Buff2,
                        int dim);
 
 #ifdef SWFFT_GPU

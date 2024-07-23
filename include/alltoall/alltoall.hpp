@@ -22,17 +22,17 @@ template <class MPI_T, class FFTBackend> class AllToAllGPU;
 template <class MPI_T, class FFTBackend> class AllToAllCPU;
 
 #ifdef SWFFT_GPU
-template <> class dist3d_t<AllToAllGPU> : public A2A::alltoall_dist3d {
+template <> class dist3d_t<AllToAllGPU> : public A2A::alltoallDist3d {
   public:
-    using A2A::alltoall_dist3d::alltoall_dist3d;
-    dist3d_t(A2A::alltoall_dist3d in) : alltoall_dist3d(in) {}
+    using A2A::alltoallDist3d::alltoallDist3d;
+    dist3d_t(A2A::alltoallDist3d in) : alltoallDist3d(in) {}
 };
 #endif
 
-template <> class dist3d_t<AllToAllCPU> : public A2A::alltoall_dist3d {
+template <> class dist3d_t<AllToAllCPU> : public A2A::alltoallDist3d {
   public:
-    using A2A::alltoall_dist3d::alltoall_dist3d;
-    dist3d_t(A2A::alltoall_dist3d in) : A2A::alltoall_dist3d(in) {}
+    using A2A::alltoallDist3d::alltoallDist3d;
+    dist3d_t(A2A::alltoallDist3d in) : A2A::alltoallDist3d(in) {}
 };
 
 #ifdef SWFFT_GPU

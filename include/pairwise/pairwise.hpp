@@ -19,10 +19,10 @@
 namespace SWFFT {
 template <class MPI_T, class FFTBackend> class Pairwise;
 
-template <> class dist3d_t<Pairwise> : public PAIR::pairwise_dist3d {
+template <> class dist3d_t<Pairwise> : public PAIR::pairwiseDist3d {
   public:
-    using PAIR::pairwise_dist3d::pairwise_dist3d;
-    dist3d_t(PAIR::pairwise_dist3d in) : PAIR::pairwise_dist3d(in) {}
+    using PAIR::pairwiseDist3d::pairwiseDist3d;
+    dist3d_t(PAIR::pairwiseDist3d in) : PAIR::pairwiseDist3d(in) {}
 };
 
 /**

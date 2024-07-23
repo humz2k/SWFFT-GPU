@@ -25,28 +25,28 @@ template <class MPI_T, class FFTBackend> class HQA2ACPU;
 template <class MPI_T, class FFTBackend> class HQPairGPU;
 template <class MPI_T, class FFTBackend> class HQPairCPU;
 
-template <> class dist3d_t<HQA2AGPU> : public HQFFT::hqfft_dist3d {
+template <> class dist3d_t<HQA2AGPU> : public HQFFT::hqfftDist3d {
   public:
-    using HQFFT::hqfft_dist3d::hqfft_dist3d;
-    dist3d_t(HQFFT::hqfft_dist3d in) : HQFFT::hqfft_dist3d(in) {}
+    using HQFFT::hqfftDist3d::hqfftDist3d;
+    dist3d_t(HQFFT::hqfftDist3d in) : HQFFT::hqfftDist3d(in) {}
 };
 
-template <> class dist3d_t<HQPairGPU> : public HQFFT::hqfft_dist3d {
+template <> class dist3d_t<HQPairGPU> : public HQFFT::hqfftDist3d {
   public:
-    using HQFFT::hqfft_dist3d::hqfft_dist3d;
-    dist3d_t(HQFFT::hqfft_dist3d in) : HQFFT::hqfft_dist3d(in) {}
+    using HQFFT::hqfftDist3d::hqfftDist3d;
+    dist3d_t(HQFFT::hqfftDist3d in) : HQFFT::hqfftDist3d(in) {}
 };
 
-template <> class dist3d_t<HQA2ACPU> : public HQFFT::hqfft_dist3d {
+template <> class dist3d_t<HQA2ACPU> : public HQFFT::hqfftDist3d {
   public:
-    using HQFFT::hqfft_dist3d::hqfft_dist3d;
-    dist3d_t(HQFFT::hqfft_dist3d in) : HQFFT::hqfft_dist3d(in) {}
+    using HQFFT::hqfftDist3d::hqfftDist3d;
+    dist3d_t(HQFFT::hqfftDist3d in) : HQFFT::hqfftDist3d(in) {}
 };
 
-template <> class dist3d_t<HQPairCPU> : public HQFFT::hqfft_dist3d {
+template <> class dist3d_t<HQPairCPU> : public HQFFT::hqfftDist3d {
   public:
-    using HQFFT::hqfft_dist3d::hqfft_dist3d;
-    dist3d_t(HQFFT::hqfft_dist3d in) : HQFFT::hqfft_dist3d(in) {}
+    using HQFFT::hqfftDist3d::hqfftDist3d;
+    dist3d_t(HQFFT::hqfftDist3d in) : HQFFT::hqfftDist3d(in) {}
 };
 
 #ifdef SWFFT_GPU

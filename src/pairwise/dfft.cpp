@@ -28,7 +28,7 @@ int3 Dfft<MPI_T, FFTBackend>::coords() {
 }
 
 template <class MPI_T, class FFTBackend>
-pairwise_dist3d Dfft<MPI_T, FFTBackend>::dist3d() {
+pairwiseDist3d Dfft<MPI_T, FFTBackend>::dist3d() {
     return m_dist3d;
 }
 

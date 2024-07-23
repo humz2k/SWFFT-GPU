@@ -21,7 +21,7 @@
 namespace SWFFT {
 namespace HQFFT {
 
-class hqfft_dist3d {
+class hqfftDist3d {
   private:
     bool m_ks_as_block;
     int m_local_grid_size[3];
@@ -32,7 +32,7 @@ class hqfft_dist3d {
     int m_coords[3];
 
   public:
-    hqfft_dist3d(bool ks_as_block, int local_grid_size[],
+    hqfftDist3d(bool ks_as_block, int local_grid_size[],
                  int local_coords_start[], int nlocal, int ng[], int dims[],
                  int coords[])
         : m_ks_as_block(ks_as_block), m_local_grid_size{local_grid_size[0],
@@ -189,12 +189,12 @@ class Dfft {
     int ng[3];
     int nlocal;
     bool k_in_blocks;
-    hqfft_dist3d m_dist3d;
+    hqfftDist3d m_dist3d;
 
     Dfft(Dist<CollectiveComm, MPI_T, REORDER_T>& dist_, bool k_in_blocks_);
     ~Dfft();
 
-    hqfft_dist3d dist3d();
+    hqfftDist3d dist3d();
     int3 get_ks(int idx);
     int3 get_rs(int idx);
 
