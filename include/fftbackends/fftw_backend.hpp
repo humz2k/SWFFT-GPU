@@ -69,9 +69,19 @@ template <class T, class plan_t> class FFTWPlanWrapper {
  */
 class FFTWPlanManager : public FFTBackend_T {
   private:
-    void* h_data;     /**< Pointer to the host data buffer */
-    void* h_scratch;  /**< Pointer to the host scratch buffer */
-    size_t last_size; /**< Size of the last allocated buffer */
+    void* m_h_data;     /**< Pointer to the host data buffer */
+    void* m_h_scratch;  /**< Pointer to the host scratch buffer */
+    size_t m_last_size; /**< Size of the last allocated buffer */
+
+    /**
+     * @brief Array of cached FFTW plans for double-precision data.
+     */
+    FFTWPlanWrapper<fftw_complex, fftw_plan> m_double_plans[N_FFT_CACHE];
+
+    /**
+     * @brief Array of cached FFTW plans for single-precision data.
+     */
+    FFTWPlanWrapper<fftwf_complex, fftwf_plan> m_float_plans[N_FFT_CACHE];
 
     /**
      * @brief Allocate memory for host buffers.
@@ -79,31 +89,6 @@ class FFTWPlanManager : public FFTBackend_T {
      * @param sz Size of the buffer to allocate.
      */
     void allocate_host(size_t sz);
-
-  public:
-    /**
-     * @brief Array of cached FFTW plans for double-precision data.
-     */
-    FFTWPlanWrapper<fftw_complex, fftw_plan> double_plans[N_FFT_CACHE];
-    /**
-     * @brief Array of cached FFTW plans for single-precision data.
-     */
-    FFTWPlanWrapper<fftwf_complex, fftwf_plan> float_plans[N_FFT_CACHE];
-
-    /**
-     * @brief Query the FFTW backend.
-     */
-    void query();
-
-    /**
-     * @brief Constructor for FFTWPlanManager.
-     */
-    FFTWPlanManager();
-
-    /**
-     * @brief Destructor for FFTWPlanManager.
-     */
-    ~FFTWPlanManager();
 
     /**
      * @brief Find or create an FFTW plan for double-precision data.
@@ -130,6 +115,22 @@ class FFTWPlanManager : public FFTBackend_T {
      */
     fftwf_plan find_plan(fftwf_complex* data, fftwf_complex* scratch, int ng,
                          int nFFTs, int direction);
+
+  public:
+    /**
+     * @brief Query the FFTW backend.
+     */
+    void query();
+
+    /**
+     * @brief Constructor for FFTWPlanManager.
+     */
+    FFTWPlanManager();
+
+    /**
+     * @brief Destructor for FFTWPlanManager.
+     */
+    ~FFTWPlanManager();
 
     /**
      * @brief Perform forward FFT on host with double-precision FFTW data.

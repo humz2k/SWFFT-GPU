@@ -51,15 +51,15 @@ static const char* _cudaGetErrorEnum(cufftResult error) {
 
 GPUPlanManager::GPUPlanManager() {
     for (int i = 0; i < N_FFT_CACHE; i++) {
-        plans[i].valid = false;
-        plans[i].plan = 0;
+        m_plans[i].valid = false;
+        m_plans[i].plan = 0;
     }
 }
 
 GPUPlanManager::~GPUPlanManager() {
     for (int i = 0; i < N_FFT_CACHE; i++) {
-        if (plans[i].valid) {
-            if (gpufftDestroy(plans[i].plan) != GPUFFT_SUCCESS) {
+        if (m_plans[i].valid) {
+            if (gpufftDestroy(m_plans[i].plan) != GPUFFT_SUCCESS) {
                 printf("CUFFT error: Couldn't destory plan!\n");
             }
         }
@@ -70,22 +70,22 @@ void GPUPlanManager::query() { printf("Using gpuFFT\n"); }
 
 gpufftHandle GPUPlanManager::find_plan(int ng, int nFFTs, gpufftType t) {
     for (int i = 0; i < N_FFT_CACHE; i++) {
-        if (plans[i].valid) {
-            if ((plans[i].ng == ng) && (plans[i].nFFTs == nFFTs) &&
-                (plans[i].t == t)) {
-                return plans[i].plan;
+        if (m_plans[i].valid) {
+            if ((m_plans[i].ng == ng) && (m_plans[i].nFFTs == nFFTs) &&
+                (m_plans[i].t == t)) {
+                return m_plans[i].plan;
             }
         } else {
-            plans[i].valid = true;
-            plans[i].ng = ng;
-            plans[i].nFFTs = nFFTs;
-            plans[i].t = t;
-            if (gpufftPlan1d(&plans[i].plan, ng, t, nFFTs) != GPUFFT_SUCCESS) {
+            m_plans[i].valid = true;
+            m_plans[i].ng = ng;
+            m_plans[i].nFFTs = nFFTs;
+            m_plans[i].t = t;
+            if (gpufftPlan1d(&m_plans[i].plan, ng, t, nFFTs) != GPUFFT_SUCCESS) {
                 printf("CUFFT error: Plan creation failed with (ng = %d, nFFTs "
                        "= %d)\n",
                        ng, nFFTs);
             }
-            return plans[i].plan;
+            return m_plans[i].plan;
         }
     }
     printf("Out of space for plans!\n");
