@@ -1,0 +1,240 @@
+/**
+ * @file pairwise/dfft.hpp
+ * @brief Header file for distributed FFT classes and functions in the SWFFT
+ * namespace.
+ */
+
+#ifndef _SWFFT_PAIRWISE_DFFT_HPP_
+#define _SWFFT_PAIRWISE_DFFT_HPP_
+
+#include "fftbackends/fftwrangler.hpp"
+#include "mpi/mpiwrangler.hpp"
+#include "common.hpp"
+#include "distribution.hpp"
+#include "query.hpp"
+#include <mpi.h>
+
+namespace SWFFT {
+namespace PAIR {
+
+/**
+ * @class Dfft
+ * @brief Class to manage distributed FFT operations using MPI and FFT backends.
+ *
+ * @tparam MPI_T MPI implementation type (e.g., CPUMPI, GPUMPI).
+ * @tparam FFTBackend FFT backend type (e.g., FFTW, cuFFT).
+ */
+template <class MPI_T, class FFTBackend> class Dfft {
+  private:
+    MPI_Comm comm;   /**< MPI communicator */
+    FFTBackend FFTs; /**< FFT backend */
+    int n[3];        /**< Dimensions of the data grid */
+    distribution_t<complexDoubleHost, MPI_T> double_dist; /**< Dist (double) */
+    distribution_t<complexFloatHost, MPI_T> float_dist;   /**< Dist (single) */
+
+    /**
+     * @brief Template method to perform forward FFT.
+     *
+     * @tparam T Data type of the buffer elements.
+     * @param data Pointer to the data buffer.
+     */
+    template <class T> void _forward(T* data);
+
+    /**
+     * @brief Template method to perform backward FFT.
+     *
+     * @tparam T Data type of the buffer elements.
+     * @param data Pointer to the data buffer.
+     */
+    template <class T> void _backward(T* data);
+
+  public:
+    /**
+     * @brief Constructor for Dfft.
+     *
+     * @param comm_ MPI communicator.
+     * @param nx Number of grid cells in the x dimension.
+     * @param ny Number of grid cells in the y dimension.
+     * @param nz Number of grid cells in the z dimension.
+     */
+    Dfft(MPI_Comm comm_, int nx, int ny, int nz);
+
+    /**
+     * @brief Destructor for Dfft.
+     */
+    ~Dfft();
+
+    /**
+     * @brief Get the buffer size required for FFT operations.
+     *
+     * @return int Buffer size.
+     */
+    int buff_sz();
+
+    /**
+     * @brief Get the coordinates of the current process.
+     *
+     * @return int3 Coordinates of the current process.
+     */
+    int3 coords();
+
+    /**
+     * @brief Get the k-space coordinates for a given index.
+     *
+     * @param idx Index of the coordinate.
+     * @return int3 k-space coordinates.
+     */
+    int3 get_ks(int idx);
+
+    /**
+     * @brief Get the real-space coordinates for a given index.
+     *
+     * @param idx Index of the coordinate.
+     * @return int3 Real-space coordinates.
+     */
+    int3 get_rs(int idx);
+
+    /**
+     * @brief Get the number of processes in 3D distribution for a given
+     * direction.
+     *
+     * @param direction Direction index (0 for x, 1 for y, 2 for z).
+     * @return int Number of processes.
+     */
+    int get_nproc_3d(int direction);
+
+    /**
+     * @brief Get the local number of grid cells in 3D for a given direction.
+     *
+     * @param direction Direction index (0 for x, 1 for y, 2 for z).
+     * @return int Local number of grid cells.
+     */
+    int get_local_ng_3d(int direction);
+
+#ifdef SWFFT_GPU
+    /**
+     * @brief Perform forward FFT on host with double-precision complex data.
+     *
+     * @param data Pointer to the data buffer.
+     */
+    void forward(complexDoubleDevice* data);
+
+    /**
+     * @brief Perform forward FFT on host with single-precision complex data.
+     *
+     * @param data Pointer to the data buffer.
+     */
+    void forward(complexFloatDevice* data);
+
+    /**
+     * @brief Perform backward FFT on host with double-precision complex data.
+     *
+     * @param data Pointer to the data buffer.
+     */
+    void backward(complexDoubleDevice* data);
+
+    /**
+     * @brief Perform backward FFT on host with single-precision complex data.
+     *
+     * @param data Pointer to the data buffer.
+     */
+    void backward(complexFloatDevice* data);
+
+    /**
+     * @brief Perform forward FFT on host with double-precision complex data.
+     *
+     * @param data Pointer to the data buffer.
+     * @param scratch Pointer to the scratch buffer.
+     */
+    void forward(complexDoubleDevice* data, complexDoubleDevice* scratch);
+
+    /**
+     * @brief Perform forward FFT on host with single-precision complex data.
+     *
+     * @param data Pointer to the data buffer.
+     * @param scratch Pointer to the scratch buffer.
+     */
+    void forward(complexFloatDevice* data, complexFloatDevice* scratch);
+
+    /**
+     * @brief Perform backward FFT on host with double-precision complex data.
+     *
+     * @param data Pointer to the data buffer.
+     * @param scratch Pointer to the scratch buffer.
+     */
+    void backward(complexDoubleDevice* data, complexDoubleDevice* scratch);
+
+    /**
+     * @brief Perform backward FFT on host with single-precision complex data.
+     *
+     * @param data Pointer to the data buffer.
+     * @param scratch Pointer to the scratch buffer.
+     */
+    void backward(complexFloatDevice* data, complexFloatDevice* scratch);
+#endif
+
+    /**
+     * @brief Perform forward FFT on host with double-precision complex data.
+     *
+     * @param data Pointer to the data buffer.
+     * @param scratch Pointer to the scratch buffer.
+     */
+    void forward(complexDoubleHost* data, complexDoubleHost* scratch);
+
+    /**
+     * @brief Perform forward FFT on host with single-precision complex data.
+     *
+     * @param data Pointer to the data buffer.
+     * @param scratch Pointer to the scratch buffer.
+     */
+    void forward(complexFloatHost* data, complexFloatHost* scratch);
+
+    /**
+     * @brief Perform backward FFT on host with double-precision complex data.
+     *
+     * @param data Pointer to the data buffer.
+     * @param scratch Pointer to the scratch buffer.
+     */
+    void backward(complexDoubleHost* data, complexDoubleHost* scratch);
+
+    /**
+     * @brief Perform backward FFT on host with single-precision complex data.
+     *
+     * @param data Pointer to the data buffer.
+     * @param scratch Pointer to the scratch buffer.
+     */
+    void backward(complexFloatHost* data, complexFloatHost* scratch);
+
+    /**
+     * @brief Perform forward FFT on host with double-precision complex data.
+     *
+     * @param data Pointer to the data buffer.
+     */
+    void forward(complexDoubleHost* data);
+
+    /**
+     * @brief Perform forward FFT on host with single-precision complex data.
+     *
+     * @param data Pointer to the data buffer.
+     */
+    void forward(complexFloatHost* data);
+
+    /**
+     * @brief Perform backward FFT on host with double-precision complex data.
+     *
+     * @param data Pointer to the data buffer.
+     */
+    void backward(complexDoubleHost* data);
+
+    /**
+     * @brief Perform backward FFT on host with single-precision complex data.
+     *
+     * @param data Pointer to the data buffer.
+     */
+    void backward(complexFloatHost* data);
+};
+
+} // namespace PAIR
+} // namespace SWFFT
+
+#endif // _SWFFT_PAIRWISE_DFFT_HPP_

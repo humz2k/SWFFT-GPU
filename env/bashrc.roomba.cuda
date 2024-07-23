@@ -1,0 +1,17 @@
+export DFFT_PLATFORM="roomba"
+
+export CUDA_HOME=/usr/local/cuda-10.2
+
+export CUDA_PATH="${CUDA_HOME}"
+
+export DFFT_CUDA_ARCH="-gencode arch=compute_70,code=sm_70"
+export DFFT_CUDA_FLAGS="-Xcompiler -O3,-fopenmp,-g -gencode arch=compute_70,code=sm_70"
+
+export DFFT_MPI_CC=mpicc -O3
+export DFFT_MPI_CXX=mpicxx -O3
+export DFFT_CUDA_CC=nvcc -O3
+
+#export USE_CUDAMPI="TRUE"
+export USE_GPU="TRUE"
+export DFFT_GPU="CUDA"
+export USE_OMP="TRUE"

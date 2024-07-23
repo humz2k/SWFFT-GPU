@@ -31,7 +31,7 @@ DFFT_CUDA_MPI ?= -DSWFFT_NOCUDAMPI
 endif
 
 # Include/link settings
-DFFT_INCLUDE ?= -I$(DFFT_INCLUDE_DIR) -I$(DFFT_CUDA_INC)
+DFFT_INCLUDE ?= -I$(DFFT_INCLUDE_DIR) -I$(DFFT_CUDA_INC) # -I$(DFFT_SOURCE_DIR)
 DFFT_LD ?= -L$(DFFT_CUDA_LIB)
 
 # GPU settings
@@ -65,7 +65,7 @@ endif
 
 # Compilers
 DFFT_MPI_CC ?= mpicc -O3
-DFFT_MPI_CXX ?= mpicxx -O3 -Wall -Wpedantic
+DFFT_MPI_CXX ?= mpicxx -O3 -Wall -Wpedantic -Werror
 DFFT_CUDA_CC ?= nvcc -O3
 
 # Source files/objects

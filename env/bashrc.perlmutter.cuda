@@ -8,8 +8,7 @@ export DFFT_PLATFORM="perlmutter"
 
 export CRAY_ACCEL_TARGET=nvidia80
 
-export DFFT_CUDA_INC="${CUDA_HOME}/include"
-export DFFT_CUDA_LIB="${CUDA_HOME}/lib64"
+export CUDA_PATH="${CUDA_HOME}"
 
 export DFFT_CUDA_ARCH="-gencode arch=compute_80,code=sm_80"
 export DFFT_CUDA_FLAGS="-Xcompiler -O3,-fopenmp,-g -gencode arch=compute_80,code=sm_80"
