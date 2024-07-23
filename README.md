@@ -1,21 +1,26 @@
-# SWFFT-GPU (WIP)
+# SWFFT-GPU
+
+SWFFT is a scalable, high-performance 3D Fast Fourier Transform (FFT) library designed for distributed-memory parallel systems. It supports CUDA-Aware MPI and uses FFTW and cuFFT as backends.
+
+### Features
+* High Performance: Optimized for distributed-memory parallel systems using MPI.
+* Flexible FFT Backends: Supports both FFTW (CPU) and cuFFT (GPU), and can easily be modified to use other backends.
+* GPU Acceleration: Leverages GPU capabilities for FFT computations and reordering.
+* Multiple Communication Strategies: Includes various types of All-to-All and Pairwise communication methods.
 
 ## Building
 
-### System Requirements
+### Prerequesites
+* C++ Compiler (C++11 or later)
+* CUDA Compiler (unless building for CPU only mode)
+* MPI (tested with MPICH and OpenMPI, CUDA-Aware MPI optional)
+* One (or both) of
+    * fftw
+    * cuFFT (hipFFT support is untested)
 
-**Required**
+### Building with `make`
 
-* MPI (gpu-aware MPI optional)
-
-**Optional**
-
-* fftw (double and single precision)
-* cuFFT/hipFFT
-
-### Makefiles
-
-Use the `makefile` to build the library and tests. This will create two directories, `lib` and `build`. Tests/benchmarks are placed in `build`, and `libswfft.a` is placed in `lib`.
+Use the `makefile` to build the library and tests. This will create two directories, `lib` and `build`. Tests/benchmarks are placed in `build`, and `libswfft.a` is placed in `lib`. Recommended usage: link against `libswfft.a` and include `swfft.hpp`.
 
 #### Examples
 
@@ -60,14 +65,12 @@ All the options are as follows
 make FFT_BACKEND="FFTW CUFFT" DIST_BACKEND="ALLTOALL PAIRWISE HQFFT GPUDELEGATE" USE_GPU=TRUE|FALSE (default = TRUE) USE_OMP=TRUE|FALSE (default = FALSE) USE_CUDAMPI=TRUE|FALSE (default = False)
 ```
 
-### Environment Variables
+#### Make Variables
 
-The environment variables used by the build system and their defaults are as follows:
+The Make variables used by the build system and their defaults are as follows:
 
-```
-DFFT_CUDA_LIB ?= /usr/local/cuda/lib64
-
-DFFT_CUDA_INC ?= /usr/local/cuda/include
+```makefile
+CUDA_PATH ?= /usr/local/cuda
 
 DFFT_CUDA_ARCH ?= -gencode=arch=compute_60,code=sm_60
 
@@ -80,136 +83,68 @@ DFFT_MPI_CXX ?= mpicxx -O3
 DFFT_CUDA_CC ?= nvcc -O3
 ```
 
-# Tests/Benchmarks
+### Building with `cmake`
+Coming soon (maybe...)
 
-Running `mpirun -n <n> build/testdfft <ngx> [ngy ngz]` will test all possible configurations of swfft that were compiled.
+## Usage
 
-# Interface
+### Configuring SWFFT headers
+```c++
+#include <stdio.h>
+#include <stdlib.h>
+#include <mpi.h>
 
-### Macros
-```
-SWFFT_GPU
+#define SWFFT_GPU
+#define SWFFT_CUFFT
+#define SWFFT_ALLTOALL
 
-SWFFT_ALLTOALL
-SWFFT_PAIRWISE
-SWFFT_HQFFT
-SWFFT_GPUDELEGATE
+#include "swfft.hpp"
 
-SWFFT_FFTW
-SWFFT_CUFFT
-```
-
-### Backend Options
-```
-DistBackend = SWFFT::AllToAllCPU | SWFFT::AllToAllGPU | SWFFT::Pairwise | SWFFT::HQPairGPU | SWFFT::HQA2AGPU | SWFFT::HQPairCPU | SWFFT::HQA2ACPU | SWFFT::GPUDelegate
-
-MPI_T = SWFFT::CPUMPI | SWFFT::GPUMPI //GPUMPI is WIP
-
-FFTBackend = SWFFT::gpuFFT | SWFFT::fftw
+using namespace SWFFT;
 ```
 
-### Constructors
-```
-SWFFT::swfft<DistBackend,MPI_T,FFTBackend> my_swfft(MPI_Comm comm, int ngx, int blockSize = 64, bool ks_as_block = true);
-
-OR
-
-SWFFT::swfft<DistBackend,MPI_T,FFTBackend> my_swfft(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize = 64, bool ks_as_block = true);
+### Initializing CPU threads
+```c++
+swfft_init_threads(4);
 ```
 
-### Accessors
-```
-my_swfft.get_ks(int idx) -> int3
-
-my_swfft.get_rs(int idx) -> int3
-
-my_swfft.ngx() -> int
-
-my_swfft.ngy() -> int
-
-my_swfft.ngz() -> int
-
-my_swfft.ng() -> int3
-
-my_swfft.ng(int direction) -> int
-
-my_swfft.local_ngx() -> int
-
-my_swfft.local_ngy() -> int
-
-my_swfft.local_ngz() -> int
-
-my_swfft.local_ng() -> int3
-
-my_swfft.local_ng(int direction) -> int
-
-my_swfft.coords() -> int3
-
-my_swfft.dims() -> int3
-
-my_swfft.comm() -> MPI_Comm
-
-my_swfft.rank() OR my_swfft.world_rank() -> int
-
-my_swfft.world_size() -> int
-
-my_swfft.global_size() -> int
-
-my_swfft.local_size() -> int
-
-my_swfft.buff_sz() -> int
-
-my_swfft.query() -> void (prints useful information)
+### Creating a SWFFT instance
+```c++
+swfft<AllToAllGPU,CPUMPI,gpuFFT> my_swfft(MPI_COMM_WORLD,256,256,256,64);
 ```
 
-### Configure
-```
-(only for GPUDelegate backend)
-
-my_swfft.set_nsends(int nsends) -> void
-
-my_swfft.set_delegate(int rank) -> void
+### Querying the SWFFT configuration
+```c++
+my_swfft.query(); // prints information
 ```
 
-### FFT
-```
-datatype = SWFFT::complexDoubleDevice | SWFFT::complexFloatDevice | SWFFT::complexDoubleHost | SWFFT::complexFloatHost
+### Allocating/Freeing SWFFT buffers
+```c++
+complexDoubleHost* data;
+swfftAlloc(&data, sizeof(complexDoubleHost) * my_swfft.buff_sz());
+complexDoubleHost* scratch;
+swfftAlloc(&scratch, sizeof(complexDoubleHost) * my_swfft.buff_sz());
 
-my_swfft.forward(datatype* data, datatype* scratch) -> void
+// ...
 
-my_swfft.backward(datatype* data, datatype* scratch) -> void
-
-my_swfft.forward(datatype* data) -> void
-
-my_swfft.backward(datatype* data) -> void
-
-my_swfft.synchronize() -> void (only for GPUDelegate backend)
+swfftFree(data);
+swfftFree(scratch);
 ```
 
-### Timings
-```
-struct SWFFT::timing_stats_t{
-    double max;
-    double min;
-    double sum;
-    double avg;
-    double var;
-    double stdev;
-}
-
-my_swfft.printLastTime() -> timing_stats_t (prints the time for the last FFT)
-
-my_swfft.getLastTime() -> timing_stats_t
+### Performing FFT Operations
+```c++
+my_swfft.forward(data,scratch);
+my_swfft.backward(data,scratch);
 ```
 
-### Threading
-```
-swfft_init_threads(int nthreads = 0) -> void
+### Querying index position in k-space/real-space
+```c++
+int3 ks = my_swfft.get_ks(0);
+int3 rs = my_swfft.get_rs(0);
 ```
 
-# Minimal example
-
-```
+## Minimal example
+```c++
 #include <stdio.h>
 #include <stdlib.h>
 #include <mpi.h>
@@ -233,9 +168,7 @@ int test(){
     printf("for rank %d, index 0 is at (%d %d %d) in kspace\n",my_swfft.rank(),this_position_in_kspace.x,this_position_in_kspace.y,this_position_in_kspace.z);
 
     my_swfft.forward(data,scratch);
-    my_swfft.synchronize(); //only important if using the GPUDelegate backend!
     my_swfft.backward(data,scratch);
-    my_swfft.synchronize();
 
     swfftFree(data);
     swfftFree(scratch);
@@ -251,4 +184,121 @@ int main(){
 
     return 0;
 }
+```
+
+## Tests/Benchmarks
+
+Running `mpirun -n <n> build/testdfft <ngx> [ngy ngz]` will test all possible configurations of swfft that were compiled.
+
+## Interface
+
+### Macros
+```
+SWFFT_GPU
+
+SWFFT_ALLTOALL
+SWFFT_PAIRWISE
+SWFFT_HQFFT
+
+SWFFT_FFTW
+SWFFT_CUFFT
+```
+
+### Backend Options
+```
+DistBackend = SWFFT::AllToAllCPU | SWFFT::AllToAllGPU | SWFFT::Pairwise | SWFFT::HQPairGPU | SWFFT::HQA2AGPU | SWFFT::HQPairCPU | SWFFT::HQA2ACPU
+
+MPI_T = SWFFT::CPUMPI | SWFFT::GPUMPI
+
+FFTBackend = SWFFT::gpuFFT | SWFFT::fftw
+```
+
+### Constructors
+```c++
+SWFFT::swfft<DistBackend,MPI_T,FFTBackend> my_swfft(MPI_Comm comm, int ngx, int blockSize = 64, bool ks_as_block = true);
+```
+or
+```
+SWFFT::swfft<DistBackend,MPI_T,FFTBackend> my_swfft(MPI_Comm comm, int ngx, int ngy, int ngz, int blockSize = 64, bool ks_as_block = true);
+```
+
+### Accessors
+```c++
+int3 my_swfft.get_ks(int idx);
+
+int3 my_swfft.get_rs(int idx);
+
+int my_swfft.ngx();
+
+int my_swfft.ngy();
+
+int my_swfft.ngz();
+
+int3 my_swfft.ng();
+
+int my_swfft.ng(int direction);
+
+int my_swfft.local_ngx();
+
+int my_swfft.local_ngy();
+
+int my_swfft.local_ngz();
+
+int3 my_swfft.local_ng();
+
+int my_swfft.local_ng(int direction);
+
+int3 my_swfft.coords();
+
+int3 my_swfft.dims();
+
+MPI_Comm my_swfft.comm();
+
+int my_swfft.rank();
+
+int my_swfft.world_rank();
+
+int my_swfft.world_size();
+
+int my_swfft.global_size();
+
+int my_swfft.local_size();
+
+size_t my_swfft.buff_sz();
+
+void my_swfft.query(); // prints useful information
+```
+
+### FFT
+```c++
+datatype = SWFFT::complexDoubleDevice | SWFFT::complexFloatDevice | SWFFT::complexDoubleHost | SWFFT::complexFloatHost
+
+void my_swfft.forward(datatype* data, datatype* scratch);
+
+void my_swfft.backward(datatype* data, datatype* scratch);
+
+void my_swfft.forward(datatype* data);
+
+void my_swfft.backward(datatype* data);
+```
+
+### Timings
+```c++
+struct SWFFT::timing_stats_t{
+    double max;
+    double min;
+    double sum;
+    double avg;
+    double var;
+    double stdev;
+}
+
+timing_stats_t my_swfft.printLastTime(); // prints the time for the last FFT
+
+timing_stats_t my_swfft.getLastTime();
+```
+
+### Threading
+```c++
+void swfft_init_threads(int nthreads = 0);
 ```
