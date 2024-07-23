@@ -72,6 +72,10 @@ The Make variables used by the build system and their defaults are as follows:
 ```makefile
 CUDA_PATH ?= /usr/local/cuda
 
+# This is only used for certain tests.
+# If you are only compiling build/testdfft, you can set this to blank.
+DFFT_MPI_INCLUDE ?= -I/usr/include/x86_64-linux-gnu/mpich
+
 DFFT_CUDA_ARCH ?= -gencode=arch=compute_60,code=sm_60
 
 DFFT_FFTW_HOME ?= $(shell dirname $(shell dirname $(shell which fftw-wisdom)))
