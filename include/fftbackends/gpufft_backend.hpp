@@ -20,12 +20,6 @@
 
 namespace SWFFT {
 /**
- * @enum fftdirection
- * @brief Enum to define FFT directions.
- */
-enum fftdirection { FFT_FORWARD, FFT_BACKWARD };
-
-/**
  * @class GPUPlanWrapper
  * @brief Class to wrap GPU FFT plan details.
  */
@@ -174,9 +168,9 @@ typedef GPUPlanManager gpuFFT;
  */
 template <> inline const char* queryName<gpuFFT>() { return "gpuFFT"; }
 
+} // namespace SWFFT
+
 #endif // SWFFT_GPU
 #endif // SWFFT_CUFFT
-
-} // namespace SWFFT
 
 #endif // _SWFFT_GPUFFT_BACKEND_HPP_

@@ -42,17 +42,13 @@ inline int swfft_init_threads(int nthreads = 0) {
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-#ifdef _OPENMP
-    int omt = omp_get_max_threads();
-#endif
-
 #ifdef SWFFT_FFTW
     int out = 1;
 #ifdef _OPENMP
     if (nthreads != 0) {
         out = swfft_fftw_init_threads(nthreads);
     } else {
-        out = swfft_fftw_init_threads(omt);
+        out = swfft_fftw_init_threads(omp_get_max_threads());
     }
 
 #endif

@@ -24,8 +24,9 @@ namespace A2A {
  * @param mini_pencil_size Size of the mini pencil.
  * @return int Mini pencil index.
  */
+static
 #ifdef SWFFT_GPU
-static __forceinline__ __host__ __device__
+    __forceinline__ __host__ __device__
 #endif
     int
     calc_mini_pencil_idx(int i, int mini_pencils_per_rank, int world_size,

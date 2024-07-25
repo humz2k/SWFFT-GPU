@@ -11,6 +11,12 @@
 
 namespace SWFFT {
 /**
+ * @enum fftdirection
+ * @brief Enum to define FFT directions.
+ */
+enum fftdirection { FFT_FORWARD, FFT_BACKWARD };
+
+/**
  * @class FFTBackend_T
  * @brief Abstract base class for FFT backends in the SWFFT namespace.
  *

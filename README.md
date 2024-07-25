@@ -1,12 +1,11 @@
 # SWFFT-GPU
 
-SWFFT is a scalable, high-performance 3D Fast Fourier Transform (FFT) library designed for distributed-memory parallel systems. It supports CUDA-Aware MPI and uses FFTW and cuFFT as backends.
+SWFFT is a scalable, high-performance 3D Fast Fourier Transform (FFT) library designed for distributed-memory parallel systems. It supports CUDA-Aware MPI and uses FFTW and cuFFT as FFT backends.
 
 ### Features
-* High Performance: Optimized for distributed-memory parallel systems using MPI.
-* Flexible FFT Backends: Supports both FFTW (CPU) and cuFFT (GPU), and can easily be modified to use other backends.
-* GPU Acceleration: Leverages GPU capabilities for FFT computations and reordering.
-* Multiple Communication Strategies: Includes various types of All-to-All and Pairwise communication methods.
+* CPU and GPU FFT Backends: Supports both FFTW (CPU) and cuFFT (GPU), and can easily be modified to use other backends.
+* GPU Acceleration: CUDA-Aware MPI and GPU accelerated FFTs and reordering operations.
+* Multiple Communication Strategies: Various types of All-to-All and Pairwise communication methods.
 
 ## Building
 

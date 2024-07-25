@@ -77,6 +77,10 @@ bool test(bool k_in_blocks, int ngx, int ngy_ = 0, int ngz_ = 0) {
     swfftFree(data);
     swfftFree(scratch);
 
+    if (!out) {
+        exit(1);
+    }
+
     return out;
     // return false;
 }

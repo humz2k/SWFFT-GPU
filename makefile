@@ -66,7 +66,7 @@ endif
 
 # Compilers
 DFFT_MPI_CC ?= mpicc -O3
-DFFT_MPI_CXX ?= mpicxx -O3 -Wall -Wpedantic -Werror
+DFFT_MPI_CXX ?= mpicxx -O3 -std=c++11 -Wall -Wpedantic -Werror -Wno-error=unused-function
 DFFT_CUDA_CC ?= nvcc -O3
 
 # Source files/objects
